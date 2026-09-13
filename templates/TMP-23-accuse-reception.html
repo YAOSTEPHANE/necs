@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accusé de réception — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Preuve transmission</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-AR-2026-0502</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Accusé de réception / preuve de transmission</h2>
+          <p>Document transmis, destinataire, canal, date/heure et statut.</p>
+        </div>
+        <div class="alert-note">Traçabilité des envois (offres, contrats, factures).</div>
+        <div class="section"><div class="section-title">Transmission</div><div class="form-grid"><div class="field"><label>Document transmis <span class="req">*</span></label><input type="text" name="document" value="" required /></div><div class="field"><label>Référence document <span class="req">*</span></label><input type="text" name="ref_doc" value="" required /></div><div class="field"><label>Destinataire <span class="req">*</span></label><input type="text" name="destinataire" value="" required /></div><div class="field"><label>Canal</label><select name="canal"><option>Email</option><option>Portail client</option><option>Remise en main propre</option><option>Courrier</option></select></div><div class="field"><label>Date / heure <span class="req">*</span></label><input type="datetime-local" name="datetime" value="" required /></div><div class="field"><label>Statut</label><select name="statut"><option>Envoyé</option><option>Reçu</option><option>Ouvert</option><option>Échec</option></select></div><div class="field full"><label>Preuve / identifiant technique</label><textarea name="preuve"></textarea></div></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Émetteur NECS</h4>
+      <p>Transmission</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Destinataire</h4>
+      <p>Accusé</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-AR-2026-0502 · Date : <span data-today></span> · Module : CRM / Finance
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

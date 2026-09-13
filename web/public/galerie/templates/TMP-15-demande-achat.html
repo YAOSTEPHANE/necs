@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demande d’achat — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Achat interne</span>
+          <p class="meta-line">N° <strong>NECS-DA-2026-0199</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">En validation</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Bon de commande interne / demande d’achat</h2>
+          <p>Demandeur, site, articles, quantités, justification, validation et fournisseur.</p>
+        </div>
+        <div class="alert-note">Circuit de validation configurable (SEC-02).</div>
+        <div class="section"><div class="section-title">Demande</div><div class="form-grid"><div class="field"><label>Demandeur <span class="req">*</span></label><input type="text" name="demandeur" value="" required /></div><div class="field"><label>Site <span class="req">*</span></label><input type="text" name="site" value="" required /></div><div class="field"><label>Date besoin</label><input type="date" name="date_besoin" value="" /></div><div class="field"><label>Fournisseur proposé</label><input type="text" name="fournisseur" value="" /></div><div class="field full"><label>Justification <span class="req">*</span></label><textarea name="justif" required></textarea></div></div></div><div class="section"><div class="section-title">Articles</div><table class="data-table"><thead><tr><th>Article</th><th>Qté</th><th>Unité</th><th>Estimation</th><th>Urgence</th></tr></thead><tbody><tr><td><input value="Serpillères microfibre" /></td><td><input value="30" /></td><td><input value="Pce" /></td><td><input value="45 000" /></td><td><select><option>Normale</option><option>Haute</option></select></td></tr><tr><td><input value="Gants nitrile" /></td><td><input value="100" /></td><td><input value="Paire" /></td><td><input value="28 000" /></td><td><select><option>Haute</option><option>Normale</option></select></td></tr></tbody></table></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Demandeur</h4>
+      <p>Émission</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Approbateur</h4>
+      <p>Validation budgétaire</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-DA-2026-0199 · Date : <span data-today></span> · Module : Opérations / Achats
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

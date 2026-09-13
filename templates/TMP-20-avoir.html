@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avoir — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Avoir</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-AVO-2026-0015</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Avoir</h2>
+          <p>Référence facture initiale, motif, lignes concernées, montant, validation et traçabilité.</p>
+        </div>
+        <div class="alert-note">Toute modification d’un document validé crée une nouvelle version.</div>
+        <div class="section"><div class="section-title">Avoir</div><div class="form-grid"><div class="field"><label>Facture initiale <span class="req">*</span></label><input type="text" name="facture_ref" value="NECS-FAC-2026-0450" required /></div><div class="field"><label>Date avoir <span class="req">*</span></label><input type="date" name="date" value="" required /></div><div class="field full"><label>Motif <span class="req">*</span></label><textarea name="motif" required></textarea></div><div class="field"><label>Montant HT <span class="req">*</span></label><input type="number" name="montant" value="" required /></div></div></div><div class="section"><div class="section-title">Lignes concernées</div><table class="data-table"><thead><tr><th>Ligne</th><th>Qté</th><th>Montant</th></tr></thead><tbody><tr><td><input value="Ajustement prestation J21 non réalisée" /></td><td><input value="1" /></td><td><input class="num" value="25 000" /></td></tr></tbody></table></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Finance</h4>
+      <p>Émission avoir</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Direction</h4>
+      <p>Validation</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-AVO-2026-0015 · Date : <span data-today></span> · Module : Finance
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

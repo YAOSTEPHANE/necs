@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demande de visite technique — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Visite</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-WEB-VISITE</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Demande de visite technique</h2>
+          <p>Planification d’une visite pour collecter surfaces, zones, contraintes et observations.</p>
+        </div>
+        <div class="alert-note">Alimente CRM-03 — checklist et rapport validable.</div>
+        <div class="section"><div class="section-title">Coordonnées</div><div class="form-grid"><div class="field"><label>Nom / Entreprise <span class="req">*</span></label><input type="text" name="nom" value="" required /></div><div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" name="tel" value="" required /></div><div class="field"><label>Email <span class="req">*</span></label><input type="email" name="email" value="" required /></div><div class="field full"><label>Adresse du site <span class="req">*</span></label><input type="text" name="adresse" value="" required /></div></div></div><div class="section"><div class="section-title">Planification</div><div class="form-grid"><div class="field"><label>Date souhaitée <span class="req">*</span></label><input type="date" name="date" value="" required /></div><div class="field"><label>Créneau</label><select name="creneau"><option>Matin</option><option>Après-midi</option><option>Indifférent</option></select></div><div class="field"><label>Type de locaux</label><select name="type"><option>Bureaux</option><option>Industrie</option><option>Commerce</option><option>Autre</option></select></div><div class="field full"><label>Informations utiles</label><textarea name="infos"></textarea></div></div></div><div style="margin-top:1.5rem"><button class="btn btn-primary" type="button">Demander une visite</button></div>
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-WEB-VISITE · Date : <span data-today></span> · Module : Marketing / Commercial
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

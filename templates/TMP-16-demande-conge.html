@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demande de congé — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Absence</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-RH-ABS-2026-411</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Demande de congé / absence</h2>
+          <p>Collaborateur, période, motif, validation et impact planning.</p>
+        </div>
+        <div class="alert-note">Impact planning détecté et historisé (RH-06 / OPS-02).</div>
+        <div class="section"><div class="section-title">Demande</div><div class="form-grid"><div class="field"><label>Collaborateur <span class="req">*</span></label><input type="text" name="collab" value="" required /></div><div class="field"><label>Matricule</label><input type="text" name="matricule" value="" /></div><div class="field"><label>Type <span class="req">*</span></label><select name="type" required><option>Congé payé</option><option>Permission</option><option>Maladie</option><option>Autre</option></select></div><div class="field"><label>Du <span class="req">*</span></label><input type="date" name="debut" value="" required /></div><div class="field"><label>Au <span class="req">*</span></label><input type="date" name="fin" value="" required /></div><div class="field"><label>Nombre de jours</label><input type="number" name="jours" value="" /></div><div class="field full"><label>Motif</label><textarea name="motif"></textarea></div><div class="field"><label>Remplaçant proposé</label><input type="text" name="remplacant" value="" /></div><div class="field"><label>Impact planning</label><div class="readonly-box">À calculer automatiquement</div></div></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Collaborateur</h4>
+      <p>Demande</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Manager / RH</h4>
+      <p>Décision</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-RH-ABS-2026-411 · Date : <span data-today></span> · Module : RH
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

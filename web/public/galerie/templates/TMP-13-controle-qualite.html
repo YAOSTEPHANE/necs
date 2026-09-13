@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiche contrôle qualité — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Qualité</span>
+          <p class="meta-line">N° <strong>NECS-QA-2026-0278</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">Maquette</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Fiche de contrôle qualité</h2>
+          <p>Critères, notation, observations, photos, non-conformités, actions correctives et validation.</p>
+        </div>
+        <div class="alert-note">Contrôle réalisable sur mobile (Q-01). Scores, seuils, photos et périodicité.</div>
+        <div class="section"><div class="section-title">Contexte</div><div class="form-grid"><div class="field"><label>Site <span class="req">*</span></label><input type="text" name="site" value="" required /></div><div class="field"><label>Prestation contrôlée <span class="req">*</span></label><input type="text" name="prestation" value="" required /></div><div class="field"><label>Date / heure <span class="req">*</span></label><input type="datetime-local" name="datetime" value="" required /></div><div class="field"><label>Contrôleur <span class="req">*</span></label><input type="text" name="controleur" value="" required /></div><div class="field"><label>Score global /100</label><input type="number" name="score" value="0" /></div><div class="field"><label>Seuil minimal</label><input type="number" name="seuil" value="80" /></div></div></div><div class="section"><div class="section-title">Grille de notation</div>
+    <div class="score-row"><strong>Zone / critère</strong><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+    <div class="score-row"><span>Sols & circulation</span><label><input type="radio" name="q1" value="1" /></label><label><input type="radio" name="q1" value="2" /></label><label><input type="radio" name="q1" value="3" /></label><label><input type="radio" name="q1" value="4" /></label><label><input type="radio" name="q1" value="5" /></label></div><div class="score-row"><span>Sanitaires</span><label><input type="radio" name="q2" value="1" /></label><label><input type="radio" name="q2" value="2" /></label><label><input type="radio" name="q2" value="3" /></label><label><input type="radio" name="q2" value="4" /></label><label><input type="radio" name="q2" value="5" /></label></div><div class="score-row"><span>Bureaux / postes</span><label><input type="radio" name="q3" value="1" /></label><label><input type="radio" name="q3" value="2" /></label><label><input type="radio" name="q3" value="3" /></label><label><input type="radio" name="q3" value="4" /></label><label><input type="radio" name="q3" value="5" /></label></div><div class="score-row"><span>Vitrerie</span><label><input type="radio" name="q4" value="1" /></label><label><input type="radio" name="q4" value="2" /></label><label><input type="radio" name="q4" value="3" /></label><label><input type="radio" name="q4" value="4" /></label><label><input type="radio" name="q4" value="5" /></label></div><div class="score-row"><span>Odeurs / hygiène</span><label><input type="radio" name="q5" value="1" /></label><label><input type="radio" name="q5" value="2" /></label><label><input type="radio" name="q5" value="3" /></label><label><input type="radio" name="q5" value="4" /></label><label><input type="radio" name="q5" value="5" /></label></div><div class="score-row"><span>Finitions</span><label><input type="radio" name="q6" value="1" /></label><label><input type="radio" name="q6" value="2" /></label><label><input type="radio" name="q6" value="3" /></label><label><input type="radio" name="q6" value="4" /></label><label><input type="radio" name="q6" value="5" /></label></div></div><div class="section"><div class="section-title">Non-conformités & actions</div><div class="form-grid"><div class="field full"><label>Écarts constatés</label><textarea name="ecarts"></textarea></div><div class="field full"><label>Actions correctives</label><textarea name="actions"></textarea></div><div class="field"><label>Échéance corrective</label><input type="date" name="echeance" value="" /></div><div class="field"><label>Responsable action</label><input type="text" name="resp_action" value="" /></div></div></div><div class="section"><div class="section-title">Preuves photos</div><div class="photo-slots"><div class="photo-slot">Photo 1</div><div class="photo-slot">Photo 2</div><div class="photo-slot">Photo 3</div><div class="photo-slot">Photo 4</div></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Qualité / Superviseur</h4>
+      <p>Contrôle</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Opérations</h4>
+      <p>Traitement écarts</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-QA-2026-0278 · Date : <span data-today></span> · Module : Qualité
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

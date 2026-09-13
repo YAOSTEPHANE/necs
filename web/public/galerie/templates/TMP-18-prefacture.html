@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Préfacture — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Préfacturation</span>
+          <p class="meta-line">N° <strong>NECS-PF-2026-0112</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">En validation</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Préfacture / état des prestations facturables</h2>
+          <p>Période, contrat, prestations réalisées, quantités, écarts, ajustements et validation.</p>
+        </div>
+        <div class="alert-note">Rapprochement prestations / contrat avant facturation (FIN-02).</div>
+        <div class="section"><div class="section-title">Cadre</div><div class="form-grid"><div class="field"><label>Client <span class="req">*</span></label><input type="text" name="client" value="" required /></div><div class="field"><label>Contrat <span class="req">*</span></label><input type="text" name="contrat" value="" required /></div><div class="field"><label>Période du <span class="req">*</span></label><input type="date" name="debut" value="" required /></div><div class="field"><label>au <span class="req">*</span></label><input type="date" name="fin" value="" required /></div></div></div><div class="section"><div class="section-title">Prestations facturables</div><table class="data-table"><thead><tr><th>Prestation</th><th>Prévu</th><th>Réalisé</th><th>Écart</th><th>Ajustement</th><th>Montant</th></tr></thead><tbody><tr><td><input value="Entretien quotidien" /></td><td><input value="22" /></td><td><input value="21" /></td><td><input value="-1" /></td><td><input value="0" /></td><td><input class="num" value="525 000" /></td></tr><tr><td><input value="Consommables" /></td><td><input value="1" /></td><td><input value="1" /></td><td><input value="0" /></td><td><input value="0" /></td><td><input class="num" value="75 000" /></td></tr></tbody></table></div><div class="totals"><div class="totals-row grand"><span>Total préfacturé HT</span><span>600 000 FCFA</span></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Opérations</h4>
+      <p>Contrôle réalisations</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Finance</h4>
+      <p>Validation préfacture</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-PF-2026-0112 · Date : <span data-today></span> · Module : Finance / Opérations
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

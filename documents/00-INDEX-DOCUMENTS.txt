@@ -1,0 +1,43 @@
+NECS / NECLEANING & SERVICES SARL
+Bibliothèque de documents Word — Validation client
+============================================================
+
+Documents premium (contenu complet avec exemples) :
+  - TMP-01-Proposition-de-services.docx
+  - TMP-02-Devis.docx
+  - TMP-05-Contrat-de-prestation.docx
+  - TMP-19-Facture.docx
+
+Autres templates métier (TMP-03 à TMP-25 + DIG) :
+  - TMP-03-Bon-de-commande.docx
+  - TMP-04-Bon-de-livraison.docx
+  - TMP-06-Avenant-contrat.docx
+  - TMP-07-Contrat-agent.docx
+  - TMP-08-Fiche-de-poste.docx
+  - TMP-09-Dossier-embauche.docx
+  - TMP-10-Entretien-candidat.docx
+  - TMP-11-Onboarding.docx
+  - TMP-12-Ordre-de-travail.docx
+  - TMP-13-Controle-qualite.docx
+  - TMP-14-Rapport-prestation.docx
+  - TMP-15-Demande-achat.docx
+  - TMP-16-Demande-conge.docx
+  - TMP-17-Pointage.docx
+  - TMP-18-Prefacture.docx
+  - TMP-20-Avoir.docx
+  - TMP-21-Releve-compte.docx
+  - TMP-22-Relance-client.docx
+  - TMP-23-Accuse-reception.docx
+  - TMP-24-Rapport-mensuel.docx
+  - TMP-25-Visite-technique.docx
+  - DIG-01-Demande-devis-web.docx
+  - DIG-02-Contact-web.docx
+  - DIG-03-Demande-visite.docx
+
+Total : 28 documents
+
+Instructions :
+1. Ouvrir les fichiers .docx avec Microsoft Word ou LibreOffice
+2. Remplacer les mentions entre [crochets] par les infos réelles NECS
+3. Exporter en PDF depuis Word si besoin (Fichier > Enregistrer sous > PDF)
+4. Présenter au client pour validation avant développement de la plateforme

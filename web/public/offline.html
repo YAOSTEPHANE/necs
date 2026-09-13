@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a3a72" />
+    <title>Hors ligne — NECS</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --blue: #0a3a72;
+        --green: #4faf2a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        font-family: Figtree, system-ui, sans-serif;
+        color: #0a2540;
+        background:
+          radial-gradient(900px 420px at 10% 0%, rgba(18, 96, 168, 0.18), transparent 55%),
+          radial-gradient(700px 380px at 100% 100%, rgba(79, 175, 42, 0.14), transparent 50%),
+          #f4f7fb;
+      }
+      main {
+        width: min(420px, 100%);
+        text-align: center;
+      }
+      img {
+        width: 72px;
+        height: 72px;
+        border-radius: 16px;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(10, 58, 114, 0.16);
+      }
+      h1 {
+        margin: 1.25rem 0 0.5rem;
+        font-size: 1.55rem;
+        letter-spacing: -0.03em;
+      }
+      p {
+        margin: 0;
+        color: #64748b;
+        line-height: 1.5;
+      }
+      button {
+        margin-top: 1.35rem;
+        border: none;
+        border-radius: 12px;
+        padding: 0.85rem 1.25rem;
+        font: inherit;
+        font-weight: 700;
+        color: #fff;
+        background: linear-gradient(115deg, var(--blue), #1260a8 55%, var(--green));
+        cursor: pointer;
+        box-shadow: 0 12px 24px rgba(10, 58, 114, 0.22);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/icons/icon-192.png" alt="NECS" width="72" height="72" />
+      <h1>Vous êtes hors ligne</h1>
+      <p>
+        La connexion réseau est indisponible. Vérifiez votre accès Internet,
+        puis réessayez.
+      </p>
+      <button type="button" onclick="location.reload()">Réessayer</button>
+    </main>
+  </body>
+</html>

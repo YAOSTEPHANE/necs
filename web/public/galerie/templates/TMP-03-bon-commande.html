@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bon de commande — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Bon de commande</span>
+          <p class="meta-line">N° <strong>NECS-BC-2026-0088</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">Maquette</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Bon de commande client</h2>
+          <p>Référence client, prestations commandées, quantités, dates, site, conditions et validation.</p>
+        </div>
+        <div class="alert-note">Relié au devis accepté et au contrat. Traçabilité des validations obligatoire.</div>
+        <div class="section"><div class="section-title">Identification</div><div class="form-grid"><div class="field"><label>Client / Prospect <span class="req">*</span></label><input type="text" name="client" value="" required /></div><div class="field"><label>Site / Localisation <span class="req">*</span></label><input type="text" name="site" value="" required /></div><div class="field"><label>Contact principal</label><input type="text" name="contact" value="" /></div><div class="field"><label>Téléphone</label><input type="tel" name="phone" value="" /></div><div class="field"><label>Email</label><input type="email" name="email" value="" /></div><div class="field"><label>Réf. contrat / opportunité</label><input type="text" name="opp_ref" value="" /></div></div></div><div class="section"><div class="section-title">Commande</div><div class="form-grid"><div class="field"><label>N° devis lié <span class="req">*</span></label><input type="text" name="devis_ref" value="" required /></div><div class="field"><label>Date de commande <span class="req">*</span></label><input type="date" name="date_cmd" value="" required /></div><div class="field"><label>Date de début souhaitée</label><input type="date" name="date_debut" value="" /></div><div class="field"><label>Priorité</label><select name="priorite"><option>Normale</option><option>Haute</option><option>Urgente</option></select></div><div class="field full"><label>Conditions</label><textarea name="conditions"></textarea></div></div></div><div class="section"><div class="section-title">Prestations commandées</div><table class="data-table"><thead><tr><th>Prestation</th><th>Qté</th><th>Date</th><th>Site</th><th>Statut</th></tr></thead><tbody><tr><td><input value="Démarrage entretien bureaux" /></td><td><input value="1" /></td><td><input type="date" /></td><td><input value="Siège client" /></td><td><select><option>En attente</option><option>Validé</option></select></td></tr></tbody></table></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Commercial</h4>
+      <p>Émission</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Opérations</h4>
+      <p>Prise en charge</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-BC-2026-0088 · Date : <span data-today></span> · Module : Commercial / Opérations
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

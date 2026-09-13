@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lettre / email de relance — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Relance</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-REL-2026-0077</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Lettre / email de relance client</h2>
+          <p>Références factures, montants dus, échéances, historique et niveau de relance.</p>
+        </div>
+        <div class="alert-note">Scénarios de relance et escalade (FIN-05).</div>
+        <div class="section"><div class="section-title">Relance</div><div class="form-grid"><div class="field"><label>Client <span class="req">*</span></label><input type="text" name="client" value="" required /></div><div class="field"><label>Niveau de relance <span class="req">*</span></label><select name="niveau" required><option>R1 — Amiable</option><option>R2 — Fermeté</option><option>R3 — Mise en demeure</option><option>R4 — Escalade direction</option></select></div><div class="field"><label>Canal</label><select name="canal"><option>Email</option><option>Courrier</option><option>Appel + email</option></select></div><div class="field"><label>Date d’envoi</label><input type="date" name="date" value="" /></div><div class="field full"><label>Objet</label><input type="text" name="objet" value="Relance de paiement — factures échues" /></div><div class="field full"><label>Corps du message <span class="req">*</span></label><textarea name="corps" required>Madame, Monsieur,
+
+Sauf erreur de notre part, les factures ci-dessous restent dues. Nous vous remercions de procéder au règlement ou de nous indiquer la date de paiement prévue.
+
+Cordialement,
+Service Recouvrement — NECS SARL</textarea></div></div></div><div class="section"><div class="section-title">Factures concernées</div><table class="data-table"><thead><tr><th>Facture</th><th>Échéance</th><th>Montant dû</th><th>Jours de retard</th></tr></thead><tbody><tr><td><input value="NECS-FAC-2026-0450" /></td><td><input type="date" /></td><td><input value="175 000" /></td><td><input value="12" /></td></tr></tbody></table></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Recouvrement</h4>
+      <p>Émetteur</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Direction</h4>
+      <p>Visa si escalade</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-REL-2026-0077 · Date : <span data-today></span> · Module : Finance / Recouvrement
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiche de pointage — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Présence</span>
+          <p class="meta-line">N° <strong>NECS-PTG-2026-9001</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">Maquette</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Fiche de pointage / relevé de présence</h2>
+          <p>Agent, site, date, arrivée, départ, anomalies, validation et export.</p>
+        </div>
+        <div class="alert-note">Anti-double-pointage et rapprochement planning (OPS-04). Offline possible selon étude.</div>
+        <div class="section"><div class="section-title">Contexte</div><div class="form-grid"><div class="field"><label>Agent <span class="req">*</span></label><input type="text" name="agent" value="" required /></div><div class="field"><label>Site <span class="req">*</span></label><input type="text" name="site" value="" required /></div><div class="field"><label>Date <span class="req">*</span></label><input type="date" name="date" value="" required /></div><div class="field"><label>Planning prévu</label><input type="text" name="planning" value="06:00 – 14:00" /></div></div></div><div class="section"><div class="section-title">Pointages</div><table class="data-table"><thead><tr><th>Type</th><th>Heure</th><th>Mode</th><th>Géo (si activée)</th><th>Anomalie</th></tr></thead><tbody><tr><td>Arrivée</td><td><input type="time" value="06:02" /></td><td><select><option>Mobile</option><option>Terminal</option></select></td><td><input value="OK" /></td><td><select><option>Aucune</option><option>Retard</option></select></td></tr><tr><td>Départ</td><td><input type="time" value="14:05" /></td><td><select><option>Mobile</option><option>Terminal</option></select></td><td><input value="OK" /></td><td><select><option>Aucune</option><option>Départ anticipé</option></select></td></tr></tbody></table></div><div class="section"><div class="section-title">Validation</div><div class="form-grid"><div class="field full"><label>Commentaire superviseur</label><textarea name="commentaire"></textarea></div><div class="field"><label>Statut validation</label><select name="statut"><option>À valider</option><option>Validé</option><option>Rejeté</option><option>Corrigé</option></select></div></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Agent</h4>
+      <p>Confirmation</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Superviseur / RH</h4>
+      <p>Validation relevé</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-PTG-2026-9001 · Date : <span data-today></span> · Module : Opérations / RH
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

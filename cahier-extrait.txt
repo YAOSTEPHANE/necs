@@ -1,0 +1,1021 @@
+pages=26
+
+===== PAGE 1 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+NECS 
+NECLEANING & SERVICES SARL  
+Propreté, Rigueur, Confiance  
+CAHIER DES CHARGES FONCTIONNEL ET TECHNIQUE  
+Digitalisation intégrée de NECS / NECLEANING & SERVICES SARL  
+De la prospection digitale à l’exécution, aux RH, à la qualité, à la facturation et au recouvrement  
+  
+
+===== PAGE 2 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+CARTOGRAPHIE DES PROCESSUS CIBLE  
+La cartographie ci-dessous présente le fonctionnement cible de NECS Cleaning & Services SARL 
+dans le cadre de la digitalisation de ses activités. Elle met en évidence l’enchaînement des 
+processus de l’acquisition du prospect jusqu’au pilotage de la performance, ainsi que les processus 
+supports transverses qui alimentent l’ensemble du système d’information.  
+ 
+Figure 1 – Cartographie des processus cible de NECS Cleaning & Services SARL  
+ 
+Cette cartographie constitue une vue macro de référence. Le prestataire devra la traduire dans 
+l’architecture fonctionnelle et technique de la solution, en précisant les interfaces, les flux de 
+données, les responsabilités des acteurs et les règles de gest ion associées.  
+ 
+1. Objet et vision 
+La plateforme devra constituer le système d’information métier central de la société de nettoyage, 
+couvrant le cycle Prospect → Contrat → Exploitation → RH → Qualité → Facturation → 
+
+
+===== PAGE 3 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Recouvrement. Elle devra également connecter les canaux digitaux de l’entreprise afin de 
+transformer les visiteurs et interactions web/sociales en leads exploitables dans le CRM.  
+2. Objectifs 
+● Supprimer les doubles saisies et les fichiers dispersés.  
+● Centraliser clients, sites, contrats, agents, prestations et factures.  
+● Automatiser les workflows et notifications.  
+● Permettre le pointage terrain multi -utilisateurs. 
+● Prévoir un fonctionnement offline/dégradé pour les fonctions terrain lorsque nécessaire.  
+● Concevoir une architecture évolutive au -delà du périmètre initial.  
+● Mesurer la performance commerciale, opérationnelle, RH, qualité et financière.  
+3. Parcours de bout en bout  
+● Site web / Facebook / autres canaux → capture du lead → CRM → qualification → visite 
+technique → chiffrage → offre → contrat.  
+● Contrat → site → prestations → besoin en agents → recrutement → dossier d’embauche 
+→ signature → onboarding → affectation.  
+● Planning → arrivée sur site → pointage → exécution → contrôle qualité → réclamation/non -
+conformité → action corrective.  
+● Prestations réalisées → préfacturation → facture → paiement → rapprochement → 
+recouvrement. 
+● Tous les événements alimentent les tableaux de bord.  
+4. Exigences fonctionnelles  
+A. Marketing digital, site web et réseaux sociaux  
+DIG-01 – Capture des leads du site web  
+Exigence : La plateforme devra recevoir automatiquement les soumissions des formulaires du 
+site web (demande de devis, contact, demande de visite, etc.) et créer ou mettre à jour le 
+prospect dans le CRM. 
+Acteurs : Marketing, commercial, administrateur 
+Règles de gestion : Déduplication, source/campagne conservée, notification au commercial, 
+consentement géré lorsque requis.  
+
+===== PAGE 4 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Critères de recette : Soumettre un formulaire et vérifier la création du lead sans ressaisie.  
+Priorité : Must 
+DIG-02 – Intégration Facebook  
+Exigence : La plateforme devra récupérer, via les API officielles et mécanismes autorisés de 
+Facebook/Meta, les données disponibles provenant des dispositifs de génération de leads de 
+l’entreprise et les injecter dans le CRM.  
+Acteurs : Marketing, commercial, administrateur  
+Règles de gestion : Permissions/API documentées, tokens sécurisés, gestion de l’expiration, 
+déduplication, conservation de la source.  
+Critères de recette : Créer un lead via un mécanisme Facebook supporté et vérifier son arrivée, 
+son attribution et son historique.  
+Priorité : Must 
+DIG-03 – Autres réseaux sociaux  
+Exigence : La plateforme devra prévoir une architecture de connecteurs permettant d’intégrer 
+progressivement les autres réseaux sociaux supportés par leurs API.  
+Acteurs : Marketing, IT 
+Règles de gestion : Chaque connecteur respecte les permissions et limites propres à la 
+plateforme. 
+Critères de recette : Ajouter un connecteur sans modifier le cœur du CRM.  
+Priorité : Must 
+DIG-04 – Suivi des campagnes  
+Exigence : La plateforme devra rattacher les leads à leur source, campagne et canal afin de 
+mesurer conversion et performance.  
+Acteurs : Marketing, direction commerciale  
+Règles de gestion : Source d’origine conservée; paramètres de tracking configurables.  
+Critères de recette : Comparer les leads et conversions par canal.  
+Priorité : Must 
+
+===== PAGE 5 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+DIG-05 – Demandes/messages digitaux  
+Exigence : La plateforme devra transformer une demande issue d’un canal digital supporté en 
+lead, tâche, opportunité ou ticket.  
+Acteurs : Commercial, service client  
+Règles de gestion : Affectation, SLA, historique.  
+Critères de recette : Tester création et clôture d’une demande.  
+Priorité : Must 
+DIG-06 – Consentement et préférences  
+Exigence : La plateforme devra enregistrer les préférences et retraits de consentement 
+applicables aux communications.  
+Acteurs : Marketing, administrateur  
+Règles de gestion : Traçabilité de la date, finalité et canal; accès restreint.  
+Critères de recette : Un contact ayant retiré une préférence n’est plus ciblé  par le canal 
+concerné. 
+Priorité : Must 
+B. CRM et gestion commerciale  
+CRM-01 – Prospects 
+Exigence : gérer un dossier prospect unique, ses contacts, source, potentiel et historique.  
+Acteurs : Commercial 
+Règles de gestion : Déduplication et attribution; statuts configurables.  
+Critères de recette : Créer/rechercher/qualifier un prospect.  
+Priorité : Must 
+CRM-02 – Qualification du besoin  
+Exigence : structurer le besoin de nettoyage : surface, type de locaux, fréquence, horaires, 
+contraintes et niveau de service.  
+Acteurs : Commercial 
+
+===== PAGE 6 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Règles de gestion : Champs obligatoires selon prestation.  
+Critères de recette : Une opportunité ne passe à l’étude que si les données requises sont 
+présentes. 
+Priorité : Must 
+CRM-03 – Visite technique 
+Exigence : planifier la visite et collecter surfaces, zones, contraintes, photos et observations.  
+Acteurs : Commercial, exploitation  
+Règles de gestion : Checklist et rapport validable.  
+Critères de recette : Rapport horodaté exploitable pour le chiffrage.  
+Priorité : Must 
+CRM-04 – Chiffrage et devis 
+Exigence : calculer et produire une offre à partir des prestations, coûts, effectifs, fréquences et 
+tarifs. 
+Acteurs : Commercial, finance, direction  
+Règles de gestion : Versions, seuils de validation et historique.  
+Critères de recette : Montant reconstituable et versions conservées.  
+Priorité : Must 
+CRM-05 – Pipeline et relances  
+Exigence : suivre chaque opportunité, sa valeur, probabilité, prochaine action et échéance.  
+Acteurs : Commercial, direction 
+Règles de gestion : Alertes et motif de perte. 
+Critères de recette : Dashboard reflétant le pipeline.  
+Priorité : Must 
+CRM-06 – Contrats 
+Exigence : transformer une affaire gagnée en contrat exploitable par opérations et finance.  
+Acteurs : Commercial, opérations, finance  
+
+===== PAGE 7 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Règles de gestion : Dates, tarifs, SLA, sites, avenants et échéances.  
+Critères de recette : Données contractuelles reprises sans ressaisie.  
+Priorité : Must 
+C. Opérations de nettoyage  
+OPS-01 – Référentiel clients/sites/prestations  
+Exigence : gérer la hiérarchie Client → Contrat → Site → Prestation et les consignes.  
+Acteurs : Opérations 
+Règles de gestion : Historisation; sites actifs/inactifs.  
+Critères de recette : Toutes les informations du site sont accessibles depuis son contrat.  
+Priorité : Must 
+OPS-02 – Planification 
+Exigence : construire les plannings et affecter les agents aux prestations.  
+Acteurs : Opérations 
+Règles de gestion : Détection conflits, sous-effectif, absences et remplacements.  
+Critères de recette : Modification du planning répercutée aux affectations.  
+Priorité : Must 
+OPS-03 – Ordres de travail  
+Exigence : créer et suivre les missions de nettoyage avec consignes et preuves.  
+Acteurs : Superviseurs, agents  
+Règles de gestion : Statuts et preuves obligatoires selon mission.  
+Critères de recette : Mission traçable jusqu’à clôture.  
+Priorité : Must 
+OPS-04 – Pointage mobile simultané  
+Exigence : permettre aux agents de pointer arrivée/départ sur smartphone ou terminal autorisé, y 
+compris lors de pics simultanés.  
+
+===== PAGE 8 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Acteurs : Agents, superviseurs, RH  
+Règles de gestion : Anti-double-pointage, rapprochement au planning, gestion anomalies; 
+géolocalisation uniquement si retenue et applicable.  
+Critères de recette : Tester le nombre cible de pointages simultanés sans perte ni duplication.  
+Priorité : Must 
+OPS-05 – Mode offline / dégradé  
+Exigence : permettre l’enregistrement hors connexion des fonctions terrain essentielles, 
+notamment pointage et contrôles, puis leur synchronisation sécurisée au retour réseau.  
+Acteurs : Agents, superviseurs  
+Règles de gestion : Données locales chiffrées, identifiants uniques, horodatage, file de 
+synchronisation, gestion conflits et statuts.  
+Critères de recette : Couper le réseau, effectuer plusieurs opérations, rétablir le réseau et vérifier 
+l’unicité et l’intégrité des données.  
+Priorité : Must – à confirmer après étude technique  
+OPS-06 – Matériel et consommables  
+Exigence : suivre stocks, dotations, consommations et réapprovisionnements par site.  
+Acteurs : Opérations, magasin 
+Règles de gestion : Seuils et historique des mouvements.  
+Critères de recette : Chaque mouvement est tracé.  
+Priorité : Must 
+D. Qualité et relation client  
+Q-01 – Contrôles qualité 
+Exigence : réaliser des checklists digitales par prestation/site.  
+Acteurs : Qualité, superviseurs 
+Règles de gestion : Scores, seuils, photos et périodicité.  
+Critères de recette : Contrôle réalisable sur mobile.  
+
+===== PAGE 9 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Priorité : Must 
+Q-02 – Non-conformités 
+Exigence : enregistrer, affecter et clôturer les écarts avec actions correctives.  
+Acteurs : Qualité, opérations 
+Règles de gestion : Criticité, responsable, échéance, preuve et validation.  
+Critères de recette : Une clôture exige les éléments requis.  
+Priorité : Must 
+Q-03 – Réclamations 
+Exigence : centraliser les réclamations et demandes clients avec SLA.  
+Acteurs : Service client, opérations  
+Règles de gestion : Priorité, escalade et historique. 
+Critères de recette : Délai de résolution mesurable.  
+Priorité : Must 
+Q-04 – Satisfaction 
+Exigence : mesurer satisfaction et plans d’amélioration par client/site.  
+Acteurs : Direction, qualité 
+Règles de gestion : Historique des scores. 
+Critères de recette : Résultats disponibles dans les dashboards.  
+Priorité : Must 
+E. Ressources humaines et recrutement  
+RH-01 – Expression du besoin  
+Exigence : formaliser les besoins en agents issus des contrats et plannings.  
+Acteurs : RH, opérations, direction  
+Règles de gestion : Validation hiérarchique/budgétaire.  
+Critères de recette : Demande approuvée et traçable.  
+
+===== PAGE 10 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Priorité : Must 
+RH-02 – Recrutement 
+Exigence : gérer candidature, présélection, entretien, évaluation et décision.  
+Acteurs : RH, managers 
+Règles de gestion : Statuts et accès restreints. 
+Critères de recette : Parcours complet historisé.  
+Priorité : Must 
+RH-03 – Dossier d’embauche 
+Exigence : contrôler la présence des documents obligatoires avant intégration.  
+Acteurs : RH 
+Règles de gestion : Checklist configurable, dates de validité, alertes.  
+Critères de recette : Pièces manquantes et expirées clairement identifiées.  
+Priorité : Must 
+RH-04 – Documents et signatures  
+Exigence : préparer, faire valider, faire signer et archiver les documents contractuels et 
+engagements applicables.  
+Acteurs : RH, employé, direction  
+Règles de gestion : Versioning, signature électronique ou connecteur, archivage sécurisé.  
+Critères de recette : Signature/version/date vérifiables.  
+Priorité : Must 
+RH-05 – Onboarding 
+Exigence : piloter l’intégration : documents, uniforme/EPI, matériel, formation et affectation.  
+Acteurs : RH, manager 
+Règles de gestion : Checklist et tâches. 
+Critères de recette : Fin d’intégration validée.  
+Priorité : Must 
+
+===== PAGE 11 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+RH-06 – Affectations et mouvements  
+Exigence : synchroniser affectations, mutations, remplacements et planning.  
+Acteurs : RH, opérations 
+Règles de gestion : Historique et détection de conflits.  
+Critères de recette : Toute modification est historisée.  
+Priorité : Must 
+RH-07 – Formation et compétences  
+Exigence : suivre compétences, formations et échéances.  
+Acteurs : RH, managers 
+Règles de gestion : Alertes de renouvellement. 
+Critères de recette : Écarts de compétences identifiables.  
+Priorité : Must 
+RH-08 – Sortie 
+Exigence : sécuriser le départ, restitution matériel, désactivation accès et archivage.  
+Acteurs : RH, manager, IT 
+Règles de gestion : Checklist obligatoire. 
+Critères de recette : Dossier de sortie clôturé.  
+Priorité : Must 
+F. Finance, facturation et recouvrement  
+FIN-01 – Tarification 
+Exigence : gérer tarifs, unités et périodes contractuelles.  
+Acteurs : Finance 
+Règles de gestion : Versions et dates d’effet. 
+Critères de recette : Tarif applicable identifiable.  
+Priorité : Must 
+
+===== PAGE 12 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+FIN-02 – Préfacturation 
+Exigence : rapprocher prestations réalisées, contrat et exceptions avant facturation.  
+Acteurs : Finance, opérations 
+Règles de gestion : Contrôle et validation des écarts.  
+Critères de recette : Préfacture validée. 
+Priorité : Must 
+FIN-03 – Facturation 
+Exigence : générer, transmettre et archiver les factures.  
+Acteurs : Finance 
+Règles de gestion : Numérotation, avoirs et statuts.  
+Critères de recette : Historique complet. 
+Priorité : Must 
+FIN-04 – Encaissements 
+Exigence : enregistrer et rapprocher les règlements.  
+Acteurs : Finance 
+Règles de gestion : Rapprochement facture/paiement.  
+Critères de recette : Solde client à jour. 
+Priorité : Must 
+FIN-05 – Recouvrement 
+Exigence : piloter échéances, relances et promesses de paiement.  
+Acteurs : Finance, direction 
+Règles de gestion : Scénarios de relance et escalade.  
+Critères de recette : Historique des actions.  
+Priorité : Must 
+FIN-06 – Rentabilité 
+Exigence : analyser CA et marge par client, contrat et site.  
+
+===== PAGE 13 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Acteurs : Direction, finance 
+Règles de gestion : Règles de calcul documentées.  
+Critères de recette : Calcul reproductible. 
+Priorité : Must 
+G. Pilotage et reporting  
+BI-01 – Dashboard direction 
+Exigence : consolider CA, pipeline, contrats, effectifs, qualité et créances.  
+Acteurs : Direction 
+Règles de gestion : Filtres et droits. 
+Critères de recette : KPI cohérents avec les sources.  
+Priorité : Must 
+BI-02 – Dashboard marketing/commercial  
+Exigence : mesurer leads web/social, conversion et CA par source/campagne.  
+Acteurs : Marketing, commercial  
+Règles de gestion : Attribution de source. 
+Critères de recette : Comparer les canaux. 
+Priorité : Must 
+BI-03 – Dashboard opérations  
+Exigence : suivre planning, pointages, prestations, qualité et incidents.  
+Acteurs : Opérations 
+Règles de gestion : Filtres site/client. 
+Critères de recette : Pilotage quotidien. 
+Priorité : Must 
+BI-04 – Dashboard RH 
+Exigence : suivre effectifs, recrutement, turnover, formations et échéances.  
+
+===== PAGE 14 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Acteurs : RH 
+Règles de gestion : Accès strictement habilité. 
+Critères de recette : Aucune donnée RH hors périmètre.  
+Priorité : Must 
+BI-05 – Exports 
+Exigence : générer rapports et exports selon les droits.  
+Acteurs : Utilisateurs habilités 
+Règles de gestion : Filtres et contrôle des droits.  
+Critères de recette : Export conforme. 
+Priorité : Must 
+H. Administration, sécurité et gouvernance  
+SEC-01 – Utilisateurs et rôles 
+Exigence : gérer comptes, rôles, périmètres et désactivation.  
+Acteurs : Administrateurs 
+Règles de gestion : Moindre privilège. 
+Critères de recette : Tests positifs/négatifs.  
+Priorité : Must 
+SEC-02 – Workflows 
+Exigence : paramétrer approbateurs, statuts, seuils et notifications.  
+Acteurs : Administrateurs fonctionnels  
+Règles de gestion : Historique des validations. 
+Critères de recette : Circuit respecté. 
+Priorité : Must 
+SEC-03 – Audit 
+Exigence : tracer les actions sensibles.  
+
+===== PAGE 15 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+Acteurs : Administrateurs, audit 
+Règles de gestion : Journal protégé et horodaté. 
+Critères de recette : Modification sensible reconstituable.  
+Priorité : Must 
+SEC-04 – Documents 
+Exigence : sécuriser versions, accès et archivage.  
+Acteurs : Tous profils habilités 
+Règles de gestion : Droits et conservation. 
+Critères de recette : Accès interdit hors habilitation.  
+Priorité : Must 
+5. Templates et documents métier attendus  
+Chaque template devra reprendre l’identité visuelle officielle de NECS / NECLEANING & 
+SERVICES SARL et permettre l’insertion automatique des données du client, du site, du contrat, 
+des prestations, des montants, des responsables et des signatures.  
+Le système devra intégrer une bibliothèque de modèles documentaires NECS, avec génération 
+automatique à partir des données enregistrées dans la plateforme. Les modèles devront être 
+personnalisables, versionnés, exportables en PDF et, lorsque nécessaire, so umis à validation et 
+signature. 
+ID Template attendu Module source Fonctionnalités 
+attendues 
+TMP-01 Proposition de 
+services / offre 
+commerciale 
+CRM / Commercial Génération à partir de 
+l’opportunité et du 
+chiffrage; prestations, 
+méthodologie, 
+moyens, équipe, 
+planning indicatif, 
+validité et conditions. 
+TMP-02 Devis CRM / Finance Numéro, client, site, 
+prestations, quantités, 
+prix unitaires, 
+périodicité, taxes 
+applicables, total, 
+
+===== PAGE 16 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+validité et conditions 
+de paiement. 
+TMP-03 Bon de commande Commercial / 
+Opérations 
+Référence client, 
+prestations 
+commandées, 
+quantités, dates, site, 
+conditions et 
+validation. 
+TMP-04 Bon de livraison / 
+réception 
+Opérations / 
+Logistique 
+Produits ou 
+consommables livrés, 
+quantités, site, date, 
+réception, réserves, 
+signatures. 
+TMP-05 Contrat de prestation 
+avec le client 
+CRM / Juridique / 
+Direction 
+Parties, objet, 
+périmètre, sites, 
+prestations, effectifs, 
+fréquences, SLA, 
+obligations, prix, 
+facturation, durée, 
+renouvellement, 
+résiliation et 
+signatures. 
+TMP-06 Avenant au contrat 
+client 
+CRM / Direction Modification de 
+périmètre, tarif, durée, 
+effectifs ou 
+prestations; référence 
+au contrat initial et 
+historique des 
+versions. 
+TMP-07 Contrat / document 
+contractuel agent 
+RH Informations 
+collaborateur, poste, 
+affectation, conditions 
+applicables, 
+obligations, 
+confidentialité, 
+signatures et pièces 
+associées. 
+TMP-08 Fiche de poste agent 
+d’entretien 
+RH Mission, 
+responsabilités, 
+compétences, 
+horaires, 
+rattachement 
+
+===== PAGE 17 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+hiérarchique, 
+exigences de sécurité 
+et critères de 
+performance. 
+TMP-09 Dossier d’embauche / 
+checklist RH 
+RH Liste des pièces 
+obligatoires, statut de 
+chaque pièce, date de 
+réception, validité, 
+observations et 
+validation du dossier. 
+TMP-10 Formulaire d’entretien 
+/ évaluation candidat 
+RH Critères d’évaluation, 
+appréciations, 
+décision et 
+signatures/validation. 
+TMP-11 Checklist d’intégration 
+/ onboarding 
+RH / Opérations Documents, 
+uniforme/EPI, 
+matériel, formation, 
+affectation, accès et 
+validation 
+d’intégration. 
+TMP-12 Ordre de travail / fiche 
+d’intervention 
+Opérations Site, mission, date, 
+horaires, agents, 
+consignes, matériel, 
+statut et preuve 
+d’exécution. 
+TMP-13 Fiche de contrôle 
+qualité 
+Qualité Critères, notation, 
+observations, photos, 
+non-conformités, 
+actions correctives et 
+validation. 
+TMP-14 Rapport de prestation 
+/ rapport de site 
+Opérations / Qualité Synthèse des 
+prestations, effectifs, 
+incidents, contrôles, 
+observations, 
+recommandations et 
+actions. 
+TMP-15 Bon de commande 
+interne / demande 
+d’achat 
+Opérations / Achats Demandeur, site, 
+articles, quantités, 
+justification, validation 
+et fournisseur. 
+TMP-16 Demande de congé / 
+absence 
+RH Collaborateur, 
+période, motif selon 
+
+===== PAGE 18 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+règles applicables, 
+validation et impact 
+planning. 
+TMP-17 Fiche de pointage / 
+relevé de présence 
+Opérations / RH Agent, site, date, 
+arrivée, départ, 
+anomalies, validation 
+et export. 
+TMP-18 Préfacture / état des 
+prestations 
+facturables 
+Finance / Opérations Période, contrat, 
+prestations réalisées, 
+quantités, écarts, 
+ajustements et 
+validation. 
+TMP-19 Facture Finance Identité NECS, client, 
+référence contrat, 
+période, prestations, 
+montants, taxes 
+applicables, total, 
+échéance, modalités 
+de paiement et 
+références. 
+TMP-20 Avoir Finance Référence facture 
+initiale, motif, lignes 
+concernées, montant, 
+validation et 
+traçabilité. 
+TMP-21 Relevé de compte 
+client 
+Finance Factures, avoirs, 
+règlements, soldes, 
+échéances et 
+créances. 
+TMP-22 Lettre / email de 
+relance client 
+Finance / 
+Recouvrement 
+Références factures, 
+montants dus, 
+échéances, historique 
+et niveau de relance. 
+TMP-23 Accusé de réception / 
+preuve de 
+transmission 
+CRM / Finance Document transmis, 
+destinataire, canal, 
+date/heure et statut. 
+TMP-24 Rapport mensuel de 
+performance client 
+Direction / Qualité / 
+Opérations 
+KPI, prestations, 
+qualité, incidents, 
+réclamations, actions 
+et recommandations. 
+TMP-25 Rapport d’audit / visite 
+technique 
+Commercial / Qualité Constats, photos, 
+mesures, risques, 
+
+===== PAGE 19 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+besoins, 
+recommandations et 
+actions. 
+Exigences associées aux templates :  
+• Les modèles devront être administrables sans développement pour les éléments simples : logo, 
+coordonnées, pied de page, numérotation, clauses standard et champs.  
+• Les données devront être préremplies depuis les modules concernés afin de limiter la ressaisie.  
+• Les documents devront être générables en format modifiable lorsque nécessaire et en PDF pour 
+diffusion. 
+• Chaque document devra posséder un identifiant, une date, un statut et une version.  
+• Les documents contractuels devront pouvoir suivre un circuit de validation puis de signature 
+électronique lorsqu’une intégration est retenue.  
+• Toute modification d’un document validé/signé devra créer une nouvelle version et conserver 
+l’ancienne. 
+• La plateforme devra permettre de retrouver les documents depuis le prospect, client, contrat, 
+site, agent ou facture concerné.  
+5. Exigences techniques  
+ID Domaine Exigence 
+T-01 Scalabilité Architecture permettant 
+d’augmenter clients, sites, 
+agents, données et 
+utilisateurs simultanés sans 
+refonte majeure. 
+T-02 Dimensionnement Le prestataire devra présenter 
+une capacité initiale et une 
+capacité cible à 3–5 ans, avec 
+marge de sécurité. 
+T-03 Concurrence Le dimensionnement devra 
+intégrer les pics de 
+connexions et de pointages.  
+T-04 Tests de charge Tests nominal, croissance 
+progressive, pic, stress et 
+endurance. 
+
+===== PAGE 20 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+T-05 Pointage simultané Scénarios reproduisant des 
+prises de poste avec un grand 
+nombre d’agents pointant 
+dans une fenêtre courte.  
+T-06 Offline Étude de faisabilité puis 
+implémentation d’un mode 
+offline/dégradé pour les 
+fonctions terrain retenues. 
+T-07 Synchronisation Identifiants uniques, 
+horodatage, file locale, 
+reprise, conflits, doublons et 
+accusé de synchronisation.  
+T-08 Performance Mesure temps de réponse 
+moyen, P95/P99, taux 
+d’erreur et ressources 
+consommées. 
+T-09 API API documentées et 
+sécurisées pour site web, 
+réseaux sociaux supportés, 
+signature, paie, comptabilité, 
+paiement et BI. 
+T-10 Intégrations sociales Gestion des permissions, 
+tokens, 
+expiration/renouvellement et 
+limites des API officielles. 
+T-11 Sécurité Chiffrement des flux, contrôle 
+d’accès serveur, secrets, 
+sessions et protection contre 
+vulnérabilités courantes. 
+T-12 Données Minimisation, conservation, 
+archivage, suppression et 
+traçabilité selon le cadre 
+applicable. 
+T-13 Sauvegarde Sauvegardes automatisées, 
+restauration testée et 
+RPO/RTO définis. 
+T-14 Supervision Monitoring disponibilité, 
+erreurs, ressources, base de 
+données et files de 
+synchronisation. 
+
+===== PAGE 21 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+T-15 Disponibilité SLA et niveau de disponibilité 
+adaptés aux fonctions 
+critiques. 
+T-16 Environnements Développement, test, 
+préproduction et production 
+séparés selon le dispositif 
+retenu. 
+T-17 Portabilité Exports structurés permettant 
+la récupération des données.  
+T-18 Mobile Interface terrain adaptée aux 
+smartphones, à la connectivité 
+variable et à l’usage rapide 
+sur site. 
+6. Questions techniques, hébergement, sécurité et protection des données  
+Le prestataire devra répondre de manière précise et documentée aux questions ci -dessous. Une 
+simple affirmation de conformité ou de sécurité ne sera pas suffisante : les mesures, 
+responsabilités, engagements et preuves attendues devront être précisés.  
+Questionnaire obligatoire du prestataire  
+ID Question du cahier des 
+charges 
+Réponse / engagement 
+attendu du prestataire 
+TECH-Q01 Où seront hébergées les 
+données de NECS ? 
+Pays, datacenter, 
+fournisseur cloud et 
+localisation physique des 
+serveurs. 
+TECH-Q02 Quel type d’hébergement 
+sera utilisé : cloud public, 
+cloud privé ou serveur 
+dédié ? 
+Architecture proposée et 
+justification. 
+TECH-Q03 Qui est propriétaire des 
+données saisies dans 
+l’application ? 
+Confirmation écrite que 
+NECS reste propriétaire 
+de ses données. 
+TECH-Q04 Le développeur ou 
+l’hébergeur pourra-t-il 
+accéder aux données 
+personnelles des agents 
+et clients ? 
+Conditions d’accès, cas 
+autorisés et traçabilité. 
+TECH-Q05 Quelle est la stratégie de 
+protection des données 
+Mesures techniques et 
+organisationnelles. 
+
+===== PAGE 22 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+personnelles des agents 
+? 
+TECH-Q06 Les données sont-elles 
+chiffrées au repos et en 
+transit ? 
+Standards et mécanismes 
+de chiffrement. 
+TECH-Q07 Comment sont protégés 
+les comptes utilisateurs et 
+mots de passe ? 
+Hashage, MFA éventuel, 
+politique de mot de passe 
+et verrouillage. 
+TECH-Q08 Comment fonctionne la 
+gestion des droits d’accès 
+? 
+Rôles, permissions et 
+moindre privilège. 
+TECH-Q09 Un agent peut-il consulter 
+les données d’un autre 
+agent ? 
+Règles de cloisonnement.  
+TECH-Q10 Les données de 
+géolocalisation et de 
+pointage sont-elles 
+collectées ? 
+Nature, finalité, durée de 
+conservation et accès 
+autorisés. 
+TECH-Q11 Quelle est la durée de 
+conservation des 
+données personnelles ?  
+Politique de conservation, 
+archivage et suppression.  
+TECH-Q12 Comment sont gérées les 
+demandes de 
+modification, rectification 
+ou suppression ? 
+Processus, délais et 
+traçabilité. 
+TECH-Q13 Existe-t-il une 
+journalisation des actions 
+? 
+Logs, utilisateur, 
+date/heure, action et 
+conservation. 
+TECH-Q14 Quelle est la stratégie de 
+sauvegarde ? 
+Fréquence, localisation, 
+chiffrement et rétention. 
+TECH-Q15 Que se passe-t-il en cas 
+de panne, perte de 
+serveur ou cyberattaque 
+? 
+PCA/PRA, RPO/RTO et 
+restauration. 
+TECH-Q16 Comment les données 
+sont-elles protégées 
+contre les cyberattaques 
+? 
+Protections réseau, 
+applicatives, API et 
+supervision. 
+TECH-Q17 Des tests de sécurité et 
+tests d’intrusion seront-ils 
+réalisés ? 
+Type, fréquence, 
+périmètre et livrables.  
+
+===== PAGE 23 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+TECH-Q18 Comment sécuriser les 
+données en mode hors 
+connexion ? 
+Chiffrement local, 
+authentification, stockage 
+temporaire et 
+synchronisation. 
+TECH-Q19 Que se passe-t-il si le 
+téléphone d’un agent est 
+perdu ou volé ? 
+Révocation de session et 
+blocage/effacement 
+éventuel. 
+TECH-Q20 Comment éviter les 
+doublons ou pertes lors 
+de la synchronisation 
+offline/online ? 
+Identifiants uniques, 
+gestion des conflits et 
+reprise sur erreur. 
+TECH-Q21 Les échanges avec le site 
+web, Facebook/Meta et 
+autres plateformes sont-
+ils sécurisés ? 
+Authentification API, 
+tokens, chiffrement et 
+permissions. 
+TECH-Q22 Quelles sont les 
+dépendances vis-à-vis de 
+fournisseurs tiers ? 
+Cloud, SMS, email, 
+cartographie, réseaux 
+sociaux, paiement, etc. 
+TECH-Q23 Que devient l’ensemble 
+des données si NECS 
+change de prestataire 
+informatique ? 
+Réversibilité et restitution 
+complète. 
+TECH-Q24 Dans quels formats 
+NECS pourra-t-elle 
+récupérer ses données ? 
+CSV/Excel, SQL, JSON, 
+API, documents et pièces 
+jointes. 
+TECH-Q25 Quelle est la procédure 
+de suppression définitive 
+des données en fin de 
+contrat ? 
+Délais, méthode et 
+preuve de suppression.  
+TECH-Q26 Où seront stockés les 
+documents générés : 
+contrats, factures, photos, 
+rapports, etc. ? 
+Architecture 
+documentaire et 
+conservation. 
+TECH-Q27 Comment sont protégées 
+les photos prises sur les 
+sites clients ? 
+Chiffrement, accès, 
+téléchargement, 
+conservation et 
+suppression. 
+TECH-Q28 Quelle est la politique de 
+mise à jour et correction 
+des failles ? 
+SLA de correction selon 
+criticité. 
+
+===== PAGE 24 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+TECH-Q29 Qui assure la 
+maintenance et la 
+supervision ? 
+Responsabilités NECS, 
+prestataire et hébergeur.  
+TECH-Q30 Quelle disponibilité 
+minimale du système est 
+garantie ? 
+SLA proposé, 
+maintenance planifiée et 
+exclusions. 
+Dossier de sécurité et d’architecture à fournir avant mise en production  
+● Schéma d’architecture technique et localisation des composants.  
+● Architecture de la base de données et mécanismes de cloisonnement.  
+● Politique de gestion des accès et habilitations.  
+● Mécanismes de chiffrement et gestion des secrets.  
+● Politique de sauvegarde, PCA/PRA, RPO et RTO.  
+● Politique de conservation, archivage et suppression des données.  
+● Dispositif de sécurité du mode offline et de la synchronisation.  
+● Journalisation, traçabilité et supervision.  
+● Mesures de protection contre les cyberattaques et gestion des incidents.  
+● Résultats des tests de sécurité et plans de correction.  
+● Procédure de réversibilité et restitution des données en fin de contrat.  
+Exigence contractuelle : les réponses du prestataire validées par NECS et les engagements 
+associés devront être intégrés à la documentation projet et, lorsque pertinent, aux clauses 
+contractuelles ou SLA. Toute modification ultérieure d’un choix d’hébergem ent, de sécurité ou de 
+traitement des données devra faire l’objet d’une validation préalable de NECS.  
+7. Étude et mise en œuvre du mode offline  
+Le mode offline est particulièrement pertinent pour les agents intervenant sur des sites où la 
+couverture réseau peut être faible. Il devra être conçu comme un mécanisme de stockage 
+temporaire sécurisé et de synchronisation contrôlée.  
+1. Identifier les fonctions autorisées hors ligne : pointage, consultation du planning du jour, 
+consignes, contrôles qualité et preuves d’exécution.  
+2. Stocker localement uniquement  les données nécessaires.  
+3. Chiffrer les données locales et protéger l’accès au terminal.  
+4. Attribuer un identifiant unique à chaque événement.  
+5. Synchroniser automatiquement au retour du réseau.  
+6. Gérer les conflits et doublons selon des règles documentées.  
+7. Afficher le statut Enregistré hors ligne / En attente / Synchronisé / Échec.  
+8. Tester coupures, reconnexions, événements multiples et synchronisations répétées.  
+
+===== PAGE 25 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+8. Stratégie de tests de montée en charge  
+● Test nominal du périmètre initial.  
+● Test de croissance du nombre de clients/sites/agents.  
+● Test de pic de pointage simultané.  
+● Test mixte : pointage + planning + missions + contrôles qualité.  
+● Test de stress jusqu’au point de rupture.  
+● Test d’endurance. 
+● Test de synchronisation massive après retour réseau.  
+● Test de reprise après incident.  
+Les résultats devront documenter utilisateurs simultanés, transactions/seconde, P95/P99, taux 
+d’erreur, transactions perdues/dupliquées, CPU, mémoire, base de données, réseau et temps de 
+synchronisation. 
+9. Architecture digitale cible  
+● Site web → API/connecteur → CRM.  
+● Facebook/Meta Lead Ads ou mécanisme officiellement supporté → API/connecteur → CRM.  
+● Autres réseaux sociaux supportés → connecteurs → CRM.  
+● CRM → opportunité → devis → contrat.  
+● Contrat → opérations/RH/finance.  
+● Application mobile → API → plateforme; en absence de réseau → stockage local sécurisé 
+→ synchronisation. 
+● Plateforme → email/SMS/push selon services retenus.  
+Le prestataire devra préciser, pour chaque réseau social, les API disponibles, les permissions 
+nécessaires, les données réellement récupérables et les limites de l’intégration. L’application ne 
+devra pas dépendre d’un accès non autorisé ou d’un contourneme nt des mécanismes de sécurité 
+des plateformes. 
+10. Critères de recette majeurs  
+● Un formulaire web crée automatiquement un lead.  
+● Un mécanisme Facebook officiellement supporté crée un lead avec sa source.  
+● Un lead existant est dédoublonné selon les règles définies.  
+● Un agent peut pointer hors ligne et l’événement est synchronisé une seule fois après 
+reconnexion. 
+● Le système absorbe le pic de pointage correspondant à la capacité cible.  
+● Les documents RH restent accessibles uniquement aux profils habilités.  
+
+===== PAGE 26 =====
+
+NECS / NECLEANING & SERVICES SARL | Cahier des charges – Digitalisation | Version 4.0 
+● Le parcours Prospect → Contrat → Opération → Facture est traçable.  
+● Les tests de charge et de reprise sont documentés et conformes aux seuils contractuels.  
+11. Livrables attendus du prestataire  
+● Cartographie des processus.  
+● Spécifications fonctionnelles détaillées et matrice des exigences.  
+● Architecture applicative et infrastructure.  
+● Étude offline et dossier de synchronisation.  
+● Dossier d’intégration web/réseaux sociaux.  
+● Maquettes web, back-office et mobile. 
+● Plan de migration. 
+● Plan de tests fonctionnels, sécurité et performance.  
+● Rapports de montée en charge.  
+● Documentation API. 
+● Documentation utilisateurs/administrateurs.  
+● Plan de formation. 
+● Plan de sauvegarde/reprise.  
+● Dossier de mise en production et SLA.  
+12. Points à préciser en cadrage  
+● Nombre initial et cible de clients/sites/agents.  
+● Nombre maximal d’utilisateurs simultanés et de pointages sur une fenêtre donnée.  
+● Qualité de la connectivité des sites.  
+● Fonctions exactes devant fonctionner offline.  
+● Canaux digitaux à connecter : site web, Facebook, Instagram, LinkedIn, WhatsApp, etc., selon 
+les comptes et API disponibles.  
+● Type de leads Facebook attendu : formulaires Lead Ads, messages ou autres mécanismes 
+autorisés. 
+● Outil comptable/paie et signature électronique.  
+● RPO/RTO, SLA et capacité cible à 3 et 5 ans.  
+● Cadre juridique applicable aux données personnelles , RH et géolocalisation éventuelle.  
+ 
+Principe directeur : démarrer avec un périmètre maîtrisé, mais construire dès l’origine une 
+plateforme capable d’accompagner la croissance du portefeuille clients, des effectifs et des 
+usages terrain. 

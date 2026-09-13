@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avenant au contrat — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Avenant</span>
+          <p class="meta-line">N° <strong>NECS-AVN-2026-0007</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">Maquette</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Avenant au contrat client</h2>
+          <p>Modification de périmètre, tarif, durée, effectifs ou prestations — référence au contrat initial.</p>
+        </div>
+        <div class="alert-note">Conserve l’historique des versions du contrat initial.</div>
+        <div class="section"><div class="section-title">Références</div><div class="form-grid"><div class="field"><label>Contrat initial <span class="req">*</span></label><input type="text" name="contrat_ref" value="NECS-CTR-2026-0034" required /></div><div class="field"><label>N° d’avenant</label><input type="text" name="avenant_no" value="01" /></div><div class="field"><label>Date d’effet <span class="req">*</span></label><input type="date" name="effet" value="" required /></div><div class="field"><label>Type de modification <span class="req">*</span></label><select name="type_mod" required><option>Périmètre</option><option>Tarif</option><option>Durée</option><option>Effectifs</option><option>Prestations</option><option>Mixte</option></select></div><div class="field full"><label>Description des modifications <span class="req">*</span></label><textarea name="description" required></textarea></div><div class="field"><label>Impact financier HT</label><input type="number" name="impact" value="" /></div><div class="field full"><label>Justification</label><textarea name="justif"></textarea></div></div></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Direction NECS</h4>
+      <p>Validation</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Client</h4>
+      <p>Acceptation avenant</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-AVN-2026-0007 · Date : <span data-today></span> · Module : CRM / Direction
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

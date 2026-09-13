@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bon de livraison / réception — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.jpg" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <h1>NECS</h1>
+          <p class="legal">NECLEANING &amp; SERVICES SARL</p>
+          <p class="tagline">Propreté · Rigueur · Confiance</p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Livraison</span>
+          <dl>
+            <dt>Référence</dt>
+            <dd>NECS-BL-2026-0211</dd>
+            <dt>Version</dt>
+            <dd>1.0</dd>
+            <dt>Statut</dt>
+            <dd><span class="status-pill draft">Maquette</span></dd>
+          </dl>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Bon de livraison / réception</h2>
+          <p>Produits ou consommables livrés, quantités, site, date, réception, réserves et signatures.</p>
+        </div>
+        <div class="alert-note">Chaque mouvement de stock doit rester traçable (OPS-06).</div>
+        <div class="section"><div class="section-title">Livraison</div><div class="form-grid"><div class="field"><label>Site destinataire <span class="req">*</span></label><input type="text" name="site" value="" required /></div><div class="field"><label>Date / heure <span class="req">*</span></label><input type="datetime-local" name="datetime" value="" required /></div><div class="field"><label>Livreur / magasinier</label><input type="text" name="livreur" value="" /></div><div class="field"><label>Réf. demande d’achat</label><input type="text" name="da_ref" value="" /></div><div class="field full"><label>Réserves / observations</label><textarea name="reserves"></textarea></div></div></div><div class="section"><div class="section-title">Articles livrés</div><table class="data-table"><thead><tr><th>Article</th><th>Unité</th><th>Qté prévue</th><th>Qté reçue</th><th>État</th></tr></thead><tbody><tr><td><input value="Détergent multi-surfaces 5L" /></td><td><input value="Bidon" /></td><td><input value="12" /></td><td><input value="12" /></td><td><select><option>Conforme</option><option>Écart</option></select></td></tr><tr><td><input value="Sacs poubelle 100L" /></td><td><input value="Rouleau" /></td><td><input value="20" /></td><td><input value="18" /></td><td><select><option>Écart</option><option>Conforme</option></select></td></tr></tbody></table></div>
+<div class="section">
+  <div class="section-title">Signatures &amp; validation</div>
+  <div class="signature-grid">
+    <div class="signature-box">
+      <h4>Magasin NECS</h4>
+      <p>Émetteur</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+    <div class="signature-box">
+      <h4>Réceptionnaire site</h4>
+      <p>Réception avec/sans réserve</p>
+      <div class="signature-line">Signature / Date</div>
+    </div>
+  </div>
+</div>
+
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-BL-2026-0211 · Date : <span data-today></span> · Module : Opérations / Logistique
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

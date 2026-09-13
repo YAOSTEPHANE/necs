@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Demande de devis (site web) — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : commercial@necs.cm
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Lead web</span>
+          <p class="meta-line">N° <strong>NECS-WEB-DEVIS</strong></p>
+          <p class="meta-line">Version : <strong>1.0</strong></p>
+          <p class="meta-line">Maquette</p>
+        </div>
+      </header>
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Demande de devis en ligne</h2>
+          <p>Formulaire site web — création automatique du prospect dans le CRM (DIG-01).</p>
+        </div>
+        <div class="alert-note">Déduplication, source/campagne conservée, notification commercial, consentement géré.</div>
+        <div class="section"><div class="section-title">Vos coordonnées</div><div class="form-grid"><div class="field"><label>Nom complet <span class="req">*</span></label><input type="text" name="nom" value="" required /></div><div class="field"><label>Entreprise <span class="req">*</span></label><input type="text" name="entreprise" value="" required /></div><div class="field"><label>Email <span class="req">*</span></label><input type="email" name="email" value="" required /></div><div class="field"><label>Téléphone <span class="req">*</span></label><input type="tel" name="tel" value="" required /></div><div class="field"><label>Ville</label><input type="text" name="ville" value="" /></div><div class="field"><label>Source</label><div class="readonly-box">Site web — formulaire devis</div></div></div></div><div class="section"><div class="section-title">Votre besoin</div><div class="form-grid"><div class="field"><label>Type de locaux <span class="req">*</span></label><select name="type" required><option>Bureaux</option><option>Commerce</option><option>Industrie</option><option>Résidentiel</option><option>Autre</option></select></div><div class="field"><label>Surface approx. (m²)</label><input type="number" name="surface" value="" /></div><div class="field"><label>Fréquence souhaitée</label><select name="frequence"><option>Quotidienne</option><option>Hebdomadaire</option><option>Mensuelle</option><option>Ponctuelle</option></select></div><div class="field"><label>Délai souhaité</label><select name="delai"><option>Urgent (< 7j)</option><option>Sous 30 jours</option><option>À planifier</option></select></div><div class="field full"><label>Description du besoin <span class="req">*</span></label><textarea name="besoin" required></textarea></div></div></div><div class="section"><div class="section-title">Consentement</div><div class="form-grid"><div class="field full"><label>J’accepte d’être contacté(e) par NECS au sujet de ma demande <span class="req">*</span></label><select name="consent" required><option>Oui</option><option>Non</option></select></div><div class="field"><label>Préférences communication</label><select name="prefs"><option>Email</option><option>Téléphone</option><option>WhatsApp</option><option>Email + Téléphone</option></select></div></div></div><div style="margin-top:1.5rem"><button class="btn btn-primary" type="button">Envoyer ma demande</button></div>
+      </div>
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Document généré pour validation client — Identité visuelle officielle<br />
+          ID : NECS-WEB-DEVIS · Date : <span data-today></span> · Module : Marketing digital
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>
