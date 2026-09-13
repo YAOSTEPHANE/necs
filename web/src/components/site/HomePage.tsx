@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { formatHeroTitle } from "@/lib/content";
-import { BrandLogo } from "@/components/BrandAssets";
 import { ContactForm } from "@/components/site/ContactForm";
 import {
   Media3D,
@@ -44,9 +43,6 @@ function HomeInner() {
         <div className="hero__overlay" />
         <div className="hero__sweep" aria-hidden />
         <div className="container hero__content">
-          <div className="hero__brand">
-            <BrandLogo alt="NECS" width={88} height={88} className="hero__logo" />
-          </div>
           <h1>
             {hero.before}
             {hero.accent ? (
