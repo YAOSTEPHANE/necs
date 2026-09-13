@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree } from "next/font/google";
+import { Figtree, Outfit } from "next/font/google";
 import { BrandFavicon } from "@/components/BrandAssets";
 import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
+import "./site-premium.css";
 
 const APP_NAME = "NECS";
 const APP_TITLE = "NECS SARL — Propreté, Rigueur, Confiance";
@@ -13,6 +14,12 @@ const figtree = Figtree({
   variable: "--font-sans",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const outfit = Outfit({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -59,8 +66,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr" className={figtree.variable}>
+    <html lang="fr" className={`${figtree.variable} ${outfit.variable}`}>
       <body>
+        <a className="skip-link" href="#contenu">
+          Aller au contenu
+        </a>
         <BrandFavicon />
         <PwaRegister />
         {children}

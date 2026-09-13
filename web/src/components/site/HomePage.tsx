@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { formatHeroTitle } from "@/lib/content";
+import { BrandLogo } from "@/components/BrandAssets";
 import { ContactForm } from "@/components/site/ContactForm";
 import {
   Media3D,
@@ -35,15 +36,17 @@ function HomeInner() {
 
   return (
     <>
-      <section className="hero">
+      <section className="hero" aria-label="Accueil NECS">
         <div className="hero__media">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={content.images.hero} alt="Équipe NECS" />
+          <img src={content.images.hero} alt="" />
         </div>
         <div className="hero__overlay" />
-        <div className="hero__grid" aria-hidden />
         <div className="hero__sweep" aria-hidden />
         <div className="container hero__content">
+          <div className="hero__brand">
+            <BrandLogo alt="NECS" width={88} height={88} className="hero__logo" />
+          </div>
           <h1>
             {hero.before}
             {hero.accent ? (
@@ -59,15 +62,21 @@ function HomeInner() {
               className="btn btn-primary"
               onClick={() => openQuoteModal("Premier contact")}
             >
-              Contactez-nous
+              Demander un devis
+              <span aria-hidden className="btn__chev">
+                →
+              </span>
             </button>
             <Link className="btn btn-ghost" href="/apropos">
               Découvrir NECS
             </Link>
           </div>
         </div>
-        <a className="hero__scroll" href="#pourquoi" aria-label="Défiler">
-          <span>Scroll</span>
+        <a
+          className="hero__scroll"
+          href="#pourquoi"
+          aria-label="Défiler vers la suite"
+        >
           <span className="hero__scroll-line" />
         </a>
       </section>
@@ -95,9 +104,22 @@ function HomeInner() {
               </article>
             ))}
           </div>
+          <div className="stats reveal" aria-label="Indicateurs clés">
+            {[
+              [content.stat1Value, content.stat1Label],
+              [content.stat2Value, content.stat2Label],
+              [content.stat3Value, content.stat3Label],
+              [content.stat4Value, content.stat4Label],
+            ].map(([value, label]) => (
+              <div className="stat" key={label}>
+                <strong>{value}</strong>
+                <span>{label}</span>
+              </div>
+            ))}
+          </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/pourquoi">
-              En savoir plus →
+              En savoir plus
             </Link>
           </div>
         </div>
@@ -105,7 +127,7 @@ function HomeInner() {
 
       <section className="section" id="apropos">
         <div className="container split">
-          <div className="split__media reveal" style={{ position: "relative" }}>
+          <div className="split__media reveal">
             <Media3D src={content.images.about} alt="À propos NECS" variant="tall" />
           </div>
           <div className="reveal reveal-delay-1">
@@ -119,7 +141,9 @@ function HomeInner() {
                 [content.aboutF3Title, content.aboutF3Text],
               ].map(([t, d]) => (
                 <li key={t}>
-                  <span className="ico">✓</span>
+                  <span className="ico" aria-hidden>
+                    ✓
+                  </span>
                   <div>
                     <strong>{t}</strong>
                     <span>{d}</span>
@@ -127,9 +151,9 @@ function HomeInner() {
                 </li>
               ))}
             </ul>
-            <div className="page-inline-more" style={{ marginTop: "1rem" }}>
+            <div className="page-inline-more">
               <Link className="more" href="/apropos">
-                Découvrir notre organisation →
+                Découvrir notre organisation
               </Link>
             </div>
           </div>
@@ -143,20 +167,16 @@ function HomeInner() {
             <h2>{content.achTitle}</h2>
             <p>{content.achLead}</p>
           </div>
-          <div className="ach-grid">
-            <div className="ach-col reveal" style={{ position: "relative" }}>
-              <Media3D src={content.images.actOffice} alt="Bureaux corporate" />
-            </div>
-            <div className="ach-main reveal reveal-delay-1" style={{ position: "relative" }}>
-              <Media3D src={content.images.achMain} alt="Site industriel" variant="wide" />
-            </div>
-            <div className="ach-col reveal reveal-delay-2" style={{ position: "relative" }}>
-              <Media3D src={content.images.actCommerce} alt="Locaux commerciaux" />
-            </div>
+          <div className="ach-feature reveal">
+            <Media3D
+              src={content.images.achMain}
+              alt="Chantier NECS"
+              variant="wide"
+            />
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/realisations">
-              Voir tous nos chantiers →
+              Voir tous nos chantiers
             </Link>
           </div>
         </div>
@@ -164,28 +184,20 @@ function HomeInner() {
 
       <section className="section" id="objectif">
         <div className="container split split--reverse">
-          <div className="split__media reveal" style={{ position: "relative" }}>
-            <Media3D src={content.images.objectif} alt="Objectif NECS" variant="tall" />
+          <div className="split__media reveal">
+            <Media3D
+              src={content.images.objectif}
+              alt="Objectif NECS"
+              variant="tall"
+            />
           </div>
           <div className="reveal reveal-delay-1">
             <div className="eyebrow">Notre objectif</div>
             <h2>{content.objTitle}</h2>
             <p>{content.objText}</p>
-            <div className="pillar-cards">
-              {[
-                ["Rigueur opérationnelle", content.why1Text],
-                ["Qualité mesurable", content.why2Text],
-                ["Plateforme intégrée", content.why3Text],
-              ].map(([t, d]) => (
-                <article className="pillar-card" key={t}>
-                  <h3>{t}</h3>
-                  <p>{d}</p>
-                </article>
-              ))}
-            </div>
-            <div className="page-inline-more" style={{ marginTop: "1rem" }}>
+            <div className="page-inline-more">
               <Link className="more" href="/objectif">
-                Lire notre vision stratégique →
+                Lire notre vision stratégique
               </Link>
             </div>
           </div>
@@ -206,12 +218,10 @@ function HomeInner() {
               [content.images.actCommerce, content.act3Title, content.act3Text],
             ].map(([img, t, d], i) => (
               <article
-                className={`act-card reveal reveal-delay-${i + 1}`}
+                className={`act-item reveal reveal-delay-${i + 1}`}
                 key={t}
               >
-                <div style={{ position: "relative" }}>
-                  <Media3D src={img} alt={t} />
-                </div>
+                <Media3D src={img} alt={t} />
                 <h3>{t}</h3>
                 <p>{d}</p>
               </article>
@@ -219,7 +229,7 @@ function HomeInner() {
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/activites">
-              Explorer tous nos services →
+              Explorer tous nos services
             </Link>
           </div>
         </div>
@@ -238,24 +248,26 @@ function HomeInner() {
               [content.t2Text, content.t2Name, content.t2Role, "AM"],
               [content.t3Text, content.t3Name, content.t3Role, "PK"],
             ].map(([text, name, role, av], i) => (
-              <article
+              <blockquote
                 className={`quote reveal reveal-delay-${i + 1}`}
                 key={name}
               >
                 <p>{text}</p>
                 <footer>
-                  <div className="avatar">{av}</div>
+                  <div className="avatar" aria-hidden>
+                    {av}
+                  </div>
                   <div>
                     <strong>{name}</strong>
                     <span>{role}</span>
                   </div>
                 </footer>
-              </article>
+              </blockquote>
             ))}
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/temoignages">
-              Lire les témoignages →
+              Lire les témoignages
             </Link>
           </div>
         </div>
@@ -270,24 +282,41 @@ function HomeInner() {
           </div>
           <div className="blog-grid">
             {[
-              ["/blog/indicateurs-proprete", content.images.blog1, content.b1Meta, content.b1Title, content.b1Text],
-              ["/blog/controle-qualite-digital", content.images.blog2, content.b2Meta, content.b2Title, content.b2Text],
-              ["/blog/proprete-confiance-client", content.images.achMain, content.b3Meta, content.b3Title, content.b3Text],
+              [
+                "/blog/indicateurs-proprete",
+                content.images.blog1,
+                content.b1Meta,
+                content.b1Title,
+                content.b1Text,
+              ],
+              [
+                "/blog/controle-qualite-digital",
+                content.images.blog2,
+                content.b2Meta,
+                content.b2Title,
+                content.b2Text,
+              ],
+              [
+                "/blog/proprete-confiance-client",
+                content.images.achMain,
+                content.b3Meta,
+                content.b3Title,
+                content.b3Text,
+              ],
             ].map(([href, img, meta, title, text], i) => (
-              <article
+              <Link
                 className={`blog-card reveal reveal-delay-${i + 1}`}
+                href={href}
                 key={title}
               >
-                <div style={{ position: "relative" }}>
-                  <Media3D src={img} alt={title} />
+                <div className="blog-card__media">
+                  <Media3D src={img} alt="" />
                 </div>
                 <div className="meta">{meta}</div>
                 <h3>{title}</h3>
                 <p>{text}</p>
-                <Link className="more" href={href}>
-                  Lire la suite →
-                </Link>
-              </article>
+                <span className="more">Lire la suite</span>
+              </Link>
             ))}
           </div>
         </div>
@@ -304,9 +333,8 @@ function HomeInner() {
 }
 
 export function HomePage() {
-  const content = useNecsContent();
   return (
-    <SiteShell content={content}>
+    <SiteShell>
       <HomeInner />
     </SiteShell>
   );

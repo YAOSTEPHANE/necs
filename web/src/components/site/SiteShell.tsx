@@ -14,15 +14,17 @@ import { ContactModal } from "@/components/site/ContactForm";
 import { BrandLogo, SocialLinks } from "@/components/BrandAssets";
 
 export const SITE_NAV = [
-  { href: "/pourquoi", label: "Pourquoi nous" },
-  { href: "/apropos", label: "À propos" },
-  { href: "/realisations", label: "Réalisations" },
-  { href: "/objectif", label: "Objectif" },
-  { href: "/activites", label: "Activités" },
-  { href: "/temoignages", label: "Témoignages" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/pourquoi", label: "Pourquoi nous", primary: true, primaryLabel: "Pourquoi" },
+  { href: "/apropos", label: "À propos", primary: true },
+  { href: "/realisations", label: "Réalisations", primary: true },
+  { href: "/objectif", label: "Objectif", primary: false },
+  { href: "/activites", label: "Activités", primary: true },
+  { href: "/temoignages", label: "Témoignages", primary: false },
+  { href: "/blog", label: "Blog", primary: true },
+  { href: "/contact", label: "Contact", primary: true },
 ] as const;
+
+const SITE_NAV_PRIMARY = SITE_NAV.filter((item) => item.primary);
 
 interface QuoteModalContextType {
   openQuoteModal: (initialSubject?: string) => void;
@@ -92,7 +94,6 @@ export function Media3D({
           />
         )}
       </div>
-      <div className="bevel-glow" />
     </div>
   );
 }
@@ -137,6 +138,7 @@ export function SiteShell({
   const loaded = useNecsContent();
   const content = contentProp ?? loaded;
   const [navOpen, setNavOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [quoteSubject, setQuoteSubject] = useState("Demande de devis");
 
@@ -145,6 +147,7 @@ export function SiteShell({
       setQuoteSubject(initialSubject);
     }
     setIsQuoteModalOpen(true);
+    setNavOpen(false);
   };
 
   const closeQuoteModal = () => {
@@ -155,6 +158,24 @@ export function SiteShell({
     setNavOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 24);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!navOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [navOpen]);
+
   return (
     <QuoteModalContext.Provider
       value={{
@@ -163,58 +184,83 @@ export function SiteShell({
         isQuoteModalOpen,
       }}
     >
-      <header className="site-header" id="top">
+      <header
+        className={[
+          "site-header",
+          scrolled ? "is-scrolled" : "",
+          pathname === "/" ? "is-transparent" : "",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+        id="top"
+      >
         <div className={`container nav${navOpen ? " is-open" : ""}`}>
           <Link className="brand" href="/" aria-label="NECS — Accueil">
-            <BrandLogo alt="NECS" width={88} height={88} />
+            <BrandLogo alt="NECS" width={64} height={64} />
           </Link>
           <button
-            className="nav-toggle"
+            className={`nav-toggle${navOpen ? " is-open" : ""}`}
             type="button"
-            aria-label="Menu"
+            aria-label={navOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={navOpen}
+            aria-controls="site-nav"
             onClick={() => setNavOpen((v) => !v)}
           >
             <span />
             <span />
             <span />
           </button>
-          <ul className="nav-links">
-            {SITE_NAV.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={pathname === item.href ? "is-active" : undefined}
-                  onClick={() => setNavOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            className="nav-cta"
-            onClick={() => openQuoteModal("Demande de devis")}
-          >
-            Demander un devis
-          </button>
+          <div className="nav-panel" id="site-nav">
+            <ul className="nav-links nav-links--desktop">
+              {SITE_NAV_PRIMARY.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={pathname === item.href ? "is-active" : undefined}
+                    onClick={() => setNavOpen(false)}
+                  >
+                    {"primaryLabel" in item && item.primaryLabel
+                      ? item.primaryLabel
+                      : item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <ul className="nav-links nav-links--mobile">
+              {SITE_NAV.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={pathname === item.href ? "is-active" : undefined}
+                    onClick={() => setNavOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <button
+              type="button"
+              className="nav-cta"
+              onClick={() => openQuoteModal("Demande de devis")}
+            >
+              Demander un devis
+            </button>
+          </div>
         </div>
       </header>
 
-      <main>{children}</main>
+      {navOpen ? (
+        <button
+          type="button"
+          className="nav-backdrop"
+          aria-label="Fermer le menu"
+          onClick={() => setNavOpen(false)}
+        />
+      ) : null}
 
-      {/* Bouton d'action flottant pour ouvrir le formulaire de devis en overlay depuis n'importe quelle page */}
-      <button
-        type="button"
-        className="floating-quote-btn"
-        onClick={() => openQuoteModal("Demande de devis express")}
-        aria-label="Ouvrir le formulaire de devis"
-      >
-        <span className="floating-quote-btn__icon">✦</span>
-        <span className="floating-quote-btn__text">Demander un devis</span>
-      </button>
+      <main id="contenu">{children}</main>
 
-      {/* Modale d'overlay globale de devis et contact */}
       <ContactModal
         isOpen={isQuoteModalOpen}
         onClose={closeQuoteModal}
@@ -246,33 +292,26 @@ export function SiteShell({
               <h4>Services</h4>
               <ul>
                 <li>
-                  <Link href="/activites">Bureaux</Link>
+                  <Link href="/activites">Nos activités</Link>
                 </li>
                 <li>
-                  <Link href="/activites">Industrie</Link>
-                </li>
-                <li>
-                  <button
-                    type="button"
-                    className="footer-btn-link"
-                    onClick={() => openQuoteModal("Demande de devis")}
-                  >
-                    Devis rapide
-                  </button>
+                  <Link href="/contact">Nous contacter</Link>
                 </li>
               </ul>
             </div>
             <div>
-              <h4>Back-office</h4>
+              <h4>Espace pro</h4>
               <ul>
                 <li>
-                  <Link href="/admin">Tableau de bord</Link>
+                  <Link href="/admin">Connexion admin</Link>
                 </li>
               </ul>
             </div>
           </div>
           <div className="footer-bottom">
-            <span suppressHydrationWarning>© {new Date().getFullYear()} NECS / NECLEANING & SERVICES SARL</span>
+            <span suppressHydrationWarning>
+              © {new Date().getFullYear()} NECS / NECLEANING & SERVICES SARL
+            </span>
             <span>Cameroun</span>
           </div>
         </div>

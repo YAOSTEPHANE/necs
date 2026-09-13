@@ -109,13 +109,16 @@ export function ContactModal({
           <>
             <div className="necs-modal-header">
               <div className="necs-modal-brand">
-                <BrandLogo alt="NECS" width={44} height={44} />
+                <BrandLogo alt="NECS" width={48} height={48} />
                 <div>
-                  <span className="necs-modal-badge">Formulaire en ligne</span>
+                  <span className="necs-modal-badge">Réponse sous 24h</span>
                 </div>
               </div>
-              <h2 id="contact-modal-title">{content.contactTitle}</h2>
-              <p className="necs-modal-lead">{content.contactLead}</p>
+              <h2 id="contact-modal-title">Demande de devis</h2>
+              <p className="necs-modal-lead">
+                Décrivez votre site en quelques lignes — un conseiller NECS vous
+                rappelle avec une proposition claire.
+              </p>
             </div>
 
             <form className="necs-modal-form" onSubmit={onContact}>
@@ -197,10 +200,13 @@ export function ContactModal({
               <div className="necs-modal-actions">
                 <button className="btn btn-primary" type="submit">
                   Envoyer ma demande
+                  <span aria-hidden className="btn__chev">
+                    →
+                  </span>
                 </button>
                 <button
                   type="button"
-                  className="btn btn-ghost"
+                  className="btn btn-ghost on-light"
                   onClick={onClose}
                 >
                   Annuler
@@ -267,35 +273,40 @@ export function ContactForm({
         </aside>
 
         <div className="contact-card-cta reveal reveal-delay-1">
-          <div className="contact-card-cta__badge">Formulaire en ligne</div>
-          <h3>Demande de devis & étude sur mesure</h3>
+          <div className="contact-card-cta__badge">Devis sur mesure</div>
+          <h3>Parlons de vos locaux</h3>
           <p>
-            Remplissez notre formulaire interactif pour nous décrire vos locaux,
-            la fréquence souhaitée et obtenir un chiffrage sous 24h.
+            Superficie, fréquence, contraintes site — nous construisons une
+            proposition nette, sans jargon.
           </p>
           <ul className="contact-card-cta__points">
-            <li>✓ Devis gratuit et sans engagement</li>
-            <li>✓ Visite technique possible sur Douala & Yaoundé</li>
-            <li>✓ Tarification transparente et équipes qualifiées</li>
+            <li>Devis gratuit, sans engagement</li>
+            <li>Visite technique Douala & Yaoundé</li>
+            <li>Équipes formées, reporting digital</li>
           </ul>
           <button
             type="button"
             className="btn btn-primary contact-card-cta__btn"
             onClick={handleOpen}
           >
-            Ouvrir le formulaire de devis →
+            Ouvrir le formulaire
+            <span aria-hidden className="btn__chev">
+              →
+            </span>
           </button>
           <span className="contact-card-cta__hint">
-            Sans quitter votre navigation, réponse sous 24 heures ouvrées.
+            Réponse sous 24 heures ouvrées
           </span>
         </div>
       </div>
 
-      <ContactModal
-        isOpen={internalModalOpen}
-        onClose={() => setInternalModalOpen(false)}
-        content={content}
-      />
+      {!onOpenModal ? (
+        <ContactModal
+          isOpen={internalModalOpen}
+          onClose={() => setInternalModalOpen(false)}
+          content={content}
+        />
+      ) : null}
     </>
   );
 }

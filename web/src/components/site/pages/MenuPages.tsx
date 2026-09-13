@@ -103,47 +103,50 @@ function AproposInner() {
         image={content.images.about}
       />
       <section className="section">
-        <div className="container split">
-          <div style={{ position: "relative" }}>
-            <Media3D src={content.images.about} alt="À propos NECS" variant="tall" />
-          </div>
-          <div>
-            <div className="eyebrow">Notre identité</div>
-            <h2>Propreté · Rigueur · Confiance</h2>
-            <p>
-              NECLEANING & SERVICES SARL (NECS) est une société camerounaise de
-              nettoyage professionnel et de facility services. Nous accompagnons
-              entreprises, industries et commerces avec des équipes formées, un
-              encadrement de proximité et une plateforme digitale qui rend chaque
-              prestation mesurable.
-            </p>
-            <ul className="feature-list">
-              {[
-                [content.aboutF1Title, content.aboutF1Text],
-                [content.aboutF2Title, content.aboutF2Text],
-                [content.aboutF3Title, content.aboutF3Text],
-              ].map(([t, d]) => (
-                <li key={t}>
-                  <span className="ico">✓</span>
-                  <div>
-                    <strong>{t}</strong>
-                    <span>{d}</span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", marginTop: "1.25rem" }}>
-              <Link className="btn btn-primary" href="/objectif">
-                Notre ambition
-              </Link>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => openQuoteModal("Devis - À propos")}
-              >
-                Demander un devis
-              </button>
-            </div>
+        <div className="container" style={{ maxWidth: 760 }}>
+          <div className="eyebrow">Notre identité</div>
+          <h2>Propreté · Rigueur · Confiance</h2>
+          <p>
+            NECLEANING & SERVICES SARL (NECS) est une société camerounaise de
+            nettoyage professionnel et de facility services. Nous accompagnons
+            entreprises, industries et commerces avec des équipes formées, un
+            encadrement de proximité et une plateforme digitale qui rend chaque
+            prestation mesurable.
+          </p>
+          <ul className="feature-list">
+            {[
+              [content.aboutF1Title, content.aboutF1Text],
+              [content.aboutF2Title, content.aboutF2Text],
+              [content.aboutF3Title, content.aboutF3Text],
+            ].map(([t, d]) => (
+              <li key={t}>
+                <span className="ico">✓</span>
+                <div>
+                  <strong>{t}</strong>
+                  <span>{d}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div
+            style={{
+              display: "flex",
+              gap: "0.75rem",
+              flexWrap: "wrap",
+              marginTop: "1.25rem",
+            }}
+          >
+            <Link className="btn btn-primary" href="/objectif">
+              Notre ambition
+            </Link>
+            <button
+              type="button"
+              className="btn btn-ghost on-light"
+              style={{ borderColor: "var(--line)", background: "#fff" }}
+              onClick={() => openQuoteModal("Devis - À propos")}
+            >
+              Demander un devis
+            </button>
           </div>
         </div>
       </section>
@@ -189,20 +192,9 @@ function RealisationsInner() {
         lead={content.achLead}
         image={content.images.achMain}
       />
-      <section className="section section-alt">
+      <section className="section">
         <div className="container">
-          <div className="gallery">
-            <div style={{ position: "relative", minHeight: 380 }}>
-              <Media3D src={content.images.achMain} alt="Réalisations" variant="wide" />
-            </div>
-            <div style={{ position: "relative" }}>
-              <Media3D src={content.images.actOffice} alt="Bureaux" />
-            </div>
-            <div style={{ position: "relative" }}>
-              <Media3D src={content.images.actCommerce} alt="Commerce" />
-            </div>
-          </div>
-          <div className="stats" style={{ marginTop: "1.5rem" }}>
+          <div className="stats" style={{ marginTop: 0 }}>
             {[
               [content.stat1Value, content.stat1Label],
               [content.stat2Value, content.stat2Label],
@@ -215,11 +207,7 @@ function RealisationsInner() {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-      <section className="section">
-        <div className="container">
-          <div className="section-head">
+          <div className="section-head" style={{ marginTop: "3rem" }}>
             <div className="eyebrow">Cas types</div>
             <h2>Des environnements exigeants, une même exigence</h2>
           </div>
@@ -282,21 +270,13 @@ function ObjectifInner() {
       />
       <section className="section">
         <div className="container">
-          <div className="objectif" style={{ marginBottom: "2rem" }}>
-            <div className="objectif__bg">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={content.images.objectif} alt="Objectif NECS" />
-            </div>
-            <div className="objectif__veil" />
-            <div className="objectif__content">
-              <div className="eyebrow">Vision 2026+</div>
-              <h2>Une référence digitale du nettoyage au Cameroun</h2>
-              <p>
-                Nous construisons une organisation où chaque mission laisse une
-                trace claire : qui est intervenu, quoi a été fait, quel score
-                qualité, quelle facture.
-              </p>
-            </div>
+          <div className="section-head">
+            <div className="eyebrow">Feuille de route</div>
+            <h2>Les chantiers prioritaires NECS</h2>
+            <p>
+              Une organisation où chaque mission laisse une trace claire : qui
+              est intervenu, quoi a été fait, quel score qualité, quelle facture.
+            </p>
           </div>
           <div className="page-steps">
             {steps.map((s, i) => (
