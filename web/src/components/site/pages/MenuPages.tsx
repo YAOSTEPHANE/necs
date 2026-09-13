@@ -8,6 +8,7 @@ import {
   useNecsContent,
   useQuoteModal,
 } from "@/components/site/SiteShell";
+import { CountUpStat } from "@/components/site/CountUpStat";
 
 function PourquoiInner() {
   const content = useNecsContent();
@@ -201,10 +202,7 @@ function RealisationsInner() {
               [content.stat3Value, content.stat3Label],
               [content.stat4Value, content.stat4Label],
             ].map(([v, l]) => (
-              <div className="stat" key={l}>
-                <strong>{v}</strong>
-                <span>{l}</span>
-              </div>
+              <CountUpStat key={l} value={v} label={l} />
             ))}
           </div>
           <div className="section-head" style={{ marginTop: "3rem" }}>

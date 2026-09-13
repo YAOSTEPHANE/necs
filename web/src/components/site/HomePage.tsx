@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { formatHeroTitle } from "@/lib/content";
 import { ContactForm } from "@/components/site/ContactForm";
+import { CountUpStat } from "@/components/site/CountUpStat";
 import {
   Media3D,
   SiteShell,
@@ -107,10 +108,7 @@ function HomeInner() {
               [content.stat3Value, content.stat3Label],
               [content.stat4Value, content.stat4Label],
             ].map(([value, label]) => (
-              <div className="stat" key={label}>
-                <strong>{value}</strong>
-                <span>{label}</span>
-              </div>
+              <CountUpStat key={label} value={value} label={label} />
             ))}
           </div>
           <div className="page-inline-more reveal">
