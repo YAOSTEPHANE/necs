@@ -143,14 +143,11 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
   useEffect(() => {
     if (!isOverlayOpen) return;
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOverlayOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = prevOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOverlayOpen]);
@@ -178,6 +175,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     });
     setSavedAt(null);
     setIsOverlayOpen(true);
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
   };
 
   const addRecord = () => {
@@ -350,6 +350,8 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
   return (
     <div className="doc-workspace">
+      {!isOverlayOpen ? (
+        <>
       <header className="doc-hero" style={{ ["--doc-tone" as string]: tone }}>
         <div className="doc-hero__glow" aria-hidden />
         <div className="doc-hero__main">
@@ -522,81 +524,87 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </table>
         </div>
       </Panel>
+        </>
+      ) : null}
 
       {isOverlayOpen && selected ? (
         <div
-          className="doc-overlay-backdrop"
-          role="dialog"
-          aria-modal="true"
+          className="doc-editor"
+          role="region"
           aria-labelledby="doc-overlay-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setIsOverlayOpen(false);
-          }}
         >
-          <div className="doc-overlay-dialog">
-            <div className="doc-overlay-header no-print">
-              <div className="doc-overlay-header__left">
-                <span
-                  className="page-header__glyph"
-                  style={{ ["--icon-c" as string]: docIconTone(doc.slug) }}
-                >
-                  <DocIcon slug={doc.slug} size={22} />
-                </span>
-                <div>
-                  <h2 id="doc-overlay-title">{doc.title}</h2>
-                  <div className="doc-overlay-header__meta">
-                    <span className="doc-overlay-header__tag">{doc.domain}</span>
-                    <span className="doc-overlay-header__id">{selected.id}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="doc-overlay-header__right">
-                <button
-                  type="button"
-                  className="btn-admin btn-admin--ghost"
-                  onClick={() => setIsOverlayOpen(false)}
-                >
-                  Fermer
-                </button>
+          <header className="doc-editor__bar no-print">
+            <div className="doc-editor__bar-left">
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={() => setIsOverlayOpen(false)}
+              >
+                ← Retour
+              </button>
+              <div>
+                <p className="doc-editor__eyebrow">{doc.domain}</p>
+                <h2 id="doc-overlay-title">{doc.title}</h2>
+                <p className="doc-editor__ref">{selected.id}</p>
               </div>
             </div>
+            <div className="doc-editor__bar-actions">
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={() => window.print()}
+              >
+                Imprimer
+              </button>
+              <button
+                type="submit"
+                form={`form-${doc.slug}`}
+                className="btn-admin btn-admin--primary"
+              >
+                Enregistrer
+              </button>
+            </div>
+          </header>
 
-            <div className="doc-overlay-body">
-              <div className="doc-print-sheet">
-                <header className="doc-print-letterhead">
-                  <div className="doc-print-letterhead__ribbon" aria-hidden />
-                  <div className="doc-print-letterhead__row">
-                    <BrandLogo alt="NECS" width={72} height={72} />
-                    <div className="doc-print-letterhead__brand">
-                      <p>
-                        Propreté · Rigueur · Confiance
-                        <br />
-                        Siège : {company.address || "[Adresse — Cameroun]"}
-                        <br />
-                        Tél. : {company.phone} · Email : {company.email}
-                      </p>
-                    </div>
-                    <div className="doc-print-letterhead__meta">
-                      <span className="doc-print-badge">{doc.docType}</span>
-                      <p>
-                        N° <strong>{selected.id}</strong>
-                      </p>
-                      <p>
-                        Date :{" "}
-                        <strong>
-                          {new Date().toLocaleDateString("fr-FR", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                          })}
-                        </strong>
-                      </p>
-                      <p>{draftMeta.status}</p>
-                    </div>
-                  </div>
-                </header>
+          <div className="doc-editor__sheet doc-print-sheet">
+            <header className="doc-print-letterhead">
+              <div className="doc-print-letterhead__ribbon" aria-hidden />
+              <div className="doc-print-letterhead__row">
+                <BrandLogo alt="NECS" width={72} height={72} />
+                <div className="doc-print-letterhead__brand">
+                  <p>
+                    Propreté · Rigueur · Confiance
+                    <br />
+                    Siège : {company.address || "[Adresse — Cameroun]"}
+                    <br />
+                    Tél. : {company.phone} · Email : {company.email}
+                  </p>
+                </div>
+                <div className="doc-print-letterhead__meta">
+                  <span className="doc-print-badge">{doc.docType}</span>
+                  <p>
+                    N° <strong>{selected.id}</strong>
+                  </p>
+                  <p>
+                    Date :{" "}
+                    <strong>
+                      {new Date().toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </strong>
+                  </p>
+                  <p>{draftMeta.status}</p>
+                </div>
+              </div>
+            </header>
 
-                <form id={`form-${doc.slug}`} onSubmit={onSave}>
+            <form
+              id={`form-${doc.slug}`}
+              className="doc-editor__form"
+              onSubmit={onSave}
+            >
                   <Panel title="Identité du dossier">
                     <div className="doc-fields">
                       <label className="doc-field is-full">
@@ -941,50 +949,39 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                       </div>
                     </Panel>
                   ) : null}
-                </form>
-              </div>
-            </div>
-
-            <div className="doc-overlay-footer no-print">
-              <div className="doc-overlay-footer__hint">
-                <span>
-                  {savedAt
-                    ? `Enregistré à ${savedAt}`
-                    : "Modifiez puis enregistrez"}
-                </span>
-              </div>
-              <div className="doc-overlay-footer__actions">
-                <button
-                  type="button"
-                  className="btn-admin btn-admin--ghost"
-                  onClick={() => selectedId && deleteRecord(selectedId)}
-                >
-                  Supprimer
-                </button>
-                <button
-                  type="button"
-                  className="btn-admin btn-admin--ghost"
-                  onClick={() => setIsOverlayOpen(false)}
-                >
-                  Fermer
-                </button>
-                <button
-                  type="button"
-                  className="btn-admin btn-admin--ghost"
-                  onClick={() => window.print()}
-                >
-                  Imprimer
-                </button>
-                <button
-                  type="submit"
-                  form={`form-${doc.slug}`}
-                  className="btn-admin btn-admin--primary"
-                >
-                  Enregistrer
-                </button>
-              </div>
-            </div>
+            </form>
           </div>
+
+          <footer className="doc-editor__footer no-print">
+            <span>
+              {savedAt
+                ? `Enregistré à ${savedAt}`
+                : "Faites défiler la page pour voir toutes les sections"}
+            </span>
+            <div className="doc-editor__bar-actions">
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={() => selectedId && deleteRecord(selectedId)}
+              >
+                Supprimer
+              </button>
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={() => setIsOverlayOpen(false)}
+              >
+                Retour
+              </button>
+              <button
+                type="submit"
+                form={`form-${doc.slug}`}
+                className="btn-admin btn-admin--primary"
+              >
+                Enregistrer
+              </button>
+            </div>
+          </footer>
         </div>
       ) : null}
     </div>
