@@ -21,7 +21,6 @@ import {
   IconClose,
   IconHome,
   IconMenu,
-  IconSearch,
   IconSettings,
   IconUser,
   IconVisit,
@@ -29,7 +28,6 @@ import {
 } from "@/components/admin/Icons";
 import { BrandLogo } from "@/components/BrandAssets";
 import { ProfileMenu } from "@/components/admin/ProfileMenu";
-import { ROLE_LABELS } from "@/lib/settings";
 
 const GROUP_LABEL: Record<string, string> = {
   DIG: "Digital",
@@ -123,7 +121,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [navOpen, setNavOpen] = useState(false);
   const [session, setSession] = useState<AdminSession | null>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [navQuery, setNavQuery] = useState("");
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -227,26 +224,17 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [pathname, grouped, roleNavItems]);
 
   const filteredGroups = useMemo(() => {
-    const q = navQuery.trim().toLowerCase();
     const keys = [
       ...GROUP_ORDER.filter((k) => grouped.has(k)),
       ...[...grouped.keys()].filter((k) => !GROUP_ORDER.includes(k)),
     ];
     return keys
-      .map((group) => {
-        const items = (grouped.get(group) ?? []).filter((item) => {
-          if (!q) return true;
-          return (
-            item.label.toLowerCase().includes(q) ||
-            item.code.toLowerCase().includes(q) ||
-            item.description.toLowerCase().includes(q) ||
-            (GROUP_LABEL[group] ?? group).toLowerCase().includes(q)
-          );
-        });
-        return { group, items };
-      })
+      .map((group) => ({
+        group,
+        items: grouped.get(group) ?? [],
+      }))
       .filter((g) => g.items.length > 0);
-  }, [grouped, navQuery]);
+  }, [grouped]);
 
   const moduleCount = useMemo(() => {
     const docs = filteredGroups.reduce((n, g) => n + g.items.length, 0);
@@ -293,7 +281,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     );
   }
 
-  const roleLabel = session.roleLabel || ROLE_LABELS[session.role] || session.role;
   const agentMode = isNettoyeur(session);
   const roleSpace = getRoleSpace(session.role);
   const heading = (() => {
@@ -328,8 +315,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <Link className="dash-brand" href="/admin" aria-label="NECS Admin">
           <BrandLogo alt="NECS" width={36} height={36} />
         </Link>
-        <div className="dash-mobilebar__profile">
-          <ProfileMenu session={session} onLogout={onLogout} compact />
+        <div className="dash-mobilebar__actions">
+          <Link
+            className="dash-mobilebar__site"
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Voir le site public"
+          >
+            Site
+          </Link>
+          <div className="dash-mobilebar__profile">
+            <ProfileMenu session={session} onLogout={onLogout} compact />
+          </div>
         </div>
       </header>
 
@@ -372,30 +370,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <IconClose size={18} />
             </button>
           </div>
-
-          {agentMode ? null : (
-            <div className="dash-side__search-wrap">
-              <IconSearch size={15} />
-              <input
-                type="search"
-                className="dash-side__search"
-                placeholder="Rechercher un module…"
-                value={navQuery}
-                onChange={(e) => setNavQuery(e.target.value)}
-                aria-label="Rechercher dans le menu"
-              />
-              {navQuery ? (
-                <button
-                  type="button"
-                  className="dash-side__search-clear"
-                  aria-label="Effacer la recherche"
-                  onClick={() => setNavQuery("")}
-                >
-                  <IconClose size={12} />
-                </button>
-              ) : null}
-            </div>
-          )}
 
           <div className="dash-side__nav">
             {agentMode ? (
@@ -549,7 +523,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
 
             {filteredGroups.map(({ group, items }) => {
-              const open = Boolean(navQuery) || Boolean(openGroups[group]);
+              const open = Boolean(openGroups[group]);
               const tone = GROUP_TONE[group] ?? "#3ec8e8";
               return (
                 <div
@@ -596,35 +570,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </div>
               );
             })}
-            {filteredGroups.length === 0 && navQuery ? (
-              <p className="dash-side__empty">Aucun module trouvé.</p>
-            ) : null}
               </>
             )}
-          </div>
-
-          <div className="dash-side__foot">
-            <div className="dash-side__session">
-              <span className="dash-avatar sm" aria-hidden>
-                {session.initials}
-              </span>
-              <div className="dash-side__session-meta">
-                <strong>{session.name}</strong>
-                <span>{roleLabel}</span>
-              </div>
-            </div>
-            <Link className="dash-side__site-link" href="/">
-              <span>Voir le site public</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
-                <path
-                  d="M7 17 17 7M9 7h8v8"
-                  stroke="currentColor"
-                  strokeWidth="2.2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
           </div>
         </aside>
 
@@ -635,7 +582,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <strong>{heading.title}</strong>
             </div>
             <div className="dash-topbar__right">
-              <span className="dash-topbar__pill">{roleLabel}</span>
+              <Link className="dash-topbar__site" href="/" target="_blank" rel="noopener noreferrer">
+                <span>Voir le site public</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                  <path
+                    d="M7 17 17 7M9 7h8v8"
+                    stroke="currentColor"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </Link>
               <ProfileMenu session={session} onLogout={onLogout} />
             </div>
           </header>

@@ -13,6 +13,7 @@ import {
   IconUser,
 } from "@/components/admin/Icons";
 import { DashboardRequests } from "@/components/admin/DashboardRequests";
+import { downloadCsv } from "@/lib/download";
 
 type MissionTone = "ok" | "danger" | "info";
 
@@ -115,20 +116,15 @@ const OFF_DAYS = new Set([19, 26]);
 
 type Period = "mensuel" | "hebdo";
 
-function downloadCsv(missions: Mission[], period: Period) {
-  const header = "Site;Prestation;Statut;Date;Heure";
-  const rows = missions.map(
-    (m) =>
-      `${m.site};${m.type};${m.status};${m.dateLabel};${m.time}`,
+function exportMissionsCsv(missions: Mission[], period: Period) {
+  const rows: string[][] = [
+    ["Site", "Prestation", "Statut", "Date", "Heure"],
+    ...missions.map((m) => [m.site, m.type, m.status, m.dateLabel, m.time]),
+  ];
+  downloadCsv(
+    rows,
+    `necs-missions-${period}-${new Date().toISOString().slice(0, 10)}`,
   );
-  const csv = `\uFEFF${header}\n${rows.join("\n")}`;
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `necs-missions-${period}-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 export function DashboardWorkspace() {
@@ -168,7 +164,7 @@ export function DashboardWorkspace() {
   }
 
   function onExport() {
-    downloadCsv(filtered.length ? filtered : ALL_MISSIONS, period);
+    exportMissionsCsv(filtered.length ? filtered : ALL_MISSIONS, period);
     notify(
       `Export CSV · ${filtered.length || ALL_MISSIONS.length} mission${
         (filtered.length || ALL_MISSIONS.length) > 1 ? "s" : ""

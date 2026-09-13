@@ -103,8 +103,7 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
         </span>
         {!compact && (
           <span className="profile-menu__meta">
-            <strong>{session.name}</strong>
-            <span>{session.roleLabel}</span>
+            <strong>Mon compte</strong>
           </span>
         )}
         <IconChevron open={open} />

@@ -12,6 +12,11 @@ import {
   saveSiteVisits,
 } from "@/lib/site-photos";
 import { fileToOptimizedDataUrl } from "@/lib/settings";
+import {
+  deleteVercelBlob,
+  persistOptimizedImage,
+} from "@/lib/vercel-blob-client";
+import { downloadImage, downloadImages } from "@/lib/download";
 import { isNettoyeur, loadSession } from "@/lib/auth";
 import { PageHeader, StatusBadge } from "@/components/admin/Ui";
 import { IconVisit } from "@/components/admin/Icons";
@@ -119,11 +124,15 @@ export function TerrainPhotosWorkspace() {
     setError(null);
     setBusyKind(kind);
     try {
-      const dataUrl = await fileToOptimizedDataUrl(file, 1280, {
+      const { url } = await persistOptimizedImage({
+        file,
+        folder: "terrain",
+        maxSize: 1280,
         forceJpeg: true,
         quality: 0.72,
+        optimize: fileToOptimizedDataUrl,
       });
-      const updated = addPhotoToVisit(selected, kind, dataUrl);
+      const updated = addPhotoToVisit(selected, kind, url);
       persist(visits.map((v) => (v.id === updated.id ? updated : v)));
     } catch (err) {
       setError(
@@ -139,8 +148,12 @@ export function TerrainPhotosWorkspace() {
   const deletePhoto = (photoId: string) => {
     if (!selected) return;
     if (!confirm("Supprimer cette photo ?")) return;
+    const photo = selected.photos.find((p) => p.id === photoId);
     const updated = removePhotoFromVisit(selected, photoId);
     persist(visits.map((v) => (v.id === updated.id ? updated : v)));
+    if (photo?.dataUrl) {
+      void deleteVercelBlob(photo.dataUrl);
+    }
   };
 
   const deleteVisit = (id: string) => {
@@ -274,13 +287,37 @@ export function TerrainPhotosWorkspace() {
                       {selected.agent}
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    className="btn-admin btn-admin--ghost"
-                    onClick={() => deleteVisit(selected.id)}
-                  >
-                    Supprimer
-                  </button>
+                  <div className="terrain-hero__actions">
+                    {selected.photos.length > 0 ? (
+                      <button
+                        type="button"
+                        className="btn-admin btn-admin--ghost"
+                        onClick={() => {
+                          void downloadImages(
+                            selected.photos.map((p, i) => ({
+                              src: p.dataUrl,
+                              basename: `necs-${selected.site}-${p.kind}-${i + 1}`,
+                            })),
+                          ).then((result) => {
+                            if (result.failed > 0) {
+                              window.alert(
+                                `${result.ok} photo(s) téléchargée(s), ${result.failed} échec(s).`,
+                              );
+                            }
+                          });
+                        }}
+                      >
+                        Télécharger tout
+                      </button>
+                    ) : null}
+                    <button
+                      type="button"
+                      className="btn-admin btn-admin--ghost"
+                      onClick={() => deleteVisit(selected.id)}
+                    >
+                      Supprimer
+                    </button>
+                  </div>
                 </div>
 
                 <div className="terrain-progress" aria-label="Progression">
@@ -581,9 +618,24 @@ function PhotoLane({
               <img src={p.dataUrl} alt={`${title} ${p.takenAt}`} />
               <figcaption>
                 <span>{p.takenAt}</span>
-                <button type="button" onClick={() => onDelete(p.id)}>
-                  Supprimer
-                </button>
+                <span className="terrain-photo__actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void downloadImage(
+                        p.dataUrl,
+                        `necs-${kind}-${p.takenAt.replace(/[^\d]/g, "")}`,
+                      ).catch(() => {
+                        window.alert("Téléchargement de la photo impossible.");
+                      });
+                    }}
+                  >
+                    Télécharger
+                  </button>
+                  <button type="button" onClick={() => onDelete(p.id)}>
+                    Supprimer
+                  </button>
+                </span>
               </figcaption>
             </figure>
           ))}

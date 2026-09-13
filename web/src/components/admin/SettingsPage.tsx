@@ -25,6 +25,8 @@ import {
 } from "@/lib/settings";
 import { IconSettings } from "@/components/admin/Icons";
 import { StatusBadge } from "@/components/admin/Ui";
+import { downloadImage } from "@/lib/download";
+import { persistOptimizedImage } from "@/lib/vercel-blob-client";
 
 type TabId =
   | "entreprise"
@@ -106,13 +108,15 @@ export function SettingsWorkspace() {
     if (!file) return;
     setUploadError(null);
     try {
-      const dataUrl = await fileToOptimizedDataUrl(
+      const { url } = await persistOptimizedImage({
         file,
-        kind === "faviconUrl" ? 96 : 320,
-      );
+        folder: "branding",
+        maxSize: kind === "faviconUrl" ? 96 : 320,
+        optimize: fileToOptimizedDataUrl,
+      });
       setSettings((s) => ({
         ...s,
-        branding: { ...s.branding, [kind]: dataUrl },
+        branding: { ...s.branding, [kind]: url },
       }));
     } catch (err) {
       setUploadError(
@@ -153,11 +157,15 @@ export function SettingsWorkspace() {
     if (!file) return;
     setUploadError(null);
     try {
-      const dataUrl = await fileToOptimizedDataUrl(file, maxSize, {
+      const { url } = await persistOptimizedImage({
+        file,
+        folder: "site",
+        maxSize,
         forceJpeg: true,
         quality: 0.82,
+        optimize: fileToOptimizedDataUrl,
       });
-      setSiteImages((imgs) => ({ ...imgs, [key]: dataUrl }));
+      setSiteImages((imgs) => ({ ...imgs, [key]: url }));
     } catch (err) {
       setUploadError(
         err instanceof Error ? err.message : "Échec du chargement de l’image",
@@ -589,6 +597,20 @@ export function SettingsWorkspace() {
                   <button
                     type="button"
                     className="btn-admin btn-admin--ghost"
+                    onClick={() => {
+                      void downloadImage(
+                        settings.branding.logoUrl || DEFAULT_LOGO,
+                        "necs-logo",
+                      ).catch(() => {
+                        window.alert("Téléchargement du logo impossible.");
+                      });
+                    }}
+                  >
+                    Télécharger
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-admin btn-admin--ghost"
                     onClick={() => resetBrandAsset("logoUrl")}
                   >
                     Logo par défaut
@@ -622,6 +644,20 @@ export function SettingsWorkspace() {
                       }}
                     />
                   </label>
+                  <button
+                    type="button"
+                    className="btn-admin btn-admin--ghost"
+                    onClick={() => {
+                      void downloadImage(
+                        settings.branding.faviconUrl || DEFAULT_LOGO,
+                        "necs-favicon",
+                      ).catch(() => {
+                        window.alert("Téléchargement du favicon impossible.");
+                      });
+                    }}
+                  >
+                    Télécharger
+                  </button>
                   <button
                     type="button"
                     className="btn-admin btn-admin--ghost"
@@ -726,6 +762,22 @@ export function SettingsWorkspace() {
                         }}
                       />
                     </label>
+                    <button
+                      type="button"
+                      className="btn-admin btn-admin--ghost"
+                      onClick={() => {
+                        void downloadImage(
+                          siteImages[slot.key],
+                          `necs-${slot.key}`,
+                        ).catch(() => {
+                          window.alert(
+                            "Téléchargement de l’image impossible.",
+                          );
+                        });
+                      }}
+                    >
+                      Télécharger
+                    </button>
                     <button
                       type="button"
                       className="btn-admin btn-admin--ghost"

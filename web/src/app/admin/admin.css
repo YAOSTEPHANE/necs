@@ -294,8 +294,27 @@
   width: 40px;
 }
 
-.dash-mobilebar__profile {
+.dash-mobilebar__actions {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.dash-mobilebar__site {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 96, 168, 0.16);
+  background: #fff;
+  color: var(--a-blue-deep);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+
+.dash-mobilebar__profile {
   flex-shrink: 0;
 }
 
@@ -936,6 +955,26 @@
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+
+.dash-topbar__site {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 96, 168, 0.16);
+  background: #fff;
+  color: var(--a-blue-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: background 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.dash-topbar__site:hover {
+  background: rgba(18, 96, 168, 0.06);
+  border-color: rgba(18, 96, 168, 0.28);
 }
 
 .dash-topbar__pill {
@@ -3152,13 +3191,23 @@
   color: var(--a-muted);
 }
 
+.doc-photo__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .doc-photo figcaption button {
   border: 0;
   background: transparent;
-  color: #b91c1c;
+  color: var(--a-blue-deep);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+}
+
+.doc-photo figcaption button:last-child {
+  color: #b91c1c;
 }
 
 /* En-tête imprimable aligné sur le modèle Offre */
@@ -4173,6 +4222,14 @@
   padding: 1.15rem 1.25rem 0.85rem;
 }
 
+.terrain-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
 .terrain-hero__text h2 {
   margin: 0.45rem 0 0.25rem;
   font-size: 1.35rem;
@@ -4487,14 +4544,24 @@
   background: #f8fafc;
 }
 
+.terrain-photo__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
 .terrain-photo figcaption button {
   border: 0;
   background: transparent;
-  color: #b91c1c;
+  color: var(--a-blue-deep);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
   padding: 0;
+}
+
+.terrain-photo figcaption button:last-child {
+  color: #b91c1c;
 }
 
 .terrain-main > .users-form-error {

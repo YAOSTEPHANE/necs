@@ -15,6 +15,11 @@ import type { StatusTone } from "@/lib/mock-data";
 import { DocIcon, docIconTone } from "@/components/admin/Icons";
 import { BrandLogo } from "@/components/BrandAssets";
 import { fileToOptimizedDataUrl, loadSettings } from "@/lib/settings";
+import { downloadImage } from "@/lib/download";
+import {
+  deleteVercelBlob,
+  persistOptimizedImage,
+} from "@/lib/vercel-blob-client";
 
 function toneForStatus(status: string): StatusTone {
   const s = status.toLowerCase();
@@ -262,16 +267,20 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     if (!file) return;
     setPhotoBusy(kind);
     try {
-      const dataUrl = await fileToOptimizedDataUrl(file, 1280, {
+      const { url } = await persistOptimizedImage({
+        file,
+        folder: "documents",
+        maxSize: 1280,
         forceJpeg: true,
         quality: 0.72,
+        optimize: fileToOptimizedDataUrl,
       });
       setPhotos((prev) => [
         ...prev,
         {
           id: createPhotoId(),
           kind,
-          dataUrl,
+          dataUrl: url,
           takenAt: new Date().toLocaleString("fr-FR", {
             dateStyle: "short",
             timeStyle: "short",
@@ -287,7 +296,11 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
   const removePhoto = (id: string) => {
     if (!confirm("Supprimer cette photo ?")) return;
+    const photo = photos.find((p) => p.id === id);
     setPhotos((prev) => prev.filter((p) => p.id !== id));
+    if (photo?.dataUrl) {
+      void deleteVercelBlob(photo.dataUrl);
+    }
   };
 
   const checkedCount = Object.values(checks).filter(Boolean).length;
@@ -894,13 +907,29 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                                       />
                                       <figcaption>
                                         <span>{p.takenAt}</span>
-                                        <button
-                                          type="button"
-                                          className="no-print"
-                                          onClick={() => removePhoto(p.id)}
-                                        >
-                                          Supprimer
-                                        </button>
+                                        <span className="doc-photo__actions no-print">
+                                          <button
+                                            type="button"
+                                            onClick={() => {
+                                              void downloadImage(
+                                                p.dataUrl,
+                                                `necs-${doc.slug}-${kind.id}-${p.takenAt.replace(/[^\d]/g, "")}`,
+                                              ).catch(() => {
+                                                window.alert(
+                                                  "Téléchargement de la photo impossible.",
+                                                );
+                                              });
+                                            }}
+                                          >
+                                            Télécharger
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() => removePhoto(p.id)}
+                                          >
+                                            Supprimer
+                                          </button>
+                                        </span>
                                       </figcaption>
                                     </figure>
                                   ))}
