@@ -271,14 +271,14 @@ export function SiteShell({
       <footer className="site-footer">
         <div className="container">
           <div className="footer-grid">
-            <div>
+            <div className="footer-col footer-col--brand">
               <div className="footer-brand">
                 <BrandLogo alt="NECS" width={56} height={56} />
               </div>
               <p>{content.footerAbout}</p>
               <SocialLinks title="Réseaux sociaux" />
             </div>
-            <div>
+            <div className="footer-col">
               <h4>Navigation</h4>
               <ul>
                 {SITE_NAV.slice(0, 4).map((item) => (
@@ -288,7 +288,7 @@ export function SiteShell({
                 ))}
               </ul>
             </div>
-            <div>
+            <div className="footer-col">
               <h4>Services</h4>
               <ul>
                 <li>
@@ -299,7 +299,7 @@ export function SiteShell({
                 </li>
               </ul>
             </div>
-            <div>
+            <div className="footer-col">
               <h4>Espace pro</h4>
               <ul>
                 <li>
