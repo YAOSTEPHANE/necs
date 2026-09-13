@@ -3057,6 +3057,7 @@
   }
 }
 
+/* Modales formulaire : scroll fiable (ne pas couper les champs) */
 .doc-overlay-backdrop {
   position: fixed;
   inset: 0;
@@ -3064,41 +3065,47 @@
   background: rgba(8, 26, 54, 0.68);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  overflow: hidden;
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding: max(0.75rem, env(safe-area-inset-top, 0px)) 0.75rem
+    max(0.75rem, env(safe-area-inset-bottom, 0px));
   animation: docFadeIn 0.22s ease-out;
 }
 
 .doc-overlay-dialog {
-  width: 100%;
+  width: min(1060px, 100%);
   max-width: 1060px;
-  max-height: 92vh;
+  max-height: none;
+  height: auto;
+  margin: 0.75rem auto 1.5rem;
   background: #ffffff;
   border-radius: 20px;
   box-shadow: 0 30px 70px -15px rgba(8, 26, 54, 0.45), 0 0 0 1px rgba(18, 96, 168, 0.16);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid rgba(18, 96, 168, 0.14);
   animation: docModalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .doc-overlay-dialog--template {
   max-width: min(1180px, 96vw);
-  max-height: 96vh;
-  height: 96vh;
+  max-height: none;
+  height: auto;
 }
 
 .doc-overlay-body {
-  overflow-y: auto;
+  flex: none;
+  min-height: 0;
+  max-height: none;
+  overflow: visible;
   padding: 1.5rem 1.6rem;
   display: grid;
   gap: 1.25rem;
   background: #f8fafc;
-  flex: 1;
 }
 
 .doc-overlay-header h2 {
@@ -3380,6 +3387,7 @@
 
 
 .doc-overlay-header {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3387,8 +3395,6 @@
   padding: 1.15rem 1.6rem;
   border-bottom: 1px solid var(--a-line);
   background: #ffffff;
-  position: sticky;
-  top: 0;
   z-index: 30;
 }
 
@@ -3483,6 +3489,7 @@
 }
 
 .doc-overlay-footer {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -3490,8 +3497,6 @@
   padding: 0.95rem 1.6rem;
   background: #ffffff;
   border-top: 1px solid var(--a-line);
-  position: sticky;
-  bottom: 0;
   z-index: 30;
 }
 
@@ -3651,11 +3656,12 @@
 
 @media (max-width: 840px) {
   .doc-overlay-backdrop {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
   .doc-overlay-dialog {
-    max-height: 96vh;
+    max-height: none;
     border-radius: 14px;
+    margin: 0.5rem auto 1rem;
   }
   .doc-overlay-header {
     padding: 1rem 1.15rem;
@@ -3671,6 +3677,11 @@
   }
   .doc-overlay-footer__actions {
     justify-content: flex-end;
+  }
+
+  .settings-user-dialog {
+    max-height: none;
+    border-radius: 14px;
   }
 }
 
@@ -3944,10 +3955,14 @@
 }
 
 .settings-user-dialog {
-  width: 100%;
+  width: min(640px, 100%);
   max-width: 640px;
-  max-height: 90vh;
-  overflow: auto;
+  max-height: none;
+  height: auto;
+  margin: 0.75rem auto 1.5rem;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
   background: #fff;
   border-radius: 18px;
   border: 1px solid rgba(18, 96, 168, 0.14);
@@ -3956,6 +3971,9 @@
 }
 
 .settings-user-form {
+  flex: none;
+  min-height: 0;
+  overflow: visible;
   padding: 1.25rem 1.4rem 1.4rem;
   display: grid;
   gap: 1rem;
@@ -4049,6 +4067,10 @@
   border: 1px solid var(--a-line);
   border-radius: 18px;
   box-shadow: 0 10px 28px -22px rgba(10, 58, 114, 0.35);
+  overflow: visible;
+}
+
+.terrain-sidebar {
   overflow: hidden;
 }
 
@@ -4828,7 +4850,9 @@
   min-height: 100vh;
   min-height: 100dvh;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background:
     radial-gradient(1200px 600px at 10% -10%, rgba(18, 96, 168, 0.18), transparent 55%),
     radial-gradient(900px 500px at 100% 100%, rgba(79, 175, 42, 0.14), transparent 50%),
