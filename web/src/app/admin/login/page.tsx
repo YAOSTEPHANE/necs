@@ -4,12 +4,36 @@ import Link from "next/link";
 import { FormEvent, Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { BrandLogo } from "@/components/BrandAssets";
-import { isAuthenticated, loginAdmin } from "@/lib/auth";
+import {
+  homeForRole,
+  isAgentAllowedPath,
+  isAuthenticated,
+  loadSession,
+  loginAdmin,
+} from "@/lib/auth";
+
+function resolvePostLoginPath(
+  role: Parameters<typeof homeForRole>[0],
+  next: string,
+): string {
+  const fallback = homeForRole(role);
+  if (!next.startsWith("/admin")) return fallback;
+  if (role === "nettoyeur") {
+    return isAgentAllowedPath(next) ? next : fallback;
+  }
+  if (role !== "admin") {
+    // Pas de dashboard direction pour les rôles métier
+    if (next === "/admin" || next === "/admin/") return fallback;
+    if (next.startsWith("/admin/utilisateurs")) return fallback;
+    if (next.startsWith("/admin/parametres")) return fallback;
+  }
+  return next;
+}
 
 function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next") || "/admin";
+  const next = search.get("next") || "";
   const [email, setEmail] = useState("direction@necs.cm");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -18,9 +42,10 @@ function LoginForm() {
   const [remember, setRemember] = useState(true);
 
   useEffect(() => {
-    if (isAuthenticated()) {
-      router.replace(next.startsWith("/admin") ? next : "/admin");
-    }
+    if (!isAuthenticated()) return;
+    const session = loadSession();
+    if (!session) return;
+    router.replace(resolvePostLoginPath(session.role, next));
   }, [router, next]);
 
   const onSubmit = (e: FormEvent) => {
@@ -30,13 +55,13 @@ function LoginForm() {
 
     // Petit délai pour le ressenti premium du loader
     window.setTimeout(() => {
-      const result = loginAdmin(email, password);
+      const result = loginAdmin(email, password, { remember });
       setLoading(false);
       if (!result.ok) {
         setError(result.error);
         return;
       }
-      router.replace(next.startsWith("/admin") ? next : "/admin");
+      router.replace(resolvePostLoginPath(result.session.role, next));
     }, 450);
   };
 
@@ -227,6 +252,16 @@ function LoginForm() {
               <span>Accès démo Direction</span>
               <code>direction@necs.cm</code>
               <code>admin123</code>
+            </div>
+            <div className="login-demo">
+              <span>Espaces métier</span>
+              <code>commercial@ / ops@ / rh@ / finance@ / qualite@necs.cm</code>
+              <code>necs2026</code>
+            </div>
+            <div className="login-demo">
+              <span>Accès démo Nettoyeur</span>
+              <code>amina.kouam@necs.cm</code>
+              <code>agent123</code>
             </div>
 
             <footer className="login-panel__foot">

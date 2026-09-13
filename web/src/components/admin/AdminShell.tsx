@@ -7,11 +7,17 @@ import { ADMIN_DOC_NAV } from "@/lib/admin-nav";
 import {
   type AdminSession,
   NECS_AUTH_EVENT,
+  hasRoleSpace,
+  homeForRole,
+  isAgentAllowedPath,
+  isNettoyeur,
   loadSession,
   logoutAdmin,
 } from "@/lib/auth";
+import { filterNavByRole, getRoleSpace } from "@/lib/role-spaces";
 import {
   DocIcon,
+  IconClock,
   IconClose,
   IconHome,
   IconMenu,
@@ -35,6 +41,16 @@ const GROUP_LABEL: Record<string, string> = {
   BI: "Pilotage",
 };
 
+const GROUP_TONE: Record<string, string> = {
+  CRM: "#3ec8e8",
+  OPS: "#8fd14a",
+  Q: "#fbbf24",
+  RH: "#a78bfa",
+  FIN: "#60a5fa",
+  DIG: "#34d399",
+  BI: "#94a3b8",
+};
+
 const GROUP_ORDER = ["CRM", "OPS", "Q", "RH", "FIN", "DIG", "BI"];
 
 function Chevron({ open }: { open: boolean }) {
@@ -54,6 +70,50 @@ function Chevron({ open }: { open: boolean }) {
       <path d="m6 9 6 6 6-6" />
     </svg>
   );
+}
+
+function pageTitle(
+  pathname: string,
+  agent = false,
+): { eyebrow: string; title: string } {
+  if (pathname.startsWith("/admin/espace")) {
+    return { eyebrow: "Espace métier", title: "Mon espace" };
+  }
+  if (pathname.startsWith("/admin/mon-espace")) {
+    return { eyebrow: "Espace agent", title: "Mon espace" };
+  }
+  if (pathname === "/admin") {
+    return { eyebrow: "Espace Direction", title: "Tableau de bord" };
+  }
+  if (pathname === "/admin/utilisateurs") {
+    return { eyebrow: "Administration", title: "Utilisateurs & rôles" };
+  }
+  if (pathname === "/admin/terrain") {
+    return {
+      eyebrow: agent ? "Espace agent" : "Opérations",
+      title: agent ? "Photos après nettoyage" : "Photos terrain",
+    };
+  }
+  if (pathname === "/admin/pointage") {
+    return {
+      eyebrow: agent ? "Espace agent" : "Opérations · RH",
+      title: agent ? "Mon pointage" : "Pointage des employés",
+    };
+  }
+  if (pathname === "/admin/parametres") {
+    return { eyebrow: "Configuration", title: "Paramètres" };
+  }
+  if (pathname === "/admin/templates") {
+    return { eyebrow: "Bibliothèque", title: "Documents & modules" };
+  }
+  const doc = ADMIN_DOC_NAV.find((i) => i.href === pathname);
+  if (doc) {
+    return {
+      eyebrow: GROUP_LABEL[doc.group ?? ""] ?? "Module métier",
+      title: doc.label,
+    };
+  }
+  return { eyebrow: "Espace Direction", title: "Console NECS" };
 }
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
@@ -81,6 +141,36 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (!authReady || isLoginPage || !session) return;
+    if (isNettoyeur(session)) {
+      if (!isAgentAllowedPath(pathname)) {
+        router.replace(homeForRole("nettoyeur"));
+      }
+      return;
+    }
+    if (pathname.startsWith("/admin/mon-espace")) {
+      router.replace(homeForRole(session.role));
+      return;
+    }
+    // Rôles métier : dashboard direction → leur espace
+    if (
+      session.role !== "admin" &&
+      hasRoleSpace(session.role) &&
+      (pathname === "/admin" || pathname === "/admin/")
+    ) {
+      router.replace(homeForRole(session.role));
+      return;
+    }
+    if (
+      session.role !== "admin" &&
+      (pathname.startsWith("/admin/utilisateurs") ||
+        pathname.startsWith("/admin/parametres"))
+    ) {
+      router.replace(homeForRole(session.role));
+    }
+  }, [authReady, isLoginPage, session, pathname, router]);
+
+  useEffect(() => {
     if (!authReady || isLoginPage) return;
     if (!session) {
       const next = encodeURIComponent(pathname || "/admin");
@@ -105,31 +195,36 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     };
   }, [navOpen]);
 
+  const roleNavItems = useMemo(() => {
+    if (!session) return ADMIN_DOC_NAV;
+    return filterNavByRole(ADMIN_DOC_NAV, session.role);
+  }, [session]);
+
   const grouped = useMemo(() => {
     const map = new Map<string, typeof ADMIN_DOC_NAV>();
-    for (const item of ADMIN_DOC_NAV) {
+    for (const item of roleNavItems) {
       const g = item.group ?? "CRM";
       const list = map.get(g) ?? [];
       list.push(item);
       map.set(g, list);
     }
     return map;
-  }, []);
+  }, [roleNavItems]);
 
   useEffect(() => {
     const activeGroup =
-      ADMIN_DOC_NAV.find((i) => i.href === pathname)?.group ?? null;
+      roleNavItems.find((i) => i.href === pathname)?.group ?? null;
     setOpenGroups((prev) => {
       const next = { ...prev };
       for (const key of grouped.keys()) {
         if (next[key] === undefined) {
-          next[key] = key === activeGroup || key === "CRM";
+          next[key] = key === activeGroup || true;
         }
       }
       if (activeGroup) next[activeGroup] = true;
       return next;
     });
-  }, [pathname, grouped]);
+  }, [pathname, grouped, roleNavItems]);
 
   const filteredGroups = useMemo(() => {
     const q = navQuery.trim().toLowerCase();
@@ -152,6 +247,27 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       })
       .filter((g) => g.items.length > 0);
   }, [grouped, navQuery]);
+
+  const moduleCount = useMemo(() => {
+    const docs = filteredGroups.reduce((n, g) => n + g.items.length, 0);
+    if (!session) return docs;
+    let extra = 0;
+    if (
+      session.role === "admin" ||
+      session.role === "ops" ||
+      session.role === "rh"
+    ) {
+      extra += 1; // pointage
+    }
+    if (
+      session.role === "admin" ||
+      session.role === "ops" ||
+      session.role === "qualite"
+    ) {
+      extra += 1; // terrain
+    }
+    return docs + extra;
+  }, [filteredGroups, session]);
 
   const toggleGroup = (group: string) => {
     setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
@@ -178,6 +294,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   const roleLabel = session.roleLabel || ROLE_LABELS[session.role] || session.role;
+  const agentMode = isNettoyeur(session);
+  const roleSpace = getRoleSpace(session.role);
+  const heading = (() => {
+    const base = pageTitle(pathname, agentMode);
+    if (pathname.startsWith("/admin/espace") && roleSpace) {
+      return { eyebrow: roleSpace.eyebrow, title: roleSpace.title };
+    }
+    return base;
+  })();
+
+  const showPointage =
+    session.role === "admin" ||
+    session.role === "ops" ||
+    session.role === "rh";
+  const showTerrain =
+    session.role === "admin" ||
+    session.role === "ops" ||
+    session.role === "qualite";
 
   return (
     <div className={`dash-app${navOpen ? " is-nav-open" : ""}`}>
@@ -210,6 +344,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="dash-body has-side">
         <aside className="dash-side" id="dash-side-nav">
           <div className="dash-side__glow" aria-hidden />
+          <div className="dash-side__mesh" aria-hidden />
 
           <div className="dash-side__brand-row">
             <Link
@@ -222,7 +357,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               </span>
               <span className="dash-side__brand-text">
                 <strong>NECS</strong>
-                <em>Console admin</em>
+                <em>
+                  <i className="dash-side__live" aria-hidden />
+                  Console admin
+                </em>
               </span>
             </Link>
             <button
@@ -235,91 +373,189 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          <div className="dash-side__search-wrap">
-            <IconSearch size={15} />
-            <input
-              type="search"
-              className="dash-side__search"
-              placeholder="Rechercher un module…"
-              value={navQuery}
-              onChange={(e) => setNavQuery(e.target.value)}
-              aria-label="Rechercher dans le menu"
-            />
-          </div>
-
-          <div className="dash-side__section">
-            <p className="dash-side__section-label">Accueil</p>
-            <Link
-              href="/admin"
-              className={`dash-side__link${pathname === "/admin" ? " is-active" : ""}`}
-              style={{ ["--icon-c" as string]: "#3ec8e8" }}
-            >
-              <span className="dash-side__icon">
-                <IconHome size={16} />
-              </span>
-              <span className="dash-side__link-text">
-                <strong>Tableau de bord</strong>
-                <small>Pilotage & synthèse</small>
-              </span>
-            </Link>
-
-            {session.role === "admin" ? (
-              <Link
-                href="/admin/utilisateurs"
-                className={`dash-side__link${pathname === "/admin/utilisateurs" ? " is-active" : ""}`}
-                style={{ ["--icon-c" as string]: "#7dd3fc" }}
-              >
-                <span className="dash-side__icon">
-                  <IconUser size={16} />
-                </span>
-                <span className="dash-side__link-text">
-                  <strong>Utilisateurs</strong>
-                  <small>Comptes & rôles</small>
-                </span>
-              </Link>
-            ) : null}
-
-            {(session.role === "admin" ||
-              session.role === "ops" ||
-              session.role === "qualite") && (
-              <Link
-                href="/admin/terrain"
-                className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
-                style={{ ["--icon-c" as string]: "#8fd14a" }}
-              >
-                <span className="dash-side__icon">
-                  <IconVisit size={16} />
-                </span>
-                <span className="dash-side__link-text">
-                  <strong>Photos terrain</strong>
-                  <small>Arrivée & départ</small>
-                </span>
-              </Link>
-            )}
-
-            <Link
-              href="/admin/parametres"
-              className={`dash-side__link${pathname === "/admin/parametres" ? " is-active" : ""}`}
-              style={{ ["--icon-c" as string]: "#94a3b8" }}
-            >
-              <span className="dash-side__icon">
-                <IconSettings size={16} />
-              </span>
-              <span className="dash-side__link-text">
-                <strong>Paramètres</strong>
-                <small>Entreprise & marque</small>
-              </span>
-            </Link>
-          </div>
+          {agentMode ? null : (
+            <div className="dash-side__search-wrap">
+              <IconSearch size={15} />
+              <input
+                type="search"
+                className="dash-side__search"
+                placeholder="Rechercher un module…"
+                value={navQuery}
+                onChange={(e) => setNavQuery(e.target.value)}
+                aria-label="Rechercher dans le menu"
+              />
+              {navQuery ? (
+                <button
+                  type="button"
+                  className="dash-side__search-clear"
+                  aria-label="Effacer la recherche"
+                  onClick={() => setNavQuery("")}
+                >
+                  <IconClose size={12} />
+                </button>
+              ) : null}
+            </div>
+          )}
 
           <div className="dash-side__nav">
-            <p className="dash-side__section-label">Modules métier</p>
+            {agentMode ? (
+              <>
+                <p className="dash-side__section-label">Mon espace</p>
+                <div className="dash-side__quick">
+                  <Link
+                    href="/admin/mon-espace"
+                    className={`dash-side__link${pathname.startsWith("/admin/mon-espace") ? " is-active" : ""}`}
+                    style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                  >
+                    <span className="dash-side__icon">
+                      <IconHome size={16} />
+                    </span>
+                    <span className="dash-side__link-text">
+                      <strong>Accueil agent</strong>
+                      <small>Ma journée</small>
+                    </span>
+                  </Link>
+                  <Link
+                    href="/admin/pointage"
+                    className={`dash-side__link${pathname === "/admin/pointage" ? " is-active" : ""}`}
+                    style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                  >
+                    <span className="dash-side__icon">
+                      <IconClock size={16} />
+                    </span>
+                    <span className="dash-side__link-text">
+                      <strong>Mon pointage</strong>
+                      <small>Arrivée & départ</small>
+                    </span>
+                  </Link>
+                  <Link
+                    href="/admin/terrain"
+                    className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
+                    style={{ ["--icon-c" as string]: "#8fd14a" }}
+                  >
+                    <span className="dash-side__icon">
+                      <IconVisit size={16} />
+                    </span>
+                    <span className="dash-side__link-text">
+                      <strong>Après nettoyage</strong>
+                      <small>Photos de preuve</small>
+                    </span>
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+            <div className="dash-side__section-head">
+              <p className="dash-side__section-label">Accueil</p>
+              <span className="dash-side__count">{moduleCount}</span>
+            </div>
+
+            <div className="dash-side__quick">
+              {session.role === "admin" ? (
+                <Link
+                  href="/admin"
+                  className={`dash-side__link${pathname === "/admin" ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                >
+                  <span className="dash-side__icon">
+                    <IconHome size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Tableau de bord</strong>
+                    <small>Pilotage & synthèse</small>
+                  </span>
+                </Link>
+              ) : null}
+
+              {roleSpace ? (
+                <Link
+                  href="/admin/espace"
+                  className={`dash-side__link${pathname.startsWith("/admin/espace") ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: roleSpace.accent }}
+                >
+                  <span className="dash-side__icon">
+                    <IconHome size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Mon espace</strong>
+                    <small>{roleSpace.title}</small>
+                  </span>
+                </Link>
+              ) : null}
+
+              {session.role === "admin" ? (
+                <Link
+                  href="/admin/utilisateurs"
+                  className={`dash-side__link${pathname === "/admin/utilisateurs" ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: "#7dd3fc" }}
+                >
+                  <span className="dash-side__icon">
+                    <IconUser size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Utilisateurs</strong>
+                    <small>Comptes & rôles</small>
+                  </span>
+                </Link>
+              ) : null}
+
+              {showTerrain ? (
+                <Link
+                  href="/admin/terrain"
+                  className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: "#8fd14a" }}
+                >
+                  <span className="dash-side__icon">
+                    <IconVisit size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Photos terrain</strong>
+                    <small>Preuves après nettoyage</small>
+                  </span>
+                </Link>
+              ) : null}
+
+              {showPointage ? (
+                <Link
+                  href="/admin/pointage"
+                  className={`dash-side__link${pathname === "/admin/pointage" ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                >
+                  <span className="dash-side__icon">
+                    <IconClock size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Pointage</strong>
+                    <small>Présences employés</small>
+                  </span>
+                </Link>
+              ) : null}
+
+              {session.role === "admin" ? (
+                <Link
+                  href="/admin/parametres"
+                  className={`dash-side__link${pathname === "/admin/parametres" ? " is-active" : ""}`}
+                  style={{ ["--icon-c" as string]: "#94a3b8" }}
+                >
+                  <span className="dash-side__icon">
+                    <IconSettings size={16} />
+                  </span>
+                  <span className="dash-side__link-text">
+                    <strong>Paramètres</strong>
+                    <small>Entreprise & marque</small>
+                  </span>
+                </Link>
+              ) : null}
+            </div>
+
             {filteredGroups.map(({ group, items }) => {
               const open = Boolean(navQuery) || Boolean(openGroups[group]);
+              const tone = GROUP_TONE[group] ?? "#3ec8e8";
               return (
                 <div
                   key={group}
                   className={`dash-side__group${open ? " is-open" : ""}`}
+                  style={{ ["--group-c" as string]: tone }}
                 >
                   <button
                     type="button"
@@ -327,6 +563,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     onClick={() => toggleGroup(group)}
                     aria-expanded={open}
                   >
+                    <i className="dash-side__group-dot" aria-hidden />
                     <span>{GROUP_LABEL[group] ?? group}</span>
                     <em>{items.length}</em>
                     <Chevron open={open} />
@@ -336,21 +573,20 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                       {items.map((item) => {
                         const active = pathname === item.href;
                         const slug = item.href.split("/").pop() ?? "";
-                        const tone = docIconTone(slug);
+                        const itemTone = docIconTone(slug);
                         return (
                           <Link
                             key={item.href}
                             href={item.href}
-                            className={`dash-side__link${active ? " is-active" : ""}`}
+                            className={`dash-side__link dash-side__link--mod${active ? " is-active" : ""}`}
                             title={item.description}
-                            style={{ ["--icon-c" as string]: tone }}
+                            style={{ ["--icon-c" as string]: itemTone }}
                           >
                             <span className="dash-side__icon">
-                              <DocIcon slug={slug} size={15} />
+                              <DocIcon slug={slug} size={14} />
                             </span>
                             <span className="dash-side__link-text">
                               <strong>{item.label}</strong>
-                              <small>{item.code}</small>
                             </span>
                           </Link>
                         );
@@ -360,9 +596,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </div>
               );
             })}
-            {filteredGroups.length === 0 ? (
+            {filteredGroups.length === 0 && navQuery ? (
               <p className="dash-side__empty">Aucun module trouvé.</p>
             ) : null}
+              </>
+            )}
           </div>
 
           <div className="dash-side__foot">
@@ -370,13 +608,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <span className="dash-avatar sm" aria-hidden>
                 {session.initials}
               </span>
-              <div>
+              <div className="dash-side__session-meta">
                 <strong>{session.name}</strong>
                 <span>{roleLabel}</span>
               </div>
             </div>
             <Link className="dash-side__site-link" href="/">
-              Voir le site public
+              <span>Voir le site public</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <path
+                  d="M7 17 17 7M9 7h8v8"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </Link>
           </div>
         </aside>
@@ -384,8 +631,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="dash-workspace">
           <header className="dash-topbar">
             <div className="dash-topbar__intro">
-              <p>Espace Direction</p>
-              <strong>Console NECS</strong>
+              <p>{heading.eyebrow}</p>
+              <strong>{heading.title}</strong>
             </div>
             <div className="dash-topbar__right">
               <span className="dash-topbar__pill">{roleLabel}</span>

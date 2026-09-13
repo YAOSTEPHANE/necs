@@ -329,6 +329,21 @@ export function saveLead(lead: Omit<Lead, "at">): void {
   localStorage.setItem(NECS_LEADS_KEY, JSON.stringify(leads.slice(0, 100)));
 }
 
+export function leadKey(lead: Pick<Lead, "email" | "at">): string {
+  return `${lead.email}::${lead.at}`;
+}
+
+/** Retire un lead de la file (accepter ou refuser). */
+export function removeLead(email: string, at: string): Lead | null {
+  if (typeof window === "undefined") return null;
+  const leads = loadLeads();
+  const idx = leads.findIndex((l) => l.email === email && l.at === at);
+  if (idx === -1) return null;
+  const [removed] = leads.splice(idx, 1);
+  localStorage.setItem(NECS_LEADS_KEY, JSON.stringify(leads));
+  return removed ?? null;
+}
+
 export function formatHeroTitle(title: string): { before: string; accent: string } {
   const idx = title.indexOf(",");
   if (idx === -1) return { before: title, accent: "" };

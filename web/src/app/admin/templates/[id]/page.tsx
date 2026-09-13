@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { DocumentWorkspace } from "@/components/admin/DocumentWorkspace";
+import { DocAccessGuard } from "@/components/admin/DocAccessGuard";
 import { DOCUMENTS, getDocumentBySlug } from "@/lib/documents-catalog";
 
 export function generateStaticParams() {
@@ -14,5 +15,9 @@ export default async function DocumentPage({
   const { id } = await params;
   const doc = getDocumentBySlug(id);
   if (!doc) notFound();
-  return <DocumentWorkspace doc={doc} />;
+  return (
+    <DocAccessGuard slug={doc.slug}>
+      <DocumentWorkspace doc={doc} />
+    </DocAccessGuard>
+  );
 }

@@ -1,9 +1,11 @@
 import {
   type AdminUser,
+  type UserRole,
   loadSettings,
   saveSettings,
   ROLE_LABELS,
 } from "@/lib/settings";
+import { getRoleSpace, roleHomePath } from "@/lib/role-spaces";
 
 export const NECS_SESSION_KEY = "necs_admin_session_v1";
 export const NECS_AUTH_EVENT = "necs-auth-updated";
@@ -17,6 +19,7 @@ export type AdminSession = {
   initials: string;
   loggedAt: number;
   expiresAt: number;
+  employeeId?: string;
 };
 
 function initialsFromName(name: string): string {
@@ -24,6 +27,29 @@ function initialsFromName(name: string): string {
   if (parts.length === 0) return "NE";
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
+export function isNettoyeur(
+  session: Pick<AdminSession, "role"> | null | undefined,
+): boolean {
+  return session?.role === "nettoyeur";
+}
+
+export function hasRoleSpace(role: UserRole): boolean {
+  return role === "nettoyeur" || Boolean(getRoleSpace(role));
+}
+
+export function homeForRole(role: UserRole): string {
+  return roleHomePath(role);
+}
+
+/** Routes autorisées pour un nettoyeur. */
+export function isAgentAllowedPath(pathname: string): boolean {
+  if (pathname.startsWith("/admin/mon-espace")) return true;
+  if (pathname.startsWith("/admin/pointage")) return true;
+  if (pathname.startsWith("/admin/terrain")) return true;
+  if (pathname.startsWith("/admin/login")) return true;
+  return false;
 }
 
 export function loadSession(): AdminSession | null {
@@ -59,7 +85,11 @@ export type LoginResult =
   | { ok: true; session: AdminSession }
   | { ok: false; error: string };
 
-export function loginAdmin(email: string, password: string): LoginResult {
+export function loginAdmin(
+  email: string,
+  password: string,
+  options?: { remember?: boolean },
+): LoginResult {
   const settings = loadSettings();
   const normalized = email.trim().toLowerCase();
   const pwd = password.trim();
@@ -77,20 +107,22 @@ export function loginAdmin(email: string, password: string): LoginResult {
     return { ok: false, error: "Identifiants incorrects." };
   }
 
-  const minutes = Math.max(30, settings.security.sessionMinutes || 480);
+  const remember = options?.remember !== false;
+  const configured = Math.max(30, settings.security.sessionMinutes || 480);
+  const minutes = remember ? Math.max(configured, 480) : 120;
   const now = Date.now();
   const session: AdminSession = {
     userId: user.id,
     name: user.name,
     email: user.email,
     role: user.role,
-    roleLabel: ROLE_LABELS[user.role],
+    roleLabel: ROLE_LABELS[user.role] ?? user.role,
     initials: initialsFromName(user.name),
     loggedAt: now,
     expiresAt: now + minutes * 60 * 1000,
+    ...(user.employeeId ? { employeeId: user.employeeId } : {}),
   };
 
-  // Mettre à jour la dernière connexion
   const nextUsers = settings.users.map((u) =>
     u.id === user.id
       ? {

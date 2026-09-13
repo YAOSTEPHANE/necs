@@ -102,7 +102,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Devis",
     refPrefix: "NECS-DEV",
     subtitle: "Prestations, quantités, prix, périodicité, taxes et conditions.",
-    note: "Versions et seuils de validation (CRM-04).",
+    note: "Versions et seuils de validation commerciale.",
     domain: "CRM",
     htmlPath: "/galerie/templates/TMP-02-devis.html",
     sections: [
@@ -187,7 +187,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Livraison",
     refPrefix: "NECS-BL",
     subtitle: "Consommables livrés, quantités, réception et réserves.",
-    note: "Traçabilité stock OPS-06.",
+    note: "Traçabilité stock et réceptions.",
     domain: "OPS",
     htmlPath: "/galerie/templates/TMP-04-bon-livraison.html",
     sections: [
@@ -223,7 +223,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Contrat client",
     refPrefix: "NECS-CTR",
     subtitle: "Parties, périmètre, SLA, prix, durée et signatures.",
-    note: "Toute modification → avenant TMP-06.",
+    note: "Toute modification doit passer par un avenant.",
     domain: "CRM",
     htmlPath: "/galerie/templates/TMP-05-contrat-prestation.html",
     sections: [
@@ -386,7 +386,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Checklist RH",
     refPrefix: "NECS-RH-DE",
     subtitle: "Pièces obligatoires et statut du dossier.",
-    note: "Pièces manquantes / expirées (RH-03).",
+    note: "Suivi des pièces manquantes ou expirées.",
     domain: "RH",
     htmlPath: "/galerie/templates/TMP-09-dossier-embauche.html",
     sections: [
@@ -422,7 +422,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Évaluation",
     refPrefix: "NECS-RH-ENT",
     subtitle: "Critères d’évaluation et décision recrutement.",
-    note: "Parcours historisé RH-02.",
+    note: "Parcours candidat historisé.",
     domain: "RH",
     htmlPath: "/galerie/templates/TMP-10-entretien-candidat.html",
     sections: [
@@ -466,7 +466,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Intégration",
     refPrefix: "NECS-RH-ONB",
     subtitle: "Intégration collaborateur jusqu’à validation.",
-    note: "Fin d’intégration formalisée RH-05.",
+    note: "Fin d’intégration formalisée.",
     domain: "RH",
     htmlPath: "/galerie/templates/TMP-11-onboarding.html",
     sections: [
@@ -499,7 +499,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Intervention",
     refPrefix: "NECS-OT",
     subtitle: "Mission, agents, consignes, preuves d’exécution.",
-    note: "Traçabilité OPS-03.",
+    note: "Traçabilité des ordres de travail.",
     domain: "OPS",
     htmlPath: "/galerie/templates/TMP-12-ordre-travail.html",
     sections: [
@@ -539,7 +539,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Qualité",
     refPrefix: "NECS-QA",
     subtitle: "Notation, NC, actions correctives et photos.",
-    note: "Contrôle mobile Q-01.",
+    note: "Contrôle qualité terrain (mobile).",
     domain: "Q",
     htmlPath: "/galerie/templates/TMP-13-controle-qualite.html",
     sections: [
@@ -631,7 +631,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Achat interne",
     refPrefix: "NECS-DA",
     subtitle: "Demande articles / consommables avec validation.",
-    note: "Workflow SEC-02.",
+    note: "Workflow d’approbation des achats.",
     domain: "OPS",
     htmlPath: "/galerie/templates/TMP-15-demande-achat.html",
     sections: [
@@ -667,7 +667,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Absence",
     refPrefix: "NECS-RH-ABS",
     subtitle: "Congé / absence et impact planning.",
-    note: "Impact planning RH-06 / OPS-02.",
+    note: "Impact sur le planning RH et opérations.",
     domain: "RH",
     htmlPath: "/galerie/templates/TMP-16-demande-conge.html",
     sections: [
@@ -705,7 +705,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Présence",
     refPrefix: "NECS-PTG",
     subtitle: "Arrivée / départ, anomalies et validation.",
-    note: "OPS-04 anti-double-pointage.",
+    note: "Contrôle anti-double-pointage.",
     domain: "OPS",
     htmlPath: "/galerie/templates/TMP-17-pointage.html",
     sections: [
@@ -743,7 +743,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Préfacturation",
     refPrefix: "NECS-PF",
     subtitle: "État des prestations facturables avant facture.",
-    note: "Rapprochement FIN-02.",
+    note: "Rapprochement préfacture / facture.",
     domain: "FIN",
     htmlPath: "/galerie/templates/TMP-18-prefacture.html",
     sections: [
@@ -779,7 +779,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Facture",
     refPrefix: "NECS-FAC",
     subtitle: "Facture client avec échéance et modalités.",
-    note: "Numérotation et avoirs FIN-03.",
+    note: "Numérotation et gestion des avoirs.",
     domain: "FIN",
     htmlPath: "/galerie/templates/TMP-19-facture.html",
     sections: [
@@ -852,7 +852,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Compte client",
     refPrefix: "NECS-RC",
     subtitle: "Factures, avoirs, règlements et solde.",
-    note: "Solde après rapprochement FIN-04.",
+    note: "Solde après rapprochement.",
     domain: "FIN",
     htmlPath: "/galerie/templates/TMP-21-releve-compte.html",
     sections: [
@@ -888,7 +888,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Relance",
     refPrefix: "NECS-REL",
     subtitle: "Relance amiable à escalade direction.",
-    note: "Scénarios FIN-05.",
+    note: "Scénarios de relance client.",
     domain: "FIN",
     htmlPath: "/galerie/templates/TMP-22-relance-client.html",
     sections: [
@@ -1006,7 +1006,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Visite technique",
     refPrefix: "NECS-VT",
     subtitle: "Constats, mesures, risques et recommandations.",
-    note: "Exploitable pour chiffrage CRM-03.",
+    note: "Exploitable pour le chiffrage commercial.",
     domain: "CRM",
     htmlPath: "/galerie/templates/TMP-25-visite-technique.html",
     sections: [
@@ -1051,7 +1051,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Lead web",
     refPrefix: "NECS-WEB-DEVIS",
     subtitle: "Formulaire site → lead CRM automatique.",
-    note: "DIG-01 déduplication + consentement.",
+    note: "Déduplication des leads et gestion du consentement.",
     domain: "DIG",
     htmlPath: "/galerie/templates/DIG-01-demande-devis.html",
     sections: [
@@ -1104,7 +1104,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Contact",
     refPrefix: "NECS-WEB-CONTACT",
     subtitle: "Message digital → lead / tâche / ticket.",
-    note: "DIG-05 affectation + SLA.",
+    note: "Affectation commerciale et suivi des SLA.",
     domain: "DIG",
     htmlPath: "/galerie/templates/DIG-02-contact.html",
     sections: [
@@ -1139,7 +1139,7 @@ export const DOCUMENTS: DocumentDef[] = [
     docType: "Visite",
     refPrefix: "NECS-WEB-VISITE",
     subtitle: "Planification visite technique depuis le web.",
-    note: "Alimente CRM-03.",
+    note: "Alimente le chiffrage commercial.",
     domain: "DIG",
     htmlPath: "/galerie/templates/DIG-03-demande-visite.html",
     sections: [

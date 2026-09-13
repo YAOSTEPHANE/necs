@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import type { AdminSession } from "@/lib/auth";
-import { IconSettings, IconUser, IconVisit } from "@/components/admin/Icons";
+import { isNettoyeur } from "@/lib/auth";
+import { getRoleSpace } from "@/lib/role-spaces";
+import {
+  IconClock,
+  IconHome,
+  IconSettings,
+  IconUser,
+  IconVisit,
+} from "@/components/admin/Icons";
 
 type Props = {
   session: AdminSession;
@@ -58,6 +66,8 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
+  const agent = isNettoyeur(session);
+  const roleSpace = getRoleSpace(session.role);
 
   useEffect(() => {
     if (!open) return;
@@ -114,54 +124,121 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
           </div>
 
           <div className="profile-menu__section" role="none">
-            <p>Compte</p>
-            <Link
-              href="/admin/parametres"
-              role="menuitem"
-              className="profile-menu__item"
-              onClick={() => setOpen(false)}
-            >
-              <span className="profile-menu__ico" data-tone="green">
-                <IconSettings size={15} />
-              </span>
-              <span>
-                <strong>Paramètres</strong>
-                <small>Entreprise, marque, sécurité</small>
-              </span>
-            </Link>
-            {session.role === "admin" ? (
-              <Link
-                href="/admin/utilisateurs"
-                role="menuitem"
-                className="profile-menu__item"
-                onClick={() => setOpen(false)}
-              >
-                <span className="profile-menu__ico" data-tone="blue">
-                  <IconUser size={15} />
-                </span>
-                <span>
-                  <strong>Utilisateurs</strong>
-                  <small>Créer des comptes et rôles</small>
-                </span>
-              </Link>
-            ) : null}
-            {(session.role === "admin" ||
-              session.role === "ops" ||
-              session.role === "qualite") && (
-              <Link
-                href="/admin/terrain"
-                role="menuitem"
-                className="profile-menu__item"
-                onClick={() => setOpen(false)}
-              >
-                <span className="profile-menu__ico" data-tone="green">
-                  <IconVisit size={15} />
-                </span>
-                <span>
-                  <strong>Photos terrain</strong>
-                  <small>Arrivée et départ sur site</small>
-                </span>
-              </Link>
+            <p>{agent ? "Espace agent" : "Compte"}</p>
+            {agent ? (
+              <>
+                <Link
+                  href="/admin/mon-espace"
+                  role="menuitem"
+                  className="profile-menu__item"
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="profile-menu__ico" data-tone="blue">
+                    <IconHome size={15} />
+                  </span>
+                  <span>
+                    <strong>Mon espace</strong>
+                    <small>Accueil de la journée</small>
+                  </span>
+                </Link>
+                <Link
+                  href="/admin/pointage"
+                  role="menuitem"
+                  className="profile-menu__item"
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="profile-menu__ico" data-tone="blue">
+                    <IconClock size={15} />
+                  </span>
+                  <span>
+                    <strong>Mon pointage</strong>
+                    <small>Arrivée et départ</small>
+                  </span>
+                </Link>
+                <Link
+                  href="/admin/terrain"
+                  role="menuitem"
+                  className="profile-menu__item"
+                  onClick={() => setOpen(false)}
+                >
+                  <span className="profile-menu__ico" data-tone="green">
+                    <IconVisit size={15} />
+                  </span>
+                  <span>
+                    <strong>Photos après nettoyage</strong>
+                    <small>Preuve une fois le travail terminé</small>
+                  </span>
+                </Link>
+              </>
+            ) : (
+              <>
+                {roleSpace ? (
+                  <Link
+                    href="/admin/espace"
+                    role="menuitem"
+                    className="profile-menu__item"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="profile-menu__ico" data-tone="blue">
+                      <IconHome size={15} />
+                    </span>
+                    <span>
+                      <strong>Mon espace</strong>
+                      <small>{roleSpace.title}</small>
+                    </span>
+                  </Link>
+                ) : null}
+                {session.role === "admin" ? (
+                  <Link
+                    href="/admin/parametres"
+                    role="menuitem"
+                    className="profile-menu__item"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="profile-menu__ico" data-tone="green">
+                      <IconSettings size={15} />
+                    </span>
+                    <span>
+                      <strong>Paramètres</strong>
+                      <small>Entreprise, marque, sécurité</small>
+                    </span>
+                  </Link>
+                ) : null}
+                {session.role === "admin" ? (
+                  <Link
+                    href="/admin/utilisateurs"
+                    role="menuitem"
+                    className="profile-menu__item"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="profile-menu__ico" data-tone="blue">
+                      <IconUser size={15} />
+                    </span>
+                    <span>
+                      <strong>Utilisateurs</strong>
+                      <small>Créer des comptes et rôles</small>
+                    </span>
+                  </Link>
+                ) : null}
+                {(session.role === "admin" ||
+                  session.role === "ops" ||
+                  session.role === "qualite") && (
+                  <Link
+                    href="/admin/terrain"
+                    role="menuitem"
+                    className="profile-menu__item"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="profile-menu__ico" data-tone="green">
+                      <IconVisit size={15} />
+                    </span>
+                    <span>
+                      <strong>Photos terrain</strong>
+                      <small>Preuves après nettoyage</small>
+                    </span>
+                  </Link>
+                )}
+              </>
             )}
           </div>
 

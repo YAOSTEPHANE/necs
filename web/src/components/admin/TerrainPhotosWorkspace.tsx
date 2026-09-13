@@ -12,7 +12,7 @@ import {
   saveSiteVisits,
 } from "@/lib/site-photos";
 import { fileToOptimizedDataUrl } from "@/lib/settings";
-import { loadSession } from "@/lib/auth";
+import { isNettoyeur, loadSession } from "@/lib/auth";
 import { PageHeader, StatusBadge } from "@/components/admin/Ui";
 import { IconVisit } from "@/components/admin/Icons";
 
@@ -33,21 +33,33 @@ export function TerrainPhotosWorkspace() {
   const [visits, setVisits] = useState<SiteVisit[]>([]);
   const [ready, setReady] = useState(false);
   const [agentName, setAgentName] = useState("Agent terrain");
+  const [agentMode, setAgentMode] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [draft, setDraft] = useState<SiteVisit | null>(null);
   const [busyKind, setBusyKind] = useState<PhotoKind | null>(null);
   const [error, setError] = useState<string | null>(null);
   const arrivalInputRef = useRef<HTMLInputElement>(null);
-  const departureInputRef = useRef<HTMLInputElement>(null);
+  const afterInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const session = loadSession();
     const name = session?.name || "Agent terrain";
+    const agent = isNettoyeur(session);
     setAgentName(name);
+    setAgentMode(agent);
     const loaded = loadSiteVisits();
-    setVisits(loaded);
-    if (loaded[0]) setSelectedId(loaded[0].id);
+    if (agent) {
+      const visible = loaded.filter(
+        (v) =>
+          v.agent.trim().toLowerCase() === name.trim().toLowerCase(),
+      );
+      setVisits(visible);
+      if (visible[0]) setSelectedId(visible[0].id);
+    } else {
+      setVisits(loaded);
+      if (loaded[0]) setSelectedId(loaded[0].id);
+    }
     setReady(true);
   }, []);
 
@@ -56,9 +68,24 @@ export function TerrainPhotosWorkspace() {
     [visits, selectedId],
   );
 
-  const persist = (next: SiteVisit[]) => {
-    setVisits(next);
-    saveSiteVisits(next);
+  const persist = (nextVisible: SiteVisit[]) => {
+    if (agentMode) {
+      const full = loadSiteVisits();
+      const mineIds = new Set(
+        full
+          .filter(
+            (v) =>
+              v.agent.trim().toLowerCase() === agentName.trim().toLowerCase(),
+          )
+          .map((v) => v.id),
+      );
+      const others = full.filter((v) => !mineIds.has(v.id));
+      saveSiteVisits([...nextVisible, ...others]);
+      setVisits(nextVisible);
+      return;
+    }
+    setVisits(nextVisible);
+    saveSiteVisits(nextVisible);
   };
 
   const openCreate = () => {
@@ -78,7 +105,7 @@ export function TerrainPhotosWorkspace() {
       ...draft,
       site: draft.site.trim(),
       client: draft.client.trim(),
-      agent: draft.agent.trim() || agentName,
+      agent: agentMode ? agentName : draft.agent.trim() || agentName,
       notes: draft.notes.trim(),
     };
     persist([visit, ...visits]);
@@ -128,9 +155,8 @@ export function TerrainPhotosWorkspace() {
   }
 
   const arrivalCount = selected ? countByKind(selected, "arrival") : 0;
-  const departureCount = selected ? countByKind(selected, "departure") : 0;
-  const progress =
-    (arrivalCount > 0 ? 1 : 0) + (departureCount > 0 ? 1 : 0);
+  const afterCount = selected ? countByKind(selected, "after") : 0;
+  const progress = afterCount > 0 ? 2 : arrivalCount > 0 ? 1 : 0;
 
   return (
     <div className="terrain-page">
@@ -143,18 +169,22 @@ export function TerrainPhotosWorkspace() {
             >
               <IconVisit size={18} />
             </span>
-            OPS
+            {agentMode ? "AGENT" : "OPS"}
           </span>
         }
-        title="Photos terrain"
-        description="Preuves photo à l’arrivée et au départ de chaque site nettoyé."
+        title={agentMode ? "Photos après nettoyage" : "Photos terrain"}
+        description={
+          agentMode
+            ? "Prenez les photos du site une fois le nettoyage terminé — preuve obligatoire."
+            : "Les nettoyeurs déposent les preuves photo après nettoyage sur chaque site."
+        }
         actions={
           <button
             type="button"
             className="btn-admin btn-admin--primary"
             onClick={openCreate}
           >
-            + Nouvelle visite
+            {agentMode ? "+ Site à photographier" : "+ Nouvelle visite"}
           </button>
         }
       />
@@ -168,13 +198,15 @@ export function TerrainPhotosWorkspace() {
           <div className="terrain-visit-list">
             {visits.length === 0 ? (
               <p className="terrain-empty-hint">
-                Aucune visite. Créez-en une pour commencer.
+                {agentMode
+                  ? "Créez un site, nettoyez, puis photographiez le résultat."
+                  : "Aucune visite. Créez-en une pour commencer."}
               </p>
             ) : (
               visits.map((v) => {
                 const active = v.id === selectedId;
                 const a = countByKind(v, "arrival");
-                const d = countByKind(v, "departure");
+                const d = countByKind(v, "after");
                 return (
                   <button
                     key={v.id}
@@ -194,8 +226,12 @@ export function TerrainPhotosWorkspace() {
                     <div className="terrain-visit-item__meta">
                       <span>{formatDate(v.date)}</span>
                       <span className="terrain-pills">
-                        <em data-kind="arrival">{a}</em>
-                        <em data-kind="departure">{d}</em>
+                        <em data-kind="arrival" title="Avant">
+                          {a}
+                        </em>
+                        <em data-kind="departure" title="Après nettoyage">
+                          {d}
+                        </em>
                       </span>
                     </div>
                   </button>
@@ -248,32 +284,40 @@ export function TerrainPhotosWorkspace() {
                 </div>
 
                 <div className="terrain-progress" aria-label="Progression">
+                  {!agentMode ? (
+                    <>
+                      <div
+                        className={`terrain-step${arrivalCount > 0 ? " is-done" : ""}`}
+                      >
+                        <span className="terrain-step__num">1</span>
+                        <div>
+                          <strong>Avant</strong>
+                          <small>
+                            {selected.arrivalAt ?? "Optionnel"}
+                          </small>
+                        </div>
+                      </div>
+                      <div className="terrain-progress__line" aria-hidden />
+                    </>
+                  ) : null}
                   <div
-                    className={`terrain-step${arrivalCount > 0 ? " is-done" : ""}`}
+                    className={`terrain-step${afterCount > 0 ? " is-done" : ""}`}
                   >
-                    <span className="terrain-step__num">1</span>
+                    <span className="terrain-step__num">
+                      {agentMode ? "✓" : "2"}
+                    </span>
                     <div>
-                      <strong>Arrivée</strong>
+                      <strong>Après nettoyage</strong>
                       <small>
-                        {selected.arrivalAt ?? "Photo requise"}
-                      </small>
-                    </div>
-                  </div>
-                  <div className="terrain-progress__line" aria-hidden />
-                  <div
-                    className={`terrain-step${departureCount > 0 ? " is-done" : ""}`}
-                  >
-                    <span className="terrain-step__num">2</span>
-                    <div>
-                      <strong>Départ</strong>
-                      <small>
-                        {selected.departureAt ?? "Photo requise"}
+                        {selected.afterAt ?? "Photo obligatoire"}
                       </small>
                     </div>
                   </div>
                   <div className="terrain-progress__score">
-                    <strong>{progress}/2</strong>
-                    <span>preuves</span>
+                    <strong>
+                      {afterCount > 0 ? "OK" : `${progress}/2`}
+                    </strong>
+                    <span>{afterCount > 0 ? "prouvé" : "en attente"}</span>
                   </div>
                 </div>
               </header>
@@ -284,27 +328,36 @@ export function TerrainPhotosWorkspace() {
 
               {error ? <p className="users-form-error">{error}</p> : null}
 
-              <div className="terrain-photo-cols">
+              <div
+                className={`terrain-photo-cols${agentMode ? " terrain-photo-cols--agent" : ""}`}
+              >
+                {!agentMode ? (
+                  <PhotoLane
+                    title="Avant nettoyage"
+                    hint="État du site au début (optionnel)"
+                    kind="arrival"
+                    photos={selected.photos.filter((p) => p.kind === "arrival")}
+                    busy={busyKind === "arrival"}
+                    inputRef={arrivalInputRef}
+                    onCapture={() => arrivalInputRef.current?.click()}
+                    onFile={(file) => void onPickPhoto("arrival", file)}
+                    onDelete={deletePhoto}
+                  />
+                ) : null}
                 <PhotoLane
-                  title="À l’arrivée"
-                  hint="État du site au début du nettoyage"
-                  kind="arrival"
-                  photos={selected.photos.filter((p) => p.kind === "arrival")}
-                  busy={busyKind === "arrival"}
-                  inputRef={arrivalInputRef}
-                  onCapture={() => arrivalInputRef.current?.click()}
-                  onFile={(file) => void onPickPhoto("arrival", file)}
-                  onDelete={deletePhoto}
-                />
-                <PhotoLane
-                  title="Au départ"
-                  hint="Preuve après nettoyage, avant de quitter"
-                  kind="departure"
-                  photos={selected.photos.filter((p) => p.kind === "departure")}
-                  busy={busyKind === "departure"}
-                  inputRef={departureInputRef}
-                  onCapture={() => departureInputRef.current?.click()}
-                  onFile={(file) => void onPickPhoto("departure", file)}
+                  title="Après nettoyage"
+                  hint={
+                    agentMode
+                      ? "Prenez vos photos une fois le travail terminé"
+                      : "Preuve déposée par le nettoyeur après intervention"
+                  }
+                  kind="after"
+                  photos={selected.photos.filter((p) => p.kind === "after")}
+                  busy={busyKind === "after"}
+                  inputRef={afterInputRef}
+                  featured={agentMode}
+                  onCapture={() => afterInputRef.current?.click()}
+                  onFile={(file) => void onPickPhoto("after", file)}
                   onDelete={deletePhoto}
                 />
               </div>
@@ -326,8 +379,14 @@ export function TerrainPhotosWorkspace() {
           <div className="settings-user-dialog">
             <div className="doc-overlay-header">
               <div>
-                <h2 id="terrain-create-title">Nouvelle visite site</h2>
-                <p className="doc-overlay-header__sub">{draft.id}</p>
+                <h2 id="terrain-create-title">
+                  {agentMode ? "Nouveau site à prouver" : "Nouvelle visite site"}
+                </h2>
+                <p className="doc-overlay-header__sub">
+                  {agentMode
+                    ? "Puis prenez les photos après nettoyage"
+                    : draft.id}
+                </p>
               </div>
               <button
                 type="button"
@@ -377,6 +436,7 @@ export function TerrainPhotosWorkspace() {
                   <span>Agent</span>
                   <input
                     value={draft.agent}
+                    readOnly={agentMode}
                     onChange={(e) =>
                       setDraft({ ...draft, agent: e.target.value })
                     }
@@ -402,7 +462,9 @@ export function TerrainPhotosWorkspace() {
                   Annuler
                 </button>
                 <button type="submit" className="btn-admin btn-admin--primary">
-                  Créer et prendre des photos
+                  {agentMode
+                    ? "Créer et photographier après nettoyage"
+                    : "Créer et prendre des photos"}
                 </button>
               </div>
             </form>
@@ -423,6 +485,7 @@ function PhotoLane({
   onCapture,
   onFile,
   onDelete,
+  featured = false,
 }: {
   title: string;
   hint: string;
@@ -433,18 +496,23 @@ function PhotoLane({
   onCapture: () => void;
   onFile: (file: File | null) => void;
   onDelete: (id: string) => void;
+  featured?: boolean;
 }) {
   return (
-    <div className={`terrain-lane terrain-lane--${kind}`}>
+    <div
+      className={`terrain-lane terrain-lane--${kind}${featured ? " is-featured" : ""}`}
+    >
       <div className="terrain-lane__head">
         <div>
           <span className="terrain-lane__badge">
-            {kind === "arrival" ? "Arrivée" : "Départ"}
+            {kind === "after" ? "Après" : "Avant"}
           </span>
           <h4>{title}</h4>
           <p>{hint}</p>
         </div>
-        <span className="terrain-lane__count">{photos.length} photo{photos.length > 1 ? "s" : ""}</span>
+        <span className="terrain-lane__count">
+          {photos.length} photo{photos.length > 1 ? "s" : ""}
+        </span>
       </div>
 
       <button
@@ -454,13 +522,28 @@ function PhotoLane({
         disabled={busy}
       >
         <span className="terrain-capture-btn__icon" aria-hidden>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
             <circle cx="12" cy="13" r="4" />
           </svg>
         </span>
         <span>
-          <strong>{busy ? "Enregistrement…" : "Prendre une photo"}</strong>
+          <strong>
+            {busy
+              ? "Enregistrement…"
+              : kind === "after"
+                ? "Photographier après nettoyage"
+                : "Prendre une photo"}
+          </strong>
           <small>Caméra ou galerie du téléphone</small>
         </span>
       </button>
@@ -479,8 +562,16 @@ function PhotoLane({
 
       {photos.length === 0 ? (
         <div className="terrain-lane__empty">
-          <strong>Pas encore de photo</strong>
-          <p>Appuyez sur le bouton ci-dessus pour capturer le site.</p>
+          <strong>
+            {kind === "after"
+              ? "Aucune photo après nettoyage"
+              : "Pas encore de photo"}
+          </strong>
+          <p>
+            {kind === "after"
+              ? "Terminez le nettoyage, puis capturez le résultat sur place."
+              : "Appuyez sur le bouton ci-dessus pour capturer le site."}
+          </p>
         </div>
       ) : (
         <div className="terrain-photo-grid">

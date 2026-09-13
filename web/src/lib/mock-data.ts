@@ -75,14 +75,14 @@ export const financePrefactures = [
 ];
 
 export const templatesCatalog = [
-  { id: "TMP-01", name: "Proposition de services", module: "CRM", status: "Validé maquette" },
-  { id: "TMP-02", name: "Devis", module: "CRM / Finance", status: "Validé maquette" },
-  { id: "TMP-05", name: "Contrat de prestation", module: "CRM / Juridique", status: "Validé maquette" },
-  { id: "TMP-12", name: "Ordre de travail", module: "Opérations", status: "Maquette" },
-  { id: "TMP-13", name: "Contrôle qualité", module: "Qualité", status: "Maquette" },
-  { id: "TMP-19", name: "Facture", module: "Finance", status: "Validé maquette" },
-  { id: "TMP-09", name: "Dossier d’embauche", module: "RH", status: "Maquette" },
-  { id: "TMP-22", name: "Relance client", module: "Recouvrement", status: "Maquette" },
+  { id: "prop", name: "Proposition de services", module: "CRM", status: "Validé maquette" },
+  { id: "devis", name: "Devis", module: "CRM / Finance", status: "Validé maquette" },
+  { id: "contrat", name: "Contrat de prestation", module: "CRM / Juridique", status: "Validé maquette" },
+  { id: "ot", name: "Ordre de travail", module: "Opérations", status: "Maquette" },
+  { id: "qa", name: "Contrôle qualité", module: "Qualité", status: "Maquette" },
+  { id: "facture", name: "Facture", module: "Finance", status: "Validé maquette" },
+  { id: "embauche", name: "Dossier d’embauche", module: "RH", status: "Maquette" },
+  { id: "relance", name: "Relance client", module: "Recouvrement", status: "Maquette" },
 ];
 
 export const securityUsers = [

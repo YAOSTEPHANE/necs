@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { PageHeader, Panel, StatusBadge } from "@/components/admin/Ui";
+import { Panel, StatusBadge } from "@/components/admin/Ui";
 import type { DocumentDef } from "@/lib/documents-catalog";
 import {
   type DocPhoto,
@@ -326,70 +326,63 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
   }, [records, searchFilter, statusFilter]);
 
   if (!ready) {
-    return <p className="note">Chargement des dossiers…</p>;
+    return (
+      <div className="doc-workspace">
+        <p className="note">Chargement des dossiers…</p>
+      </div>
+    );
   }
 
+  const tone = docIconTone(doc.slug);
+
   return (
-    <>
-      <PageHeader
-        code={
-          <span className="page-header__icon">
-            <span
-              className="page-header__glyph"
-              style={{ ["--icon-c" as string]: docIconTone(doc.slug) }}
-            >
-              <DocIcon slug={doc.slug} size={18} />
+    <div className="doc-workspace">
+      <header className="doc-hero" style={{ ["--doc-tone" as string]: tone }}>
+        <div className="doc-hero__glow" aria-hidden />
+        <div className="doc-hero__main">
+          <div className="doc-hero__badge">
+            <span className="doc-hero__glyph" aria-hidden>
+              <DocIcon slug={doc.slug} size={22} />
             </span>
-            {doc.domain}
-          </span>
-        }
-        title={doc.title}
-        description={doc.subtitle}
-        actions={
-          <>
-            <Link className="btn-admin btn-admin--ghost" href="/admin/templates">
-              ← Modules
-            </Link>
-            {doc.htmlPath ? (
-              <a
-                className="btn-admin btn-admin--ghost"
-                href={doc.htmlPath}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Voir maquette
-              </a>
+            <span>{doc.domain}</span>
+          </div>
+          <h1>{doc.title}</h1>
+          <p>{doc.subtitle}</p>
+          <div className="doc-hero__meta">
+            <span>
+              <strong>Type</strong>
+              {doc.docType}
+            </span>
+            <span>
+              <strong>Réf.</strong>
+              {doc.refPrefix}
+            </span>
+            <span>
+              <strong>Dossiers</strong>
+              {records.length}
+            </span>
+            {savedAt ? (
+              <span className="doc-hero__saved">Enregistré {savedAt}</span>
             ) : null}
-            <button
-              type="button"
-              className="btn-admin btn-admin--primary"
-              onClick={addRecord}
-            >
-              + Nouveau dossier
-            </button>
-          </>
-        }
-      />
-
-      <div className="doc-meta-bar">
-        <span>
-          <strong>Type</strong> {doc.docType}
-        </span>
-        <span>
-          <strong>Domaine</strong> {doc.domain}
-        </span>
-        <span>
-          <strong>Préfixe</strong> {doc.refPrefix}
-        </span>
-        {savedAt ? (
-          <em className="doc-saved">Dernier enregistrement à {savedAt}</em>
-        ) : null}
-      </div>
-
-      {doc.note ? <p className="note">{doc.note}</p> : null}
+          </div>
+          {doc.note ? <p className="doc-hero__note">{doc.note}</p> : null}
+        </div>
+        <div className="doc-hero__actions">
+          <Link className="btn-admin btn-admin--ghost" href="/admin/templates">
+            ← Modules
+          </Link>
+          <button
+            type="button"
+            className="btn-admin btn-admin--primary"
+            onClick={addRecord}
+          >
+            + Nouveau dossier
+          </button>
+        </div>
+      </header>
 
       {doc.kpis.length > 0 ? (
-        <div className="doc-kpi-strip" style={{ marginBottom: "1.25rem" }}>
+        <div className="doc-kpi-strip">
           {doc.kpis.map((k) => (
             <div key={k.label} className="doc-kpi">
               <span>{k.label}</span>
@@ -415,7 +408,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           <input
             type="search"
             className="doc-records-search"
-            placeholder="Rechercher…"
+            placeholder="Rechercher un dossier…"
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
           />
@@ -440,7 +433,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </div>
         </div>
 
-        <div className="table-wrap" style={{ marginTop: "0.85rem" }}>
+        <div className="table-wrap doc-table-wrap">
           <table className="data-table">
             <thead>
               <tr>
@@ -456,25 +449,30 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
             <tbody>
               {filteredRecords.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={7}
-                    style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "var(--a-muted)",
-                    }}
-                  >
-                    Aucun dossier.
+                  <td colSpan={7}>
+                    <div className="doc-empty">
+                      <strong>Aucun dossier</strong>
+                      <span>
+                        Créez un nouveau dossier ou ajustez vos filtres.
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-admin btn-admin--primary"
+                        onClick={addRecord}
+                      >
+                        + Nouveau dossier
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : (
                 filteredRecords.map((r) => (
                   <tr key={r.id}>
                     <td>
-                      <strong style={{ color: "var(--a-blue)" }}>{r.id}</strong>
+                      <strong className="doc-ref">{r.id}</strong>
                     </td>
                     <td>
-                      <strong>{r.label}</strong>
+                      <strong className="doc-label">{r.label}</strong>
                     </td>
                     <td>
                       <StatusBadge tone={toneForStatus(r.status)}>
@@ -483,9 +481,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                     </td>
                     <td>{r.owner}</td>
                     <td>
-                      <code>{r.amount ?? "—"}</code>
+                      <code className="doc-amount">{r.amount ?? "—"}</code>
                     </td>
-                    <td>{r.updated}</td>
+                    <td className="doc-updated">{r.updated}</td>
                     <td style={{ textAlign: "right" }}>
                       <div className="doc-row-actions">
                         <button
@@ -540,16 +538,6 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                 </div>
               </div>
               <div className="doc-overlay-header__right">
-                {doc.htmlPath ? (
-                  <a
-                    className="btn-admin btn-admin--ghost"
-                    href={doc.htmlPath}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Maquette
-                  </a>
-                ) : null}
                 <button
                   type="button"
                   className="btn-admin btn-admin--ghost"
@@ -970,6 +958,6 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   );
 }

@@ -1247,6 +1247,10 @@ export function SettingsWorkspace() {
                       setEditingUser({
                         ...editingUser,
                         role: e.target.value as UserRole,
+                        employeeId:
+                          e.target.value === "nettoyeur"
+                            ? editingUser.employeeId
+                            : undefined,
                       })
                     }
                   >
@@ -1257,6 +1261,21 @@ export function SettingsWorkspace() {
                     ))}
                   </select>
                 </label>
+                {editingUser.role === "nettoyeur" ? (
+                  <label className="settings-field">
+                    <span>ID employé pointage</span>
+                    <input
+                      value={editingUser.employeeId ?? ""}
+                      onChange={(e) =>
+                        setEditingUser({
+                          ...editingUser,
+                          employeeId: e.target.value.trim() || undefined,
+                        })
+                      }
+                      placeholder="EMP-001"
+                    />
+                  </label>
+                ) : null}
                 <label className="settings-toggle is-full">
                   <input
                     type="checkbox"

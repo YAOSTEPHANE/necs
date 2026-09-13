@@ -12,6 +12,7 @@ import {
   saveSettings,
 } from "@/lib/settings";
 import { loadSession } from "@/lib/auth";
+import { loadPointageStore } from "@/lib/pointage";
 import { IconUser } from "@/components/admin/Icons";
 import { PageHeader, StatusBadge } from "@/components/admin/Ui";
 
@@ -26,9 +27,13 @@ function roleTone(role: UserRole): "ok" | "info" | "warn" | "neutral" {
     case "qualite":
       return "warn";
     case "rh":
+    case "nettoyeur":
       return "neutral";
-    default:
+    default: {
+      const _exhaustive: never = role;
+      void _exhaustive;
       return "neutral";
+    }
   }
 }
 
@@ -48,6 +53,9 @@ export function UsersWorkspace() {
   const [minPassword, setMinPassword] = useState(8);
   const [ready, setReady] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [employeeOptions, setEmployeeOptions] = useState<
+    { id: string; name: string }[]
+  >([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | UserRole>("all");
   const [overlayOpen, setOverlayOpen] = useState(false);
@@ -62,6 +70,12 @@ export function UsersWorkspace() {
     setMinPassword(settings.security.passwordMinLength || 8);
     const session = loadSession();
     setIsAdmin(session?.role === "admin");
+    const pointage = loadPointageStore();
+    setEmployeeOptions(
+      pointage.employees
+        .filter((e) => e.active)
+        .map((e) => ({ id: e.id, name: e.name })),
+    );
     setReady(true);
   };
 
@@ -160,6 +174,8 @@ export function UsersWorkspace() {
       email,
       password,
       phone: draft.phone.trim(),
+      employeeId:
+        draft.role === "nettoyeur" ? draft.employeeId || undefined : undefined,
     };
 
     const next = isNew
@@ -476,6 +492,30 @@ export function UsersWorkspace() {
                     {ROLE_DESCRIPTIONS[draft.role]}
                   </em>
                 </label>
+                {draft.role === "nettoyeur" ? (
+                  <label className="settings-field is-full">
+                    <span>Employé pointage lié</span>
+                    <select
+                      value={draft.employeeId ?? ""}
+                      onChange={(e) =>
+                        setDraft({
+                          ...draft,
+                          employeeId: e.target.value || undefined,
+                        })
+                      }
+                    >
+                      <option value="">— Sélectionner —</option>
+                      {employeeOptions.map((e) => (
+                        <option key={e.id} value={e.id}>
+                          {e.name} ({e.id})
+                        </option>
+                      ))}
+                    </select>
+                    <em className="users-role-hint">
+                      Relie ce compte à une fiche du module Pointage.
+                    </em>
+                  </label>
+                ) : null}
                 <label className="settings-toggle is-full">
                   <input
                     type="checkbox"

@@ -9,7 +9,8 @@ export type UserRole =
   | "ops"
   | "rh"
   | "finance"
-  | "qualite";
+  | "qualite"
+  | "nettoyeur";
 
 export type AdminUser = {
   id: string;
@@ -20,6 +21,8 @@ export type AdminUser = {
   password: string;
   active: boolean;
   lastLogin: string;
+  /** Lien vers l’employé pointage (espace agent). */
+  employeeId?: string;
 };
 
 export type SocialNetworkId =
@@ -98,6 +101,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   rh: "Ressources humaines",
   finance: "Finance",
   qualite: "Qualité",
+  nettoyeur: "Nettoyeur / Agent terrain",
 };
 
 export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
@@ -107,6 +111,7 @@ export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   rh: "Recrutement, contrats agents, congés et dossiers RH.",
   finance: "Préfactures, factures, avoirs et suivi des règlements.",
   qualite: "Contrôles qualité, rapports et non-conformités.",
+  nettoyeur: "Espace agent : pointage et photos après nettoyage sur site.",
 };
 
 export const USER_ROLES = Object.keys(ROLE_LABELS) as UserRole[];
@@ -254,6 +259,48 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       active: true,
       lastLogin: "Il y a 5 jours",
     },
+    {
+      id: "USR-007",
+      name: "Claire Mbarga",
+      email: "finance@necs.cm",
+      role: "finance",
+      phone: "+237 6XX XX XX XX",
+      password: "necs2026",
+      active: true,
+      lastLogin: "—",
+    },
+    {
+      id: "USR-008",
+      name: "Serge Ndjock",
+      email: "qualite@necs.cm",
+      role: "qualite",
+      phone: "+237 6XX XX XX XX",
+      password: "necs2026",
+      active: true,
+      lastLogin: "—",
+    },
+    {
+      id: "USR-005",
+      name: "Amina Kouam",
+      email: "amina.kouam@necs.cm",
+      role: "nettoyeur",
+      phone: "+237 6XX XX XX XX",
+      password: "agent123",
+      active: true,
+      lastLogin: "—",
+      employeeId: "EMP-001",
+    },
+    {
+      id: "USR-006",
+      name: "Marc Ngo",
+      email: "marc.ngo@necs.cm",
+      role: "nettoyeur",
+      phone: "+237 6XX XX XX XX",
+      password: "agent123",
+      active: true,
+      lastLogin: "—",
+      employeeId: "EMP-002",
+    },
   ],
 };
 
@@ -271,7 +318,7 @@ function mergeSocial(parsed?: SocialLink[]): SocialLink[] {
   });
 }
 
-/** Ancien JPG / data URL opaque → PNG transparent. */
+/** Anciens chemins JPG/PNG par défaut → asset transparent. Conserve les uploads data:image/. */
 function normalizeBrandAssetUrl(url?: string): string {
   if (!url) return DEFAULT_LOGO;
   if (
@@ -279,10 +326,6 @@ function normalizeBrandAssetUrl(url?: string): string {
     url === "/images/logo-necs.png" ||
     url.startsWith("/images/logo-necs.png?")
   ) {
-    return DEFAULT_LOGO;
-  }
-  // Logos uploadés encore avec fond blanc
-  if (url.startsWith("data:image/")) {
     return DEFAULT_LOGO;
   }
   return url;
@@ -313,10 +356,12 @@ export function loadSettings(): AdminSettings {
         ...(parsed.notifications ?? {}),
       },
       security: { ...DEFAULT_SETTINGS.security, ...(parsed.security ?? {}) },
-      users: (parsed.users?.length
-        ? parsed.users
-        : structuredClone(DEFAULT_SETTINGS.users)
-      ).map(resolveUserPassword),
+      users: ensureAgentAccounts(
+        (parsed.users?.length
+          ? parsed.users
+          : structuredClone(DEFAULT_SETTINGS.users)
+        ).map(normalizeAdminUser),
+      ),
     };
 
     // Persister la migration logo transparent (évite le fond blanc en cache local)
@@ -358,6 +403,65 @@ function resolveUserPassword(u: AdminUser): AdminUser {
   }
 
   return { ...u, password };
+}
+
+function normalizeAdminUser(u: AdminUser): AdminUser {
+  const base = resolveUserPassword(u);
+  const role: UserRole = USER_ROLES.includes(base.role)
+    ? base.role
+    : "commercial";
+  const employeeId =
+    base.employeeId?.trim() ||
+    (role === "nettoyeur"
+      ? DEFAULT_SETTINGS.users.find(
+          (d) =>
+            d.id === base.id ||
+            d.email.trim().toLowerCase() === base.email.trim().toLowerCase(),
+        )?.employeeId
+      : undefined);
+  return {
+    ...base,
+    role,
+    ...(employeeId ? { employeeId } : {}),
+  };
+}
+
+/** Ajoute les comptes démo manquants (agents + finance/qualité). */
+function ensureAgentAccounts(users: AdminUser[]): AdminUser[] {
+  const next = [...users];
+  let changed = false;
+  const demos = DEFAULT_SETTINGS.users.filter(
+    (u) =>
+      u.role === "nettoyeur" ||
+      u.role === "finance" ||
+      u.role === "qualite",
+  );
+  for (const demo of demos) {
+    const email = demo.email.trim().toLowerCase();
+    const exists = next.some(
+      (u) =>
+        u.id === demo.id || u.email.trim().toLowerCase() === email,
+    );
+    if (!exists) {
+      next.push(structuredClone(demo));
+      changed = true;
+    }
+  }
+  if (changed) {
+    try {
+      const raw = localStorage.getItem(NECS_SETTINGS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as AdminSettings;
+        localStorage.setItem(
+          NECS_SETTINGS_KEY,
+          JSON.stringify({ ...parsed, users: next }),
+        );
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return next;
 }
 
 export function saveSettings(data: AdminSettings): void {

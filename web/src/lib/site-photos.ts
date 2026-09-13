@@ -1,7 +1,8 @@
 export const NECS_SITE_PHOTOS_KEY = "necs_site_photos_v1";
 export const NECS_SITE_PHOTOS_EVENT = "necs-site-photos-updated";
 
-export type PhotoKind = "arrival" | "departure";
+/** Avant = état initial ; Après = preuve une fois le nettoyage terminé. */
+export type PhotoKind = "arrival" | "after";
 
 export type SitePhoto = {
   id: string;
@@ -20,7 +21,8 @@ export type SiteVisit = {
   notes: string;
   status: "En cours" | "Terminé";
   arrivalAt: string | null;
-  departureAt: string | null;
+  /** Horodatage de la 1re photo après nettoyage */
+  afterAt: string | null;
   photos: SitePhoto[];
   updatedAt: string;
 };
@@ -52,6 +54,30 @@ export function createPhotoId(): string {
   return `PH-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`;
 }
 
+function normalizePhotoKind(kind: string): PhotoKind {
+  // Ancien libellé « departure » = preuve après nettoyage
+  if (kind === "departure" || kind === "after") return "after";
+  return "arrival";
+}
+
+function normalizeVisit(raw: SiteVisit & { departureAt?: string | null }): SiteVisit {
+  const photos = (Array.isArray(raw.photos) ? raw.photos : []).map((p) => ({
+    ...p,
+    kind: normalizePhotoKind(p.kind),
+  }));
+  const hasAfter = photos.some((p) => p.kind === "after");
+  const hasArrival = photos.some((p) => p.kind === "arrival");
+  return {
+    ...raw,
+    photos,
+    arrivalAt: hasArrival ? raw.arrivalAt ?? null : null,
+    afterAt: hasAfter
+      ? raw.afterAt ?? raw.departureAt ?? null
+      : null,
+    status: hasAfter ? "Terminé" : "En cours",
+  };
+}
+
 function seedVisits(): SiteVisit[] {
   return [
     {
@@ -63,7 +89,7 @@ function seedVisits(): SiteVisit[] {
       notes: "Entretien quotidien bureaux & sanitaires",
       status: "En cours",
       arrivalAt: null,
-      departureAt: null,
+      afterAt: null,
       photos: [],
       updatedAt: nowLabel(),
     },
@@ -75,16 +101,13 @@ export function loadSiteVisits(): SiteVisit[] {
   try {
     const raw = localStorage.getItem(NECS_SITE_PHOTOS_KEY);
     if (!raw) return seedVisits();
-    const parsed = JSON.parse(raw) as SiteVisit[];
+    const parsed = JSON.parse(raw) as Array<
+      SiteVisit & { departureAt?: string | null }
+    >;
     if (!Array.isArray(parsed) || parsed.length === 0) {
       return seedVisits();
     }
-    return parsed.map((v) => ({
-      ...v,
-      photos: Array.isArray(v.photos) ? v.photos : [],
-      arrivalAt: v.arrivalAt ?? null,
-      departureAt: v.departureAt ?? null,
-    }));
+    return parsed.map(normalizeVisit);
   } catch {
     return seedVisits();
   }
@@ -106,7 +129,7 @@ export function emptyVisit(agent: string): SiteVisit {
     notes: "",
     status: "En cours",
     arrivalAt: null,
-    departureAt: null,
+    afterAt: null,
     photos: [],
     updatedAt: nowLabel(),
   };
@@ -128,24 +151,19 @@ export function addPhotoToVisit(
   const photos = [...visit.photos, photo];
   const arrivalAt =
     kind === "arrival" && !visit.arrivalAt ? nowLabel() : visit.arrivalAt;
-  const departureAt =
-    kind === "departure" && !visit.departureAt
-      ? nowLabel()
-      : visit.departureAt;
+  const afterAt =
+    kind === "after" && !visit.afterAt ? nowLabel() : visit.afterAt;
 
-  let status = visit.status;
-  if (
-    photos.some((p) => p.kind === "arrival") &&
-    photos.some((p) => p.kind === "departure")
-  ) {
-    status = "Terminé";
-  }
+  // La preuve après nettoyage clôture la visite (rôle nettoyeur)
+  const status: SiteVisit["status"] = photos.some((p) => p.kind === "after")
+    ? "Terminé"
+    : "En cours";
 
   return {
     ...visit,
     photos,
     arrivalAt,
-    departureAt,
+    afterAt,
     status,
     updatedAt: nowLabel(),
   };
@@ -157,17 +175,21 @@ export function removePhotoFromVisit(
 ): SiteVisit {
   const photos = visit.photos.filter((p) => p.id !== photoId);
   const hasArrival = photos.some((p) => p.kind === "arrival");
-  const hasDeparture = photos.some((p) => p.kind === "departure");
+  const hasAfter = photos.some((p) => p.kind === "after");
   return {
     ...visit,
     photos,
     arrivalAt: hasArrival ? visit.arrivalAt : null,
-    departureAt: hasDeparture ? visit.departureAt : null,
-    status: hasArrival && hasDeparture ? "Terminé" : "En cours",
+    afterAt: hasAfter ? visit.afterAt : null,
+    status: hasAfter ? "Terminé" : "En cours",
     updatedAt: nowLabel(),
   };
 }
 
 export function countByKind(visit: SiteVisit, kind: PhotoKind): number {
   return visit.photos.filter((p) => p.kind === kind).length;
+}
+
+export function photoKindLabel(kind: PhotoKind): string {
+  return kind === "after" ? "Après" : "Avant";
 }

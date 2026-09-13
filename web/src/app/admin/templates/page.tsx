@@ -1,35 +1,61 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import {
   DOCUMENT_DOMAINS,
   DOCUMENTS,
 } from "@/lib/documents-catalog";
 import { applyDocEnrichment } from "@/lib/documents-enrichment";
 import { DocIcon, docIconTone } from "@/components/admin/Icons";
+import { loadSession } from "@/lib/auth";
+import { domainsForRole, type DocDomain } from "@/lib/role-spaces";
+import type { UserRole } from "@/lib/settings";
 
 function HubInner() {
   const search = useSearchParams();
   const initialDomain = search.get("domain") ?? "all";
   const [domain, setDomain] = useState(initialDomain);
   const [q, setQ] = useState("");
+  const [role, setRole] = useState<UserRole | null>(null);
 
-  // sync when URL domain changes
+  useEffect(() => {
+    setRole(loadSession()?.role ?? null);
+  }, []);
+
   const urlDomain = search.get("domain") ?? "all";
   const activeDomain = urlDomain !== domain && !q ? urlDomain : domain;
+
+  const allowedDomains = useMemo(() => {
+    if (!role) return "all" as const;
+    return domainsForRole(role);
+  }, [role]);
 
   const enrichedDocs = useMemo(
     () => DOCUMENTS.map((d) => applyDocEnrichment(d)),
     [],
   );
 
+  const visibleDocs = useMemo(() => {
+    if (allowedDomains === "all") return enrichedDocs;
+    return enrichedDocs.filter((d) =>
+      allowedDomains.includes(d.domain as DocDomain),
+    );
+  }, [enrichedDocs, allowedDomains]);
+
+  const domainChips = useMemo(() => {
+    if (allowedDomains === "all") return DOCUMENT_DOMAINS;
+    return DOCUMENT_DOMAINS.filter(
+      (d) =>
+        d.id === "all" || allowedDomains.includes(d.id as DocDomain),
+    );
+  }, [allowedDomains]);
+
   const filtered = useMemo(() => {
     const query = q.trim().toLowerCase();
     const dom = search.get("domain") ?? domain;
-    return enrichedDocs.filter((d) => {
+    return visibleDocs.filter((d) => {
       const domainOk = dom === "all" || d.domain === dom;
       const searchOk =
         !query ||
@@ -38,18 +64,40 @@ function HubInner() {
         d.module.toLowerCase().includes(query);
       return domainOk && searchOk;
     });
-  }, [domain, q, search, enrichedDocs]);
+  }, [domain, q, search, visibleDocs]);
 
   return (
-    <div className="symp-dash">
-      <div className="symp-welcome">
+    <div className="symp-dash doc-hub">
+      <div className="doc-hub-hero">
         <div>
-          <h1>Documents métier</h1>
-          <p>28 documents métier — sélectionnez un modèle dans le menu ou ci-dessous.</p>
+          <p className="doc-hub-hero__eyebrow">Bibliothèque métier</p>
+          <h1>Documents & modules</h1>
+          <p>
+            {visibleDocs.length} module
+            {visibleDocs.length > 1 ? "s" : ""} accessible
+            {visibleDocs.length > 1 ? "s" : ""} selon votre rôle.
+          </p>
+        </div>
+        <div className="doc-hub-hero__stats">
+          <div>
+            <strong>{visibleDocs.length}</strong>
+            <span>Modules</span>
+          </div>
+          <div>
+            <strong>
+              {allowedDomains === "all"
+                ? DOCUMENT_DOMAINS.length - 1
+                : allowedDomains.length}
+            </strong>
+            <span>Domaines</span>
+          </div>
         </div>
       </div>
 
-      <div className="doc-hub-filters symp-card" style={{ padding: "1rem 1.1rem", marginBottom: "1rem" }}>
+      <div
+        className="doc-hub-filters symp-card"
+        style={{ padding: "1rem 1.1rem", marginBottom: "1rem" }}
+      >
         <input
           className="doc-hub-search"
           placeholder="Rechercher un document…"
@@ -57,10 +105,14 @@ function HubInner() {
           onChange={(e) => setQ(e.target.value)}
         />
         <div className="doc-hub-chips">
-          {DOCUMENT_DOMAINS.map((d) => (
+          {domainChips.map((d) => (
             <Link
               key={d.id}
-              href={d.id === "all" ? "/admin/templates" : `/admin/templates?domain=${d.id}`}
+              href={
+                d.id === "all"
+                  ? "/admin/templates"
+                  : `/admin/templates?domain=${d.id}`
+              }
               className={`doc-chip${(search.get("domain") ?? "all") === d.id ? " is-active" : ""}`}
               onClick={() => setDomain(d.id)}
             >
@@ -72,7 +124,11 @@ function HubInner() {
 
       <div className="doc-hub-grid">
         {filtered.map((doc) => (
-          <Link key={doc.id} href={`/admin/templates/${doc.slug}`} className="doc-hub-card">
+          <Link
+            key={doc.id}
+            href={`/admin/templates/${doc.slug}`}
+            className="doc-hub-card"
+          >
             <div className="doc-hub-card__top">
               <span
                 className="doc-hub-card__icon"
@@ -80,13 +136,19 @@ function HubInner() {
               >
                 <DocIcon slug={doc.slug} size={20} />
               </span>
-              <span className="symp-status tone-info"><i />{doc.domain}</span>
+              <span className="symp-status tone-info">
+                <i />
+                {doc.domain}
+              </span>
             </div>
             <h3>{doc.title}</h3>
             <p>{doc.subtitle}</p>
             <div className="doc-hub-card__meta">
               <span>{doc.module}</span>
-              <span>{doc.records.length} dossier{doc.records.length > 1 ? "s" : ""}</span>
+              <span>
+                {doc.records.length} dossier
+                {doc.records.length > 1 ? "s" : ""}
+              </span>
             </div>
           </Link>
         ))}
