@@ -172,6 +172,12 @@ export function SiteShell({
   }, [pathname]);
 
   useEffect(() => {
+    // Next.js App Router peut conserver la position de scroll entre pages
+    // (ex. logo → accueil qui s'ouvre en bas / pied de page).
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+  }, [pathname]);
+
+  useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 24);
     };
@@ -232,7 +238,19 @@ export function SiteShell({
         id="top"
       >
         <div className={`container nav${navOpen ? " is-open" : ""}`}>
-          <Link className="brand" href="/" aria-label="NECS — Accueil">
+          <Link
+            className="brand"
+            href="/"
+            aria-label="NECS — Accueil"
+            scroll
+            onClick={() => {
+              setNavOpen(false);
+              setMoreOpen(false);
+              if (pathname === "/") {
+                window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+              }
+            }}
+          >
             <BrandLogo alt="NECS" width={56} height={56} />
           </Link>
 
