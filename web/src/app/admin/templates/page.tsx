@@ -9,6 +9,7 @@ import {
 } from "@/lib/documents-catalog";
 import { applyDocEnrichment } from "@/lib/documents-enrichment";
 import { DocIcon, docIconTone } from "@/components/admin/Icons";
+import { EmptyState, ModuleHeader } from "@/components/admin/Ui";
 import { loadSession } from "@/lib/auth";
 import { domainsForRole, type DocDomain } from "@/lib/role-spaces";
 import type { UserRole } from "@/lib/settings";
@@ -67,58 +68,53 @@ function HubInner() {
   }, [domain, q, search, visibleDocs]);
 
   return (
-    <div className="symp-dash doc-hub">
-      <div className="doc-hub-hero">
-        <div>
-          <p className="doc-hub-hero__eyebrow">Bibliothèque métier</p>
-          <h1>Documents & modules</h1>
-          <p>
-            {visibleDocs.length} module
-            {visibleDocs.length > 1 ? "s" : ""} accessible
-            {visibleDocs.length > 1 ? "s" : ""} selon votre rôle.
-          </p>
-        </div>
-        <div className="doc-hub-hero__stats">
-          <div>
-            <strong>{visibleDocs.length}</strong>
-            <span>Modules</span>
-          </div>
-          <div>
-            <strong>
+    <div className="symp-dash doc-hub doc-workspace">
+      <ModuleHeader
+        tone="#1260a8"
+        badge="Bibliothèque métier"
+        title="Documents & modules"
+        description={`${visibleDocs.length} module${visibleDocs.length > 1 ? "s" : ""} accessible${visibleDocs.length > 1 ? "s" : ""} selon votre rôle.`}
+        meta={
+          <>
+            <span>
+              <strong>Modules</strong>
+              {visibleDocs.length}
+            </span>
+            <span>
+              <strong>Domaines</strong>
               {allowedDomains === "all"
                 ? DOCUMENT_DOMAINS.length - 1
                 : allowedDomains.length}
-            </strong>
-            <span>Domaines</span>
-          </div>
-        </div>
-      </div>
+            </span>
+          </>
+        }
+      />
 
-      <div
-        className="doc-hub-filters symp-card"
-        style={{ padding: "1rem 1.1rem", marginBottom: "1rem" }}
-      >
-        <input
-          className="doc-hub-search"
-          placeholder="Rechercher un document…"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-        />
-        <div className="doc-hub-chips">
-          {domainChips.map((d) => (
-            <Link
-              key={d.id}
-              href={
-                d.id === "all"
-                  ? "/admin/templates"
-                  : `/admin/templates?domain=${d.id}`
-              }
-              className={`doc-chip${(search.get("domain") ?? "all") === d.id ? " is-active" : ""}`}
-              onClick={() => setDomain(d.id)}
-            >
-              {d.label}
-            </Link>
-          ))}
+      <div className="doc-hub-filters panel-card">
+        <div className="doc-records-toolbar">
+          <input
+            type="search"
+            className="doc-records-search"
+            placeholder="Rechercher un document…"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+          />
+          <div className="doc-records-chips">
+            {domainChips.map((d) => (
+              <Link
+                key={d.id}
+                href={
+                  d.id === "all"
+                    ? "/admin/templates"
+                    : `/admin/templates?domain=${d.id}`
+                }
+                className={`doc-chip${(search.get("domain") ?? "all") === d.id ? " is-active" : ""}`}
+                onClick={() => setDomain(d.id)}
+              >
+                {d.label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -155,7 +151,10 @@ function HubInner() {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="note">Aucun document pour ce filtre.</p>
+        <EmptyState
+          title="Aucun document"
+          hint="Aucun document pour ce filtre."
+        />
       ) : null}
       <span className="sr-only">{activeDomain}</span>
     </div>

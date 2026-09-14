@@ -13,6 +13,7 @@ import {
   isNettoyeur,
   loadSession,
   logoutAdmin,
+  refreshSessionFromServer,
 } from "@/lib/auth";
 import { filterNavByRole, getRoleSpace } from "@/lib/role-spaces";
 import {
@@ -119,21 +120,46 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const isLoginPage = pathname === "/admin/login";
   const [navOpen, setNavOpen] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(false);
   const [session, setSession] = useState<AdminSession | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const sync = () => {
-      setSession(loadSession());
+    try {
+      setSideCollapsed(localStorage.getItem("necs-admin-side-collapsed") === "1");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const toggleSideCollapsed = () => {
+    setSideCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("necs-admin-side-collapsed", next ? "1" : "0");
+      } catch {
+        /* ignore */
+      }
+      return next;
+    });
+  };
+  useEffect(() => {
+    let cancelled = false;
+    const sync = async () => {
+      const fromServer = await refreshSessionFromServer();
+      if (cancelled) return;
+      setSession(fromServer ?? loadSession());
       setAuthReady(true);
     };
-    sync();
-    window.addEventListener(NECS_AUTH_EVENT, sync);
-    window.addEventListener("storage", sync);
+    void sync();
+    const onAuth = () => setSession(loadSession());
+    window.addEventListener(NECS_AUTH_EVENT, onAuth);
+    window.addEventListener("storage", onAuth);
     return () => {
-      window.removeEventListener(NECS_AUTH_EVENT, sync);
-      window.removeEventListener("storage", sync);
+      cancelled = true;
+      window.removeEventListener(NECS_AUTH_EVENT, onAuth);
+      window.removeEventListener("storage", onAuth);
     };
   }, []);
 
@@ -262,9 +288,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   };
 
   const onLogout = () => {
-    logoutAdmin();
-    setSession(null);
-    router.replace("/admin/login");
+    void logoutAdmin().then(() => {
+      setSession(null);
+      router.replace("/admin/login");
+    });
   };
 
   if (isLoginPage) {
@@ -301,7 +328,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     session.role === "qualite";
 
   return (
-    <div className={`dash-app${navOpen ? " is-nav-open" : ""}`}>
+    <div
+      className={`dash-app${navOpen ? " is-nav-open" : ""}${sideCollapsed ? " is-side-collapsed" : ""}`}
+    >
       <header className="dash-mobilebar">
         <button
           type="button"
@@ -349,6 +378,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="dash-brand dash-side__brand"
               href="/admin"
               aria-label="NECS Admin"
+              title="NECS Admin"
             >
               <span className="dash-side__logo-wrap">
                 <BrandLogo alt="NECS" width={40} height={40} />
@@ -361,6 +391,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 </em>
               </span>
             </Link>
+            <button
+              type="button"
+              className="dash-side__collapse"
+              aria-label={sideCollapsed ? "Élargir le menu" : "Réduire le menu"}
+              title={sideCollapsed ? "Élargir le menu" : "Réduire le menu"}
+              aria-pressed={sideCollapsed}
+              onClick={toggleSideCollapsed}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden
+              >
+                {sideCollapsed ? (
+                  <path d="M9 6 15 12 9 18" />
+                ) : (
+                  <path d="M15 6 9 12 15 18" />
+                )}
+              </svg>
+            </button>
             <button
               type="button"
               className="dash-side__close"
@@ -430,6 +486,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin"
                   className={`dash-side__link${pathname === "/admin" ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                  title="Tableau de bord"
                 >
                   <span className="dash-side__icon">
                     <IconHome size={16} />
@@ -446,6 +503,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin/espace"
                   className={`dash-side__link${pathname.startsWith("/admin/espace") ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: roleSpace.accent }}
+                  title="Mon espace"
                 >
                   <span className="dash-side__icon">
                     <IconHome size={16} />
@@ -462,6 +520,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin/utilisateurs"
                   className={`dash-side__link${pathname === "/admin/utilisateurs" ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: "#7dd3fc" }}
+                  title="Utilisateurs"
                 >
                   <span className="dash-side__icon">
                     <IconUser size={16} />
@@ -478,6 +537,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin/terrain"
                   className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: "#8fd14a" }}
+                  title="Photos terrain"
                 >
                   <span className="dash-side__icon">
                     <IconVisit size={16} />
@@ -494,6 +554,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin/pointage"
                   className={`dash-side__link${pathname === "/admin/pointage" ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: "#3ec8e8" }}
+                  title="Pointage"
                 >
                   <span className="dash-side__icon">
                     <IconClock size={16} />
@@ -510,6 +571,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                   href="/admin/parametres"
                   className={`dash-side__link${pathname === "/admin/parametres" ? " is-active" : ""}`}
                   style={{ ["--icon-c" as string]: "#94a3b8" }}
+                  title="Paramètres"
                 >
                   <span className="dash-side__icon">
                     <IconSettings size={16} />
@@ -523,7 +585,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </div>
 
             {filteredGroups.map(({ group, items }) => {
-              const open = Boolean(openGroups[group]);
+              const open = sideCollapsed || Boolean(openGroups[group]);
               const tone = GROUP_TONE[group] ?? "#3ec8e8";
               return (
                 <div
@@ -536,6 +598,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                     className="dash-side__group-toggle"
                     onClick={() => toggleGroup(group)}
                     aria-expanded={open}
+                    title={GROUP_LABEL[group] ?? group}
                   >
                     <i className="dash-side__group-dot" aria-hidden />
                     <span>{GROUP_LABEL[group] ?? group}</span>
@@ -553,7 +616,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                             key={item.href}
                             href={item.href}
                             className={`dash-side__link dash-side__link--mod${active ? " is-active" : ""}`}
-                            title={item.description}
+                            title={item.label}
                             style={{ ["--icon-c" as string]: itemTone }}
                           >
                             <span className="dash-side__icon">
@@ -576,10 +639,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </aside>
 
         <div className="dash-workspace">
-          <header className="dash-topbar">
+          <header className="dash-topbar dash-topbar--compact">
             <div className="dash-topbar__intro">
               <p>{heading.eyebrow}</p>
-              <strong>{heading.title}</strong>
+              <strong className="dash-topbar__crumb">{heading.title}</strong>
             </div>
             <div className="dash-topbar__right">
               <Link className="dash-topbar__site" href="/" target="_blank" rel="noopener noreferrer">
@@ -597,7 +660,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <ProfileMenu session={session} onLogout={onLogout} />
             </div>
           </header>
-          <main className="dash-main">{children}</main>
+          <main className="dash-main dash-main--has-hero">{children}</main>
         </div>
       </div>
     </div>

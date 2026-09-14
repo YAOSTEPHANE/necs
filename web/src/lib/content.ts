@@ -169,16 +169,18 @@ export const DEFAULT_CONTENT: NecsContent = {
   why3Title: "Digital de bout en bout",
   why3Text:
     "Du devis au contrat, de l’intervention à la facture : tout est centralisé et traçable.",
-  aboutTitle: "NECLEANING & SERVICES SARL",
+  aboutTitle: "Des espaces propres. Un service rigoureux. Une confiance durable.",
   aboutText:
-    "NECS est une société camerounaise de nettoyage et de facility services, bâtie sur trois piliers : la propreté irréprochable, la rigueur d’exécution et la confiance durable avec nos clients.",
-  aboutF1Title: "Expertise multi-sites",
-  aboutF1Text: "Bureaux, industries, commerces et établissements exigeants.",
+    "NECLEANING & SERVICES SARL (NECS) est une société camerounaise de nettoyage et de facility services. Nous accompagnons les entreprises, industries, commerces, établissements et particuliers dans l’entretien et la propreté de leurs espaces, avec des équipes formées, un encadrement de proximité et des solutions digitales qui rendent chaque prestation mesurable, transparente et fiable.",
+  aboutF1Title: "Expertise multi-secteurs",
+  aboutF1Text:
+    "Bureaux, industries, commerces, établissements de santé, résidences et espaces professionnels exigeants.",
   aboutF2Title: "Encadrement de proximité",
-  aboutF2Text: "Superviseurs dédiés, checklists et actions correctives rapides.",
+  aboutF2Text:
+    "Superviseurs dédiés, checklists, contrôles qualité et actions correctives rapides.",
   aboutF3Title: "Engagement durable",
   aboutF3Text:
-    "Produits adaptés, formation continue et respect des consignes sites.",
+    "Produits adaptés, formation continue, gestion responsable des ressources et respect des consignes sites.",
   achTitle: "Des résultats qui se voient… et se mesurent",
   achLead:
     "Chaque site confié à NECS devient une vitrine de notre exigence : surfaces impeccables, équipes ponctuelles, indicateurs suivis.",
@@ -191,7 +193,7 @@ export const DEFAULT_CONTENT: NecsContent = {
   stat4Value: "24h",
   stat4Label: "Réactivité absences",
   objTitle:
-    "Devenir la référence digitale du nettoyage professionnel au Cameroun",
+    "Être le partenaire de référence en Afrique centrale pour des environnements sains, sûrs et agréables à vivre.",
   objText:
     "Digitaliser le cycle complet — prospect, contrat, exécution, RH, qualité, facturation — pour offrir à chaque client une expérience premium, transparente et durable.",
   actTitle: "Des expertises adaptées à chaque environnement",

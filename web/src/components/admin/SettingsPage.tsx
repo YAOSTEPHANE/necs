@@ -24,7 +24,8 @@ import {
   saveSettings,
 } from "@/lib/settings";
 import { IconSettings } from "@/components/admin/Icons";
-import { StatusBadge } from "@/components/admin/Ui";
+import { ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 import { downloadImage } from "@/lib/download";
 import { persistOptimizedImage } from "@/lib/vercel-blob-client";
 
@@ -67,7 +68,6 @@ function roleTone(role: UserRole): "ok" | "info" | "warn" | "neutral" {
 export function SettingsWorkspace() {
   const [tab, setTab] = useState<TabId>("entreprise");
   const [settings, setSettings] = useState<AdminSettings>(DEFAULT_SETTINGS);
-  const [savedAt, setSavedAt] = useState<string | null>(null);
   const [userOverlay, setUserOverlay] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
   const [siteContact, setSiteContact] = useState({
@@ -210,7 +210,9 @@ export function SettingsWorkspace() {
   }, [userOverlay]);
 
   const markSaved = () => {
-    setSavedAt(new Date().toLocaleTimeString("fr-FR"));
+    toast.success(
+      `Enregistré à ${new Date().toLocaleTimeString("fr-FR")}`,
+    );
   };
 
   const persist = (next: AdminSettings) => {
@@ -282,12 +284,13 @@ export function SettingsWorkspace() {
   const saveUser = (e: FormEvent) => {
     e.preventDefault();
     if (!editingUser || !editingUser.name.trim() || !editingUser.email.trim()) {
+      toast.warning("Nom et email sont obligatoires.");
       return;
     }
     const email = editingUser.email.trim().toLowerCase();
     const password = editingUser.password.trim();
     if (password.length < (settings.security.passwordMinLength || 8)) {
-      alert(
+      toast.warning(
         `Mot de passe : au moins ${settings.security.passwordMinLength || 8} caractères.`,
       );
       return;
@@ -297,7 +300,7 @@ export function SettingsWorkspace() {
         u.email.trim().toLowerCase() === email && u.id !== editingUser.id,
     );
     if (emailTaken) {
-      alert("Un compte utilise déjà cet email.");
+      toast.warning("Un compte utilise déjà cet email.");
       return;
     }
     const saved: AdminUser = {
@@ -327,7 +330,7 @@ export function SettingsWorkspace() {
 
   const deleteUser = (id: string) => {
     if (id === "USR-001") {
-      alert("Le compte administrateur principal ne peut pas être supprimé.");
+      toast.warning("Le compte administrateur principal ne peut pas être supprimé.");
       return;
     }
     if (!confirm("Supprimer définitivement cet utilisateur ?")) return;
@@ -348,7 +351,7 @@ export function SettingsWorkspace() {
     resetSettings();
     const fresh = loadSettings();
     setSettings(fresh);
-    markSaved();
+    toast.info("Paramètres réinitialisés aux valeurs NECS.");
   };
 
   const patchCompany = <K extends keyof AdminSettings["company"]>(
@@ -392,25 +395,14 @@ export function SettingsWorkspace() {
   };
 
   return (
-    <div className="settings-page">
-      <header className="settings-hero">
-        <div className="settings-hero__left">
-          <span className="settings-hero__icon" aria-hidden>
-            <IconSettings size={22} />
-          </span>
-          <div>
-            <p className="settings-hero__eyebrow">Administration NECS</p>
-            <h1>Paramètres</h1>
-            <p className="settings-hero__sub">
-              Configurez l’entreprise, les utilisateurs, la numérotation des
-              documents, les notifications et le site public.
-            </p>
-          </div>
-        </div>
-        <div className="settings-hero__right">
-          {savedAt ? (
-            <span className="settings-saved">✓ Enregistré à {savedAt}</span>
-          ) : null}
+    <div className="settings-page doc-workspace">
+      <ModuleHeader
+        tone="#64748b"
+        badge="Administration NECS"
+        icon={<IconSettings size={22} />}
+        title="Paramètres"
+        description="Configurez l’entreprise, les utilisateurs, la numérotation des documents, les notifications et le site public."
+        actions={
           <button
             type="button"
             className="btn-admin btn-admin--ghost"
@@ -418,8 +410,8 @@ export function SettingsWorkspace() {
           >
             Réinitialiser
           </button>
-        </div>
-      </header>
+        }
+      />
 
       <nav className="settings-tabs" aria-label="Sections paramètres">
         {TABS.map((t) => (
@@ -602,7 +594,7 @@ export function SettingsWorkspace() {
                         settings.branding.logoUrl || DEFAULT_LOGO,
                         "necs-logo",
                       ).catch(() => {
-                        window.alert("Téléchargement du logo impossible.");
+                        toast.error("Téléchargement du logo impossible.");
                       });
                     }}
                   >
@@ -652,7 +644,7 @@ export function SettingsWorkspace() {
                         settings.branding.faviconUrl || DEFAULT_LOGO,
                         "necs-favicon",
                       ).catch(() => {
-                        window.alert("Téléchargement du favicon impossible.");
+                        toast.error("Téléchargement du favicon impossible.");
                       });
                     }}
                   >
@@ -770,9 +762,7 @@ export function SettingsWorkspace() {
                           siteImages[slot.key],
                           `necs-${slot.key}`,
                         ).catch(() => {
-                          window.alert(
-                            "Téléchargement de l’image impossible.",
-                          );
+                          toast.error("Téléchargement de l’image impossible.");
                         });
                       }}
                     >

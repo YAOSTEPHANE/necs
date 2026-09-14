@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
-import { AproposPage } from "@/components/site/pages/MenuPages";
+import { SiteShell } from "@/components/site/SiteShell";
+import { IdentityFlyer } from "@/components/site/IdentityFlyer";
 
 export const metadata: Metadata = {
   title: "À propos — NECS SARL",
   description:
-    "NECLEANING & SERVICES SARL : propreté, rigueur et confiance au Cameroun.",
+    "Des espaces propres. Un service rigoureux. Une confiance durable. NECLEANING & SERVICES SARL accompagne entreprises, industries, commerces et particuliers.",
 };
 
 export default function Page() {
-  return <AproposPage />;
+  return (
+    <SiteShell>
+      <IdentityFlyer />
+    </SiteShell>
+  );
 }

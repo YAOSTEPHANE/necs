@@ -9,7 +9,11 @@ import {
 } from "@/lib/role-spaces";
 import { loadSession, type AdminSession } from "@/lib/auth";
 import { DocIcon, docIconTone } from "@/components/admin/Icons";
-import { StatusBadge } from "@/components/admin/Ui";
+import {
+  EmptyState,
+  ModuleHeader,
+  StatusBadge,
+} from "@/components/admin/Ui";
 
 export function RoleSpaceWorkspace() {
   const [session, setSession] = useState<AdminSession | null>(null);
@@ -55,20 +59,13 @@ export function RoleSpaceWorkspace() {
 
   return (
     <div className="doc-workspace role-space">
-      <header
-        className="doc-hero"
-        style={{ ["--doc-tone" as string]: space.accent }}
-      >
-        <div className="doc-hero__glow" aria-hidden />
-        <div className="doc-hero__main">
-          <div className="doc-hero__badge">
-            <span>{space.eyebrow}</span>
-          </div>
-          <h1>
-            Bonjour, {firstName}
-          </h1>
-          <p>{space.lead}</p>
-          <div className="doc-hero__meta">
+      <ModuleHeader
+        tone={space.accent}
+        badge={space.eyebrow}
+        title={`Bonjour, ${firstName}`}
+        description={space.lead}
+        meta={
+          <>
             <span>
               <strong>Rôle</strong>
               {session.roleLabel}
@@ -77,12 +74,10 @@ export function RoleSpaceWorkspace() {
               <strong>Modules</strong>
               {modules.length} accessibles
             </span>
-          </div>
-        </div>
-        <div className="doc-hero__actions">
-          <StatusBadge tone="info">{space.title}</StatusBadge>
-        </div>
-      </header>
+          </>
+        }
+        actions={<StatusBadge tone="info">{space.title}</StatusBadge>}
+      />
 
       {space.tools.length > 0 ? (
         <section className="role-space__tools">
@@ -106,15 +101,15 @@ export function RoleSpaceWorkspace() {
       <section className="role-space__modules panel-card">
         <div className="panel-card__head">
           <h3>Mes modules</h3>
-          <Link href="/admin/templates" className="symp-link">
+          <Link href="/admin/templates" className="admin-text-link">
             Voir tout
           </Link>
         </div>
         {modules.length === 0 ? (
-          <div className="doc-empty">
-            <strong>Aucun module</strong>
-            <span>Contactez l’administrateur pour vos droits.</span>
-          </div>
+          <EmptyState
+            title="Aucun module"
+            hint="Contactez l’administrateur pour vos droits."
+          />
         ) : (
           <div className="role-space__mod-grid">
             {modules.map((doc) => {

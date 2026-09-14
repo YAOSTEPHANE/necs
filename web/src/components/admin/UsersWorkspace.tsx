@@ -14,7 +14,8 @@ import {
 import { loadSession } from "@/lib/auth";
 import { loadPointageStore } from "@/lib/pointage";
 import { IconUser } from "@/components/admin/Icons";
-import { PageHeader, StatusBadge } from "@/components/admin/Ui";
+import { EmptyState, ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 
 function roleTone(role: UserRole): "ok" | "info" | "warn" | "neutral" {
   switch (role) {
@@ -62,11 +63,9 @@ export function UsersWorkspace() {
   const [draft, setDraft] = useState<AdminUser | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedAt, setSavedAt] = useState<string | null>(null);
 
-  const refresh = () => {
+  const refresh = async () => {
     const settings = loadSettings();
-    setUsers(settings.users);
     setMinPassword(settings.security.passwordMinLength || 8);
     const session = loadSession();
     setIsAdmin(session?.role === "admin");
@@ -76,11 +75,26 @@ export function UsersWorkspace() {
         .filter((e) => e.active)
         .map((e) => ({ id: e.id, name: e.name })),
     );
+
+    try {
+      const res = await fetch("/api/users", { credentials: "same-origin" });
+      if (res.ok) {
+        const data = (await res.json()) as { users: AdminUser[] };
+        setUsers(data.users);
+      } else if (res.status === 503) {
+        setUsers(settings.users);
+        toast.warning("MongoDB indisponible — affichage local uniquement.");
+      } else {
+        setUsers([]);
+      }
+    } catch {
+      setUsers(settings.users);
+    }
     setReady(true);
   };
 
   useEffect(() => {
-    refresh();
+    void refresh();
   }, []);
 
   useEffect(() => {
@@ -97,16 +111,10 @@ export function UsersWorkspace() {
     };
   }, [overlayOpen]);
 
-  const persistUsers = (next: AdminUser[]) => {
+  const persistUsersLocalMirror = (next: AdminUser[]) => {
     const settings = loadSettings();
     saveSettings({ ...settings, users: next });
     setUsers(next);
-    setSavedAt(
-      new Date().toLocaleTimeString("fr-FR", {
-        hour: "2-digit",
-        minute: "2-digit",
-      }),
-    );
   };
 
   const filtered = useMemo(() => {
@@ -137,7 +145,7 @@ export function UsersWorkspace() {
     setOverlayOpen(true);
   };
 
-  const onSave = (e: FormEvent) => {
+  const onSave = async (e: FormEvent) => {
     e.preventDefault();
     if (!draft) return;
 
@@ -153,7 +161,11 @@ export function UsersWorkspace() {
       setError("Email invalide.");
       return;
     }
-    if (password.length < minPassword) {
+    if (isNew && password.length < minPassword) {
+      setError(`Mot de passe : au moins ${minPassword} caractères.`);
+      return;
+    }
+    if (!isNew && password && password.length < minPassword) {
       setError(`Mot de passe : au moins ${minPassword} caractères.`);
       return;
     }
@@ -168,38 +180,99 @@ export function UsersWorkspace() {
       return;
     }
 
-    const saved: AdminUser = {
-      ...draft,
-      name,
-      email,
-      password,
-      phone: draft.phone.trim(),
-      employeeId:
-        draft.role === "nettoyeur" ? draft.employeeId || undefined : undefined,
-    };
-
-    const next = isNew
-      ? [saved, ...users]
-      : users.map((u) => (u.id === saved.id ? saved : u));
-
-    persistUsers(next);
-    setOverlayOpen(false);
-    setDraft(null);
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: isNew ? undefined : draft.id,
+          name,
+          email,
+          role: draft.role,
+          phone: draft.phone.trim(),
+          password: password || undefined,
+          active: draft.active,
+          employeeId:
+            draft.role === "nettoyeur"
+              ? draft.employeeId || undefined
+              : undefined,
+        }),
+      });
+      const data = (await res.json()) as { error?: string; user?: AdminUser };
+      if (!res.ok || !data.user) {
+        setError(data.error || "Enregistrement impossible.");
+        toast.error(data.error || "Enregistrement impossible.");
+        return;
+      }
+      const next = isNew
+        ? [data.user, ...users.filter((u) => u.id !== data.user!.id)]
+        : users.map((u) => (u.id === data.user!.id ? data.user! : u));
+      persistUsersLocalMirror(next);
+      toast.success(isNew ? "Compte créé." : "Compte mis à jour.");
+      setOverlayOpen(false);
+      setDraft(null);
+    } catch {
+      setError("Impossible de joindre le serveur.");
+      toast.error("Impossible de joindre le serveur.");
+    }
   };
 
-  const toggleActive = (id: string) => {
-    persistUsers(
-      users.map((u) => (u.id === id ? { ...u, active: !u.active } : u)),
-    );
+  const toggleActive = async (id: string) => {
+    const user = users.find((u) => u.id === id);
+    if (!user) return;
+    try {
+      const res = await fetch("/api/users", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          phone: user.phone,
+          active: !user.active,
+          employeeId: user.employeeId,
+        }),
+      });
+      const data = (await res.json()) as { error?: string; user?: AdminUser };
+      if (!res.ok || !data.user) {
+        toast.error(data.error || "Mise à jour impossible.");
+        return;
+      }
+      persistUsersLocalMirror(
+        users.map((u) => (u.id === data.user!.id ? data.user! : u)),
+      );
+      toast.success(data.user.active ? "Compte activé." : "Compte désactivé.");
+    } catch {
+      toast.error("Impossible de joindre le serveur.");
+    }
   };
 
-  const removeUser = (id: string) => {
+  const removeUser = async (id: string) => {
     if (id === "USR-001") {
-      alert("Le compte administrateur principal ne peut pas être supprimé.");
+      toast.warning(
+        "Le compte administrateur principal ne peut pas être supprimé.",
+      );
       return;
     }
     if (!confirm("Supprimer définitivement cet utilisateur ?")) return;
-    persistUsers(users.filter((u) => u.id !== id));
+    try {
+      const res = await fetch(`/api/users?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error || "Suppression impossible.");
+        return;
+      }
+      persistUsersLocalMirror(users.filter((u) => u.id !== id));
+      toast.success("Utilisateur supprimé.");
+    } catch {
+      toast.error("Impossible de joindre le serveur.");
+    }
   };
 
   if (!ready) {
@@ -209,35 +282,29 @@ export function UsersWorkspace() {
   if (!isAdmin) {
     return (
       <div className="users-denied">
-        <PageHeader
-          code="USR"
+        <ModuleHeader
+          tone="#1260a8"
+          badge="Administration"
+          icon={<IconUser size={22} />}
           title="Utilisateurs"
           description="Gestion des comptes et des rôles"
         />
         <div className="panel-card">
-          <p className="note" style={{ margin: 0 }}>
-            Accès réservé aux administrateurs. Demandez à la Direction NECS
-            d’attribuer le rôle Administrateur si vous devez gérer les comptes.
-          </p>
+          <EmptyState
+            title="Accès réservé"
+            hint="Demandez à la Direction NECS d’attribuer le rôle Administrateur si vous devez gérer les comptes."
+          />
         </div>
       </div>
     );
   }
 
   return (
-    <>
-      <PageHeader
-        code={
-          <span className="page-header__icon">
-            <span
-              className="page-header__glyph"
-              style={{ ["--icon-c" as string]: "#1260a8" }}
-            >
-              <IconUser size={18} />
-            </span>
-            USR
-          </span>
-        }
+    <div className="doc-workspace users-page">
+      <ModuleHeader
+        tone="#1260a8"
+        badge="Administration"
+        icon={<IconUser size={22} />}
         title="Utilisateurs & rôles"
         description="Créez des comptes admin et attribuez un rôle métier."
         actions={
@@ -250,10 +317,6 @@ export function UsersWorkspace() {
           </button>
         }
       />
-
-      {savedAt ? (
-        <p className="note">Dernier enregistrement à {savedAt}</p>
-      ) : null}
 
       <div className="users-role-grid">
         {USER_ROLES.map((role) => (
@@ -278,13 +341,6 @@ export function UsersWorkspace() {
       <section className="panel-card">
         <div className="panel-card__head">
           <h3>Comptes ({filtered.length})</h3>
-          <button
-            type="button"
-            className="btn-admin btn-admin--primary"
-            onClick={openCreate}
-          >
-            + Créer
-          </button>
         </div>
 
         <div className="doc-records-toolbar">
@@ -306,7 +362,7 @@ export function UsersWorkspace() {
           </div>
         </div>
 
-        <div className="table-wrap" style={{ marginTop: "0.85rem" }}>
+        <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>
@@ -316,28 +372,33 @@ export function UsersWorkspace() {
                 <th>Rôle</th>
                 <th>Statut</th>
                 <th>Dernière connexion</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="cell-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={7}
-                    style={{
-                      textAlign: "center",
-                      padding: "2rem",
-                      color: "var(--a-muted)",
-                    }}
-                  >
-                    Aucun utilisateur.
+                  <td colSpan={7}>
+                    <EmptyState
+                      title="Aucun utilisateur"
+                      hint="Créez un compte ou ajustez les filtres."
+                      action={
+                        <button
+                          type="button"
+                          className="btn-admin btn-admin--primary"
+                          onClick={openCreate}
+                        >
+                          + Nouvel utilisateur
+                        </button>
+                      }
+                    />
                   </td>
                 </tr>
               ) : (
                 filtered.map((u) => (
                   <tr key={u.id}>
                     <td>
-                      <strong style={{ color: "var(--a-blue)" }}>{u.id}</strong>
+                      <strong className="doc-ref">{u.id}</strong>
                     </td>
                     <td>
                       <div className="settings-user-cell">
@@ -359,7 +420,7 @@ export function UsersWorkspace() {
                       </StatusBadge>
                     </td>
                     <td>{u.lastLogin}</td>
-                    <td style={{ textAlign: "right" }}>
+                    <td className="cell-actions">
                       <div className="settings-row-actions">
                         <button
                           type="button"
@@ -459,16 +520,21 @@ export function UsersWorkspace() {
                   />
                 </label>
                 <label className="settings-field">
-                  <span>Mot de passe *</span>
+                  <span>
+                    {isNew
+                      ? "Mot de passe *"
+                      : "Mot de passe (laisser vide pour conserver)"}
+                  </span>
                   <input
-                    type="text"
-                    required
-                    minLength={minPassword}
+                    type="password"
+                    required={isNew}
+                    minLength={isNew ? minPassword : undefined}
                     value={draft.password}
                     onChange={(e) =>
                       setDraft({ ...draft, password: e.target.value })
                     }
                     placeholder={`Min. ${minPassword} caractères`}
+                    autoComplete="new-password"
                   />
                 </label>
                 <label className="settings-field is-full">
@@ -547,6 +613,7 @@ export function UsersWorkspace() {
           </div>
         </div>
       ) : null}
-    </>
+    </div>
   );
 }
+

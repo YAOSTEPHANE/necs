@@ -21,7 +21,8 @@ import {
   workedHours,
 } from "@/lib/pointage";
 import { isNettoyeur, loadSession } from "@/lib/auth";
-import { StatusBadge } from "@/components/admin/Ui";
+import { EmptyState, ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 import { IconClock } from "@/components/admin/Icons";
 import type { StatusTone } from "@/lib/mock-data";
 
@@ -84,7 +85,6 @@ export function PointageWorkspace() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showEmployeeForm, setShowEmployeeForm] = useState(false);
   const [empDraft, setEmpDraft] = useState<Employee | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
   const [clock, setClock] = useState(currentTimeHm());
 
   useEffect(() => {
@@ -199,26 +199,21 @@ export function PointageWorkspace() {
     [dayPunchesFixed, selectedId],
   );
 
-  const notify = (msg: string) => {
-    setFlash(msg);
-    window.setTimeout(() => setFlash(null), 2200);
-  };
-
   const onPunchIn = (id: string) => {
     if (!store) return;
     const base = baseForDate(store);
     const target = base.punches.find((p) => p.id === id);
     if (target?.actualIn) {
-      notify("Arrivée déjà enregistrée (anti double-pointage).");
+      toast.warning("Arrivée déjà enregistrée (anti double-pointage).");
       return;
     }
     if (!target) {
-      notify("Pointage introuvable pour ce jour.");
+      toast.error("Pointage introuvable pour ce jour.");
       return;
     }
     persist(punchIn(base, id, "Mobile"));
     setSelectedId(id);
-    notify(`Arrivée pointée à ${currentTimeHm()}`);
+    toast.success(`Arrivée pointée à ${currentTimeHm()}`);
   };
 
   const onPunchOut = (id: string) => {
@@ -226,16 +221,16 @@ export function PointageWorkspace() {
     const base = baseForDate(store);
     const target = base.punches.find((p) => p.id === id);
     if (!target?.actualIn) {
-      notify("Pointer l’arrivée d’abord.");
+      toast.warning("Pointer l’arrivée d’abord.");
       return;
     }
     if (target.actualOut) {
-      notify("Départ déjà enregistré.");
+      toast.warning("Départ déjà enregistré.");
       return;
     }
     persist(punchOut(base, id, "Mobile"));
     setSelectedId(id);
-    notify(`Départ pointé à ${currentTimeHm()}`);
+    toast.success(`Départ pointé à ${currentTimeHm()}`);
   };
 
   const onValidate = (id: string, pendingNote?: string) => {
@@ -243,18 +238,18 @@ export function PointageWorkspace() {
     let base = baseForDate(store);
     const target = base.punches.find((p) => p.id === id);
     if (!target?.actualIn || !target.actualOut) {
-      notify("Arrivée et départ requis pour valider.");
+      toast.warning("Arrivée et départ requis pour valider.");
       return;
     }
     if (target.status === "Validé") {
-      notify("Déjà validé.");
+      toast.info("Déjà validé.");
       return;
     }
     if (pendingNote !== undefined && pendingNote !== target.note) {
       base = updatePunchNote(base, id, pendingNote);
     }
     persist(validatePunch(base, id, actorName));
-    notify("Pointage validé.");
+    toast.success("Pointage validé.");
   };
 
   const onSaveNote = (id: string, note: string) => {
@@ -279,7 +274,7 @@ export function PointageWorkspace() {
     e.preventDefault();
     if (!store || !empDraft) return;
     if (!empDraft.name.trim()) {
-      notify("Le nom est obligatoire.");
+      toast.warning("Le nom est obligatoire.");
       return;
     }
     let next = upsertEmployee(baseForDate(store), {
@@ -292,7 +287,7 @@ export function PointageWorkspace() {
     persist(next);
     setShowEmployeeForm(false);
     setEmpDraft(null);
-    notify("Employé ajouté au pointage.");
+    toast.success("Employé ajouté au pointage.");
   };
 
   if (!ready || !store || !dayStore) {
@@ -305,22 +300,18 @@ export function PointageWorkspace() {
 
   return (
     <div className="doc-workspace pointage-page">
-      <header className="doc-hero" style={{ ["--doc-tone" as string]: "#1260a8" }}>
-        <div className="doc-hero__glow" aria-hidden />
-        <div className="doc-hero__main">
-          <div className="doc-hero__badge">
-            <span className="doc-hero__glyph" aria-hidden>
-              <IconClock size={22} />
-            </span>
-            <span>Opérations · RH</span>
-          </div>
-          <h1>{agentMode ? "Mon pointage" : "Pointage des employés"}</h1>
-          <p>
-            {agentMode
-              ? "Enregistrez votre arrivée et votre départ — anti double-pointage intégré."
-              : "Arrivée et départ en un clic, détection des retards, validation superviseur — anti double-pointage intégré."}
-          </p>
-          <div className="doc-hero__meta">
+      <ModuleHeader
+        tone="#1260a8"
+        badge="Opérations · RH"
+        icon={<IconClock size={22} />}
+        title={agentMode ? "Mon pointage" : "Pointage des employés"}
+        description={
+          agentMode
+            ? "Enregistrez votre arrivée et votre départ — anti double-pointage intégré."
+            : "Arrivée et départ en un clic, détection des retards, validation superviseur — anti double-pointage intégré."
+        }
+        meta={
+          <>
             <span>
               <strong>Date</strong>
               {formatDateLabel(date)}
@@ -340,31 +331,29 @@ export function PointageWorkspace() {
                 {selected?.status ?? "—"}
               </span>
             )}
-          </div>
-        </div>
-        <div className="doc-hero__actions">
-          {!agentMode ? (
-            <button
-              type="button"
-              className="btn-admin btn-admin--ghost"
-              onClick={openNewEmployee}
-            >
-              + Employé
-            </button>
-          ) : null}
-          {!agentMode ? (
-            <input
-              type="date"
-              className="pointage-date"
-              value={date}
-              onChange={(e) => setDate(e.target.value || todayIso())}
-              aria-label="Date de pointage"
-            />
-          ) : null}
-        </div>
-      </header>
-
-      {flash ? <div className="pointage-flash">{flash}</div> : null}
+          </>
+        }
+        actions={
+          !agentMode ? (
+            <>
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={openNewEmployee}
+              >
+                + Employé
+              </button>
+              <input
+                type="date"
+                className="pointage-date"
+                value={date}
+                onChange={(e) => setDate(e.target.value || todayIso())}
+                aria-label="Date de pointage"
+              />
+            </>
+          ) : undefined
+        }
+      />
 
       {!agentMode ? (
         <div className="doc-kpi-strip">
@@ -395,7 +384,7 @@ export function PointageWorkspace() {
               : `Tableau du jour (${dayPunchesFixed.length})`}
           </h3>
           {!agentMode ? (
-            <div className="pointage-toolbar">
+            <div className="doc-records-toolbar pointage-toolbar">
               <input
                 type="search"
                 className="doc-records-search"
@@ -441,10 +430,10 @@ export function PointageWorkspace() {
         <div className="pointage-grid">
           <div className="pointage-list">
             {dayPunchesFixed.length === 0 ? (
-              <div className="doc-empty">
-                <strong>Aucun pointage</strong>
-                <span>Changez la date ou les filtres.</span>
-              </div>
+              <EmptyState
+                title="Aucun pointage"
+                hint="Changez la date ou les filtres."
+              />
             ) : (
               dayPunchesFixed.map((p) => {
                 const emp = store.employees.find((e) => e.id === p.employeeId);
@@ -529,10 +518,10 @@ export function PointageWorkspace() {
                 onNote={(note) => onSaveNote(selected.id, note)}
               />
             ) : (
-              <div className="doc-empty">
-                <strong>Sélectionnez un agent</strong>
-                <span>Consultez le détail et validez le pointage.</span>
-              </div>
+              <EmptyState
+                title="Sélectionnez un agent"
+                hint="Consultez le détail et validez le pointage."
+              />
             )}
           </aside>
         </div>

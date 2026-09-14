@@ -1,24 +1,105 @@
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 import type { StatusTone } from "@/lib/mock-data";
 
+export type FlashTone = "info" | "ok" | "warn" | "danger";
+
+export function ModuleHeader({
+  tone = "#1260a8",
+  badge,
+  icon,
+  title,
+  description,
+  meta,
+  note,
+  actions,
+}: {
+  tone?: string;
+  badge?: ReactNode;
+  icon?: ReactNode;
+  title: ReactNode;
+  description?: ReactNode;
+  meta?: ReactNode;
+  note?: ReactNode;
+  actions?: ReactNode;
+}) {
+  return (
+    <header
+      className="doc-hero module-header"
+      style={{ ["--doc-tone" as string]: tone }}
+    >
+      <div className="doc-hero__glow" aria-hidden />
+      <div className="doc-hero__main">
+        {badge || icon ? (
+          <div className="doc-hero__badge">
+            {icon ? (
+              <span className="doc-hero__glyph" aria-hidden>
+                {icon}
+              </span>
+            ) : null}
+            {badge ? <span>{badge}</span> : null}
+          </div>
+        ) : null}
+        <h1>{title}</h1>
+        {description ? <p>{description}</p> : null}
+        {meta ? <div className="doc-hero__meta">{meta}</div> : null}
+        {note ? <p className="doc-hero__note">{note}</p> : null}
+      </div>
+      {actions ? <div className="doc-hero__actions">{actions}</div> : null}
+    </header>
+  );
+}
+
+/** @deprecated Prefer ModuleHeader — kept for transitional call sites */
 export function PageHeader({
   code,
   title,
   description,
   actions,
 }: {
-  code: React.ReactNode;
+  code: ReactNode;
   title: string;
   description: string;
-  actions?: React.ReactNode;
+  actions?: ReactNode;
 }) {
   return (
-    <div className="page-header">
-      <div>
-        <p className="page-header__code">{code}</p>
-        <h2>{title}</h2>
-        <p className="page-header__desc">{description}</p>
-      </div>
-      {actions ? <div className="page-header__actions">{actions}</div> : null}
+    <ModuleHeader
+      badge={code}
+      title={title}
+      description={description}
+      actions={actions}
+    />
+  );
+}
+
+export function EmptyState({
+  title,
+  hint,
+  action,
+}: {
+  title: string;
+  hint?: ReactNode;
+  action?: ReactNode;
+}) {
+  return (
+    <div className="admin-empty">
+      <strong>{title}</strong>
+      {hint ? <span>{hint}</span> : null}
+      {action ? <div className="admin-empty__action">{action}</div> : null}
+    </div>
+  );
+}
+
+/** @deprecated Préférez `toast` depuis `@/lib/toast` */
+export function FlashBanner({
+  children,
+  tone = "info",
+}: {
+  children: ReactNode;
+  tone?: FlashTone;
+}) {
+  return (
+    <div className={`admin-flash admin-flash--${tone}`} role="status">
+      {children}
     </div>
   );
 }
@@ -55,7 +136,7 @@ export function StatusBadge({
   children,
   tone = "neutral",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   tone?: StatusTone;
 }) {
   return <span className={`status-badge tone-${tone}`}>{children}</span>;
@@ -66,7 +147,7 @@ export function DataTable({
   rows,
 }: {
   headers: string[];
-  rows: React.ReactNode[][];
+  rows: ReactNode[][];
 }) {
   return (
     <div className="table-wrap">
@@ -98,8 +179,8 @@ export function Panel({
   action,
 }: {
   title: string;
-  children: React.ReactNode;
-  action?: React.ReactNode;
+  children: ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <section className="panel-card">
@@ -112,17 +193,33 @@ export function Panel({
   );
 }
 
-export function PrimaryButton({ children }: { children: React.ReactNode }) {
+export function PrimaryButton({
+  children,
+  className = "",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button type="button" className="btn-admin btn-admin--primary">
+    <button
+      type="button"
+      className={`btn-admin btn-admin--primary${className ? ` ${className}` : ""}`}
+      {...props}
+    >
       {children}
     </button>
   );
 }
 
-export function GhostButton({ children }: { children: React.ReactNode }) {
+export function GhostButton({
+  children,
+  className = "",
+  ...props
+}: ButtonHTMLAttributes<HTMLButtonElement>) {
   return (
-    <button type="button" className="btn-admin btn-admin--ghost">
+    <button
+      type="button"
+      className={`btn-admin btn-admin--ghost${className ? ` ${className}` : ""}`}
+      {...props}
+    >
       {children}
     </button>
   );

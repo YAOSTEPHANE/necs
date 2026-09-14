@@ -18,7 +18,12 @@ import {
 } from "@/lib/vercel-blob-client";
 import { downloadImage, downloadImages } from "@/lib/download";
 import { isNettoyeur, loadSession } from "@/lib/auth";
-import { PageHeader, StatusBadge } from "@/components/admin/Ui";
+import {
+  EmptyState,
+  ModuleHeader,
+  StatusBadge,
+} from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 import { IconVisit } from "@/components/admin/Icons";
 
 function formatDate(iso: string): string {
@@ -134,12 +139,14 @@ export function TerrainPhotosWorkspace() {
       });
       const updated = addPhotoToVisit(selected, kind, url);
       persist(visits.map((v) => (v.id === updated.id ? updated : v)));
+      toast.success("Photo enregistrée.");
     } catch (err) {
-      setError(
+      const message =
         err instanceof Error
           ? err.message
-          : "Impossible d’enregistrer la photo.",
-      );
+          : "Impossible d’enregistrer la photo.";
+      setError(message);
+      toast.error(message);
     } finally {
       setBusyKind(null);
     }
@@ -172,19 +179,11 @@ export function TerrainPhotosWorkspace() {
   const progress = afterCount > 0 ? 2 : arrivalCount > 0 ? 1 : 0;
 
   return (
-    <div className="terrain-page">
-      <PageHeader
-        code={
-          <span className="page-header__icon">
-            <span
-              className="page-header__glyph"
-              style={{ ["--icon-c" as string]: "#1f6b28" }}
-            >
-              <IconVisit size={18} />
-            </span>
-            {agentMode ? "AGENT" : "OPS"}
-          </span>
-        }
+    <div className="terrain-page doc-workspace">
+      <ModuleHeader
+        tone="#1f6b28"
+        badge={agentMode ? "Espace agent" : "Opérations"}
+        icon={<IconVisit size={22} />}
         title={agentMode ? "Photos après nettoyage" : "Photos terrain"}
         description={
           agentMode
@@ -210,11 +209,14 @@ export function TerrainPhotosWorkspace() {
           </div>
           <div className="terrain-visit-list">
             {visits.length === 0 ? (
-              <p className="terrain-empty-hint">
-                {agentMode
-                  ? "Créez un site, nettoyez, puis photographiez le résultat."
-                  : "Aucune visite. Créez-en une pour commencer."}
-              </p>
+              <EmptyState
+                title="Aucune visite"
+                hint={
+                  agentMode
+                    ? "Créez un site, nettoyez, puis photographiez le résultat."
+                    : "Créez-en une pour commencer."
+                }
+              />
             ) : (
               visits.map((v) => {
                 const active = v.id === selectedId;
@@ -256,17 +258,19 @@ export function TerrainPhotosWorkspace() {
 
         <section className="terrain-main">
           {!selected ? (
-            <div className="terrain-blank">
-              <strong>Aucune visite sélectionnée</strong>
-              <p>Choisissez une visite à gauche ou créez-en une nouvelle.</p>
-              <button
-                type="button"
-                className="btn-admin btn-admin--primary"
-                onClick={openCreate}
-              >
-                + Nouvelle visite
-              </button>
-            </div>
+            <EmptyState
+              title="Aucune visite sélectionnée"
+              hint="Choisissez une visite à gauche ou créez-en une nouvelle."
+              action={
+                <button
+                  type="button"
+                  className="btn-admin btn-admin--primary"
+                  onClick={openCreate}
+                >
+                  + Nouvelle visite
+                </button>
+              }
+            />
           ) : (
             <>
               <header className="terrain-hero">
@@ -300,8 +304,12 @@ export function TerrainPhotosWorkspace() {
                             })),
                           ).then((result) => {
                             if (result.failed > 0) {
-                              window.alert(
+                              toast.warning(
                                 `${result.ok} photo(s) téléchargée(s), ${result.failed} échec(s).`,
+                              );
+                            } else if (result.ok > 0) {
+                              toast.success(
+                                `${result.ok} photo(s) téléchargée(s).`,
                               );
                             }
                           });
@@ -626,7 +634,7 @@ function PhotoLane({
                         p.dataUrl,
                         `necs-${kind}-${p.takenAt.replace(/[^\d]/g, "")}`,
                       ).catch(() => {
-                        window.alert("Téléchargement de la photo impossible.");
+                        toast.error("Téléchargement de la photo impossible.");
                       });
                     }}
                   >

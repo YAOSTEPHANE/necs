@@ -8,6 +8,7 @@ import {
   removeLead,
   type Lead,
 } from "@/lib/content";
+import { toast } from "@/lib/toast";
 
 function formatWhen(iso: string): string {
   try {
@@ -47,16 +48,28 @@ const FALLBACK: RequestItem[] = [
   },
 ];
 
-type Props = {
-  onFlash?: (msg: string) => void;
-};
-
-export function DashboardRequests({ onFlash }: Props) {
+export function DashboardRequests() {
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [dismissedDemo, setDismissedDemo] = useState<string[]>([]);
 
   useEffect(() => {
-    setLeads(loadLeads());
+    let cancelled = false;
+    void (async () => {
+      try {
+        const res = await fetch("/api/leads", { credentials: "same-origin" });
+        if (res.ok) {
+          const data = (await res.json()) as { leads: Lead[] };
+          if (!cancelled) setLeads(data.leads);
+          return;
+        }
+      } catch {
+        /* fallback local */
+      }
+      if (!cancelled) setLeads(loadLeads());
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const realItems: RequestItem[] =
@@ -81,7 +94,7 @@ export function DashboardRequests({ onFlash }: Props) {
   function handleAction(item: RequestItem, action: "accept" | "refuse") {
     if (item.demo) {
       setDismissedDemo((prev) => [...prev, item.key]);
-      onFlash?.(
+      toast.info(
         action === "accept"
           ? `${item.name} · accepté (démo)`
           : `${item.name} · refusé (démo)`,
@@ -91,7 +104,7 @@ export function DashboardRequests({ onFlash }: Props) {
     if (!item.email || !item.at) return;
     removeLead(item.email, item.at);
     setLeads(loadLeads());
-    onFlash?.(
+    toast.info(
       action === "accept"
         ? `${item.name} · accepté (retiré de la file)`
         : `${item.name} · refusé`,

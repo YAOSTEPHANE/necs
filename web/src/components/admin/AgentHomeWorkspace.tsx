@@ -16,7 +16,8 @@ import {
   workedHours,
 } from "@/lib/pointage";
 import { isNettoyeur, loadSession } from "@/lib/auth";
-import { StatusBadge } from "@/components/admin/Ui";
+import { ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 import { IconClock, IconVisit } from "@/components/admin/Icons";
 import type { StatusTone } from "@/lib/mock-data";
 
@@ -54,7 +55,6 @@ export function AgentHomeWorkspace() {
   const [ready, setReady] = useState(false);
   const [employeeId, setEmployeeId] = useState<string | null>(null);
   const [agentName, setAgentName] = useState("Agent");
-  const [flash, setFlash] = useState<string | null>(null);
   const [clock, setClock] = useState(currentTimeHm());
   const date = todayIso();
 
@@ -105,33 +105,28 @@ export function AgentHomeWorkspace() {
     savePointageStore(next);
   };
 
-  const notify = (msg: string) => {
-    setFlash(msg);
-    window.setTimeout(() => setFlash(null), 2200);
-  };
-
   const onPunchIn = () => {
     if (!store || !punch) return;
     if (punch.actualIn) {
-      notify("Arrivée déjà enregistrée.");
+      toast.warning("Arrivée déjà enregistrée.");
       return;
     }
     persist(punchIn(store, punch.id, "Mobile"));
-    notify(`Arrivée pointée à ${currentTimeHm()}`);
+    toast.success(`Arrivée pointée à ${currentTimeHm()}`);
   };
 
   const onPunchOut = () => {
     if (!store || !punch) return;
     if (!punch.actualIn) {
-      notify("Pointer l’arrivée d’abord.");
+      toast.warning("Pointer l’arrivée d’abord.");
       return;
     }
     if (punch.actualOut) {
-      notify("Départ déjà enregistré.");
+      toast.warning("Départ déjà enregistré.");
       return;
     }
     persist(punchOut(store, punch.id, "Mobile"));
-    notify(`Départ pointé à ${currentTimeHm()}`);
+    toast.success(`Départ pointé à ${currentTimeHm()}`);
   };
 
   if (!ready || !store) {
@@ -154,21 +149,19 @@ export function AgentHomeWorkspace() {
 
   return (
     <div className="doc-workspace agent-home">
-      <header className="doc-hero" style={{ ["--doc-tone" as string]: "#1260a8" }}>
-        <div className="doc-hero__glow" aria-hidden />
-        <div className="doc-hero__main">
-          <div className="doc-hero__badge">
-            <span className="doc-hero__glyph" aria-hidden>
-              <IconClock size={22} />
-            </span>
-            <span>Espace agent</span>
-          </div>
-          <h1>Bonjour, {agentName.split(" ")[0]}</h1>
-          <p>
+      <ModuleHeader
+        tone="#1260a8"
+        badge="Espace agent"
+        icon={<IconClock size={22} />}
+        title={`Bonjour, ${agentName.split(" ")[0]}`}
+        description={
+          <>
             Pointez votre journée, puis photographiez le site{" "}
             <strong>après le nettoyage</strong> pour prouver l’intervention.
-          </p>
-          <div className="doc-hero__meta">
+          </>
+        }
+        meta={
+          <>
             <span>
               <strong>Heure</strong>
               {clock}
@@ -181,16 +174,14 @@ export function AgentHomeWorkspace() {
               <strong>Shift</strong>
               {punch.plannedIn} – {punch.plannedOut}
             </span>
-          </div>
-        </div>
-        <div className="doc-hero__actions">
+          </>
+        }
+        actions={
           <StatusBadge tone={toneForStatus(punch.status)}>
             {punch.status}
           </StatusBadge>
-        </div>
-      </header>
-
-      {flash ? <div className="pointage-flash">{flash}</div> : null}
+        }
+      />
 
       <section className="agent-home__punch panel-card">
         <div className="agent-home__punch-head">

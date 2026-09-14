@@ -1,8 +1,6 @@
 import {
   type AdminUser,
   type UserRole,
-  loadSettings,
-  saveSettings,
   ROLE_LABELS,
 } from "@/lib/settings";
 import { getRoleSpace, roleHomePath } from "@/lib/role-spaces";
@@ -25,8 +23,8 @@ export type AdminSession = {
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "NE";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+  if (parts.length === 1) return parts[0]!.slice(0, 2).toUpperCase();
+  return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
 }
 
 export function isNettoyeur(
@@ -85,63 +83,79 @@ export type LoginResult =
   | { ok: true; session: AdminSession }
   | { ok: false; error: string };
 
-export function loginAdmin(
+/** Connexion serveur (cookie httpOnly + cache local pour l’UI). */
+export async function loginAdmin(
   email: string,
   password: string,
   options?: { remember?: boolean },
-): LoginResult {
-  const settings = loadSettings();
-  const normalized = email.trim().toLowerCase();
-  const pwd = password.trim();
-  const user = settings.users.find(
-    (u) => u.email.trim().toLowerCase() === normalized,
-  );
-
-  if (!user) {
-    return { ok: false, error: "Identifiants incorrects." };
+): Promise<LoginResult> {
+  try {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({
+        email,
+        password,
+        remember: options?.remember !== false,
+      }),
+    });
+    const data = (await res.json()) as {
+      error?: string;
+      session?: AdminSession;
+    };
+    if (!res.ok || !data.session) {
+      return { ok: false, error: data.error || "Identifiants incorrects." };
+    }
+    saveSession(data.session);
+    return { ok: true, session: data.session };
+  } catch {
+    return {
+      ok: false,
+      error: "Impossible de joindre le serveur d’authentification.",
+    };
   }
-  if (!user.active) {
-    return { ok: false, error: "Ce compte est désactivé." };
-  }
-  if ((user.password || "").trim() !== pwd) {
-    return { ok: false, error: "Identifiants incorrects." };
-  }
-
-  const remember = options?.remember !== false;
-  const configured = Math.max(30, settings.security.sessionMinutes || 480);
-  const minutes = remember ? Math.max(configured, 480) : 120;
-  const now = Date.now();
-  const session: AdminSession = {
-    userId: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    roleLabel: ROLE_LABELS[user.role] ?? user.role,
-    initials: initialsFromName(user.name),
-    loggedAt: now,
-    expiresAt: now + minutes * 60 * 1000,
-    ...(user.employeeId ? { employeeId: user.employeeId } : {}),
-  };
-
-  const nextUsers = settings.users.map((u) =>
-    u.id === user.id
-      ? {
-          ...u,
-          lastLogin: new Date().toLocaleString("fr-FR", {
-            dateStyle: "short",
-            timeStyle: "short",
-          }),
-        }
-      : u,
-  );
-  saveSettings({ ...settings, users: nextUsers });
-  saveSession(session);
-
-  return { ok: true, session };
 }
 
-export function logoutAdmin(): void {
+export async function logoutAdmin(): Promise<void> {
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+    });
+  } catch {
+    /* ignore network */
+  }
   clearSession();
+}
+
+/** Resynchronise la session depuis le cookie serveur. */
+export async function refreshSessionFromServer(): Promise<AdminSession | null> {
+  try {
+    const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+    if (!res.ok) {
+      clearSession();
+      return null;
+    }
+    const data = (await res.json()) as { session?: AdminSession };
+    if (!data.session) {
+      clearSession();
+      return null;
+    }
+    const session: AdminSession = {
+      ...data.session,
+      roleLabel:
+        data.session.roleLabel ||
+        ROLE_LABELS[data.session.role] ||
+        data.session.role,
+      initials:
+        data.session.initials || initialsFromName(data.session.name || ""),
+    };
+    saveSession(session);
+    return session;
+  } catch {
+    return loadSession();
+  }
 }
 
 export function isAuthenticated(): boolean {

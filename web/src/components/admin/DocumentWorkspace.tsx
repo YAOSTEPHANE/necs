@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { Panel, StatusBadge } from "@/components/admin/Ui";
+import {
+  EmptyState,
+  ModuleHeader,
+  Panel,
+  StatusBadge,
+} from "@/components/admin/Ui";
+import { toast } from "@/lib/toast";
 import type { DocumentDef } from "@/lib/documents-catalog";
 import {
   type DocPhoto,
@@ -245,6 +251,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
       setDraftMeta((m) => ({ ...m, amount: `${autoTotal} FCFA` }));
     }
     setSavedAt(time);
+    toast.success(`Dossier enregistré à ${time}`);
   };
 
   const updateLineCell = (rowIdx: number, colIdx: number, value: string) => {
@@ -288,7 +295,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
         },
       ]);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Photo impossible");
+      toast.error(err instanceof Error ? err.message : "Photo impossible");
     } finally {
       setPhotoBusy(null);
     }
@@ -352,18 +359,14 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     <div className="doc-workspace">
       {!isOverlayOpen ? (
         <>
-      <header className="doc-hero" style={{ ["--doc-tone" as string]: tone }}>
-        <div className="doc-hero__glow" aria-hidden />
-        <div className="doc-hero__main">
-          <div className="doc-hero__badge">
-            <span className="doc-hero__glyph" aria-hidden>
-              <DocIcon slug={doc.slug} size={22} />
-            </span>
-            <span>{doc.domain}</span>
-          </div>
-          <h1>{doc.title}</h1>
-          <p>{doc.subtitle}</p>
-          <div className="doc-hero__meta">
+      <ModuleHeader
+        tone={tone}
+        badge={doc.domain}
+        icon={<DocIcon slug={doc.slug} size={22} />}
+        title={doc.title}
+        description={doc.subtitle}
+        meta={
+          <>
             <span>
               <strong>Type</strong>
               {doc.docType}
@@ -379,22 +382,24 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
             {savedAt ? (
               <span className="doc-hero__saved">Enregistré {savedAt}</span>
             ) : null}
-          </div>
-          {doc.note ? <p className="doc-hero__note">{doc.note}</p> : null}
-        </div>
-        <div className="doc-hero__actions">
-          <Link className="btn-admin btn-admin--ghost" href="/admin/templates">
-            ← Modules
-          </Link>
-          <button
-            type="button"
-            className="btn-admin btn-admin--primary"
-            onClick={addRecord}
-          >
-            + Nouveau dossier
-          </button>
-        </div>
-      </header>
+          </>
+        }
+        note={doc.note}
+        actions={
+          <>
+            <Link className="btn-admin btn-admin--ghost" href="/admin/templates">
+              ← Modules
+            </Link>
+            <button
+              type="button"
+              className="btn-admin btn-admin--primary"
+              onClick={addRecord}
+            >
+              + Nouveau dossier
+            </button>
+          </>
+        }
+      />
 
       {doc.kpis.length > 0 ? (
         <div className="doc-kpi-strip">
@@ -407,18 +412,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
         </div>
       ) : null}
 
-      <Panel
-        title={`Dossiers (${records.length})`}
-        action={
-          <button
-            type="button"
-            className="btn-admin btn-admin--primary"
-            onClick={addRecord}
-          >
-            + Nouveau dossier
-          </button>
-        }
-      >
+      <Panel title={`Dossiers (${records.length})`}>
         <div className="doc-records-toolbar">
           <input
             type="search"
@@ -458,26 +452,26 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                 <th>Responsable</th>
                 <th>Montant / Réf</th>
                 <th>Dernière modif.</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
+                <th className="cell-actions">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredRecords.length === 0 ? (
                 <tr>
                   <td colSpan={7}>
-                    <div className="doc-empty">
-                      <strong>Aucun dossier</strong>
-                      <span>
-                        Créez un nouveau dossier ou ajustez vos filtres.
-                      </span>
-                      <button
-                        type="button"
-                        className="btn-admin btn-admin--primary"
-                        onClick={addRecord}
-                      >
-                        + Nouveau dossier
-                      </button>
-                    </div>
+                    <EmptyState
+                      title="Aucun dossier"
+                      hint="Créez un nouveau dossier ou ajustez vos filtres."
+                      action={
+                        <button
+                          type="button"
+                          className="btn-admin btn-admin--primary"
+                          onClick={addRecord}
+                        >
+                          + Nouveau dossier
+                        </button>
+                      }
+                    />
                   </td>
                 </tr>
               ) : (
@@ -923,7 +917,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                                                 p.dataUrl,
                                                 `necs-${doc.slug}-${kind.id}-${p.takenAt.replace(/[^\d]/g, "")}`,
                                               ).catch(() => {
-                                                window.alert(
+                                                toast.error(
                                                   "Téléchargement de la photo impossible.",
                                                 );
                                               });

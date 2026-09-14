@@ -13,7 +13,9 @@ import {
   IconUser,
 } from "@/components/admin/Icons";
 import { DashboardRequests } from "@/components/admin/DashboardRequests";
+import { ModuleHeader } from "@/components/admin/Ui";
 import { downloadCsv } from "@/lib/download";
+import { toast } from "@/lib/toast";
 
 type MissionTone = "ok" | "danger" | "info";
 
@@ -134,7 +136,6 @@ export function DashboardWorkspace() {
   const [showAll, setShowAll] = useState(false);
   const [openMissionId, setOpenMissionId] = useState<string | null>(null);
   const [menuMissionId, setMenuMissionId] = useState<string | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -158,14 +159,9 @@ export function DashboardWorkspace() {
 
   const openMission = ALL_MISSIONS.find((m) => m.id === openMissionId) ?? null;
 
-  function notify(msg: string) {
-    setFlash(msg);
-    window.setTimeout(() => setFlash(null), 2800);
-  }
-
   function onExport() {
     exportMissionsCsv(filtered.length ? filtered : ALL_MISSIONS, period);
-    notify(
+    toast.success(
       `Export CSV · ${filtered.length || ALL_MISSIONS.length} mission${
         (filtered.length || ALL_MISSIONS.length) > 1 ? "s" : ""
       }`,
@@ -174,7 +170,7 @@ export function DashboardWorkspace() {
 
   function onPickDay(day: number) {
     if (OFF_DAYS.has(day)) {
-      notify(`Le ${day} sep. est indisponible`);
+      toast.warning(`Le ${day} sep. est indisponible`);
       return;
     }
     setSelectedDay(day);
@@ -183,69 +179,62 @@ export function DashboardWorkspace() {
   }
 
   return (
-    <div className="symp-dash">
-      {flash ? (
-        <div className="symp-flash" role="status">
-          {flash}
-        </div>
-      ) : null}
-
-      <header className="symp-hero">
-        <div className="symp-hero__text">
-          <p className="symp-hero__eyebrow">
-            Pilotage NECS ·{" "}
-            {period === "mensuel" ? "Septembre 2026" : "Semaine du 14 au 20"}
-          </p>
-          <h1>Bon retour, Direction</h1>
-          <p className="symp-hero__sub">
-            Vue synthétique des prestations, de la qualité et des demandes
-            entrantes.
-          </p>
-        </div>
-        <div className="symp-hero__tools">
-          <label className="symp-search">
-            <IconSearch size={16} />
-            <input
-              placeholder="Rechercher un site, client…"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              aria-label="Rechercher un site ou une prestation"
-            />
-          </label>
-          <div className="symp-hero__btns">
-            <button
-              type="button"
-              className={`symp-btn${period === "mensuel" ? " symp-btn--primary" : " symp-btn--ghost"}`}
-              aria-pressed={period === "mensuel"}
-              onClick={() => {
-                setPeriod("mensuel");
-                setShowAll(false);
-              }}
-            >
-              Mensuel
-            </button>
-            <button
-              type="button"
-              className={`symp-btn${period === "hebdo" ? " symp-btn--primary" : " symp-btn--ghost"}`}
-              aria-pressed={period === "hebdo"}
-              onClick={() => {
-                setPeriod("hebdo");
-                setSelectedDay(null);
-                setShowAll(true);
-              }}
-            >
-              Hebdo
-            </button>
-            <button
-              type="button"
-              className="symp-btn symp-btn--ghost"
-              onClick={onExport}
-            >
-              Exporter
-            </button>
+    <div className="symp-dash doc-workspace">
+      <ModuleHeader
+        tone="#1260a8"
+        badge={
+          period === "mensuel"
+            ? "Pilotage NECS · Septembre 2026"
+            : "Pilotage NECS · Semaine du 14 au 20"
+        }
+        title="Bon retour, Direction"
+        description="Vue synthétique des prestations, de la qualité et des demandes entrantes."
+        actions={
+          <div className="module-header__tools">
+            <label className="symp-search">
+              <IconSearch size={16} />
+              <input
+                placeholder="Rechercher un site, client…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                aria-label="Rechercher un site ou une prestation"
+              />
+            </label>
+            <div className="module-header__btns">
+              <button
+                type="button"
+                className={`btn-admin${period === "mensuel" ? " btn-admin--primary" : " btn-admin--ghost"}`}
+                aria-pressed={period === "mensuel"}
+                onClick={() => {
+                  setPeriod("mensuel");
+                  setShowAll(false);
+                }}
+              >
+                Mensuel
+              </button>
+              <button
+                type="button"
+                className={`btn-admin${period === "hebdo" ? " btn-admin--primary" : " btn-admin--ghost"}`}
+                aria-pressed={period === "hebdo"}
+                onClick={() => {
+                  setPeriod("hebdo");
+                  setSelectedDay(null);
+                  setShowAll(true);
+                }}
+              >
+                Hebdo
+              </button>
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={onExport}
+              >
+                Exporter
+              </button>
+            </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <section className="symp-kpis" aria-label="Indicateurs clés">
         <article className="symp-kpi" style={{ ["--kpi-c" as string]: "#1260a8" }}>
@@ -569,7 +558,7 @@ export function DashboardWorkspace() {
           </div>
         </section>
 
-        <DashboardRequests onFlash={notify} />
+        <DashboardRequests />
       </div>
 
       {openMission ? (

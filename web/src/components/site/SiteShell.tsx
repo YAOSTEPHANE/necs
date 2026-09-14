@@ -3,7 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   DEFAULT_CONTENT,
   NECS_CONTENT_EVENT,
@@ -25,6 +31,7 @@ export const SITE_NAV = [
 ] as const;
 
 const SITE_NAV_PRIMARY = SITE_NAV.filter((item) => item.primary);
+const SITE_NAV_MORE = SITE_NAV.filter((item) => !item.primary);
 
 interface QuoteModalContextType {
   openQuoteModal: (initialSubject?: string) => void;
@@ -138,9 +145,13 @@ export function SiteShell({
   const loaded = useNecsContent();
   const content = contentProp ?? loaded;
   const [navOpen, setNavOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [quoteSubject, setQuoteSubject] = useState("Demande de devis");
+  const moreRef = useRef<HTMLLIElement>(null);
+
+  const moreActive = SITE_NAV_MORE.some((item) => item.href === pathname);
 
   const openQuoteModal = (initialSubject?: string) => {
     if (initialSubject) {
@@ -148,6 +159,7 @@ export function SiteShell({
     }
     setIsQuoteModalOpen(true);
     setNavOpen(false);
+    setMoreOpen(false);
   };
 
   const closeQuoteModal = () => {
@@ -156,6 +168,7 @@ export function SiteShell({
 
   useEffect(() => {
     setNavOpen(false);
+    setMoreOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -166,6 +179,29 @@ export function SiteShell({
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!navOpen && !moreOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setNavOpen(false);
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navOpen, moreOpen]);
+
+  useEffect(() => {
+    if (!moreOpen) return;
+    const onPointer = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) {
+        setMoreOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [moreOpen]);
 
   useEffect(() => {
     if (!navOpen) return;
@@ -189,6 +225,7 @@ export function SiteShell({
           "site-header",
           scrolled ? "is-scrolled" : "",
           pathname === "/" ? "is-transparent" : "",
+          navOpen ? "is-nav-open" : "",
         ]
           .filter(Boolean)
           .join(" ")}
@@ -196,21 +233,14 @@ export function SiteShell({
       >
         <div className={`container nav${navOpen ? " is-open" : ""}`}>
           <Link className="brand" href="/" aria-label="NECS — Accueil">
-            <BrandLogo alt="NECS" width={64} height={64} />
+            <BrandLogo alt="NECS" width={56} height={56} />
           </Link>
-          <button
-            className={`nav-toggle${navOpen ? " is-open" : ""}`}
-            type="button"
-            aria-label={navOpen ? "Fermer le menu" : "Ouvrir le menu"}
-            aria-expanded={navOpen}
-            aria-controls="site-nav"
-            onClick={() => setNavOpen((v) => !v)}
+
+          <nav
+            className="nav-panel"
+            id="site-nav"
+            aria-label="Navigation principale"
           >
-            <span />
-            <span />
-            <span />
-          </button>
-          <div className="nav-panel" id="site-nav">
             <ul className="nav-links nav-links--desktop">
               {SITE_NAV_PRIMARY.map((item) => (
                 <li key={item.href}>
@@ -225,28 +255,131 @@ export function SiteShell({
                   </Link>
                 </li>
               ))}
-            </ul>
-            <ul className="nav-links nav-links--mobile">
-              {SITE_NAV.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={pathname === item.href ? "is-active" : undefined}
-                    onClick={() => setNavOpen(false)}
+              {SITE_NAV_MORE.length > 0 ? (
+                <li
+                  className={`nav-more${moreOpen ? " is-open" : ""}${moreActive ? " is-active" : ""}`}
+                  ref={moreRef}
+                >
+                  <button
+                    type="button"
+                    className="nav-more__btn"
+                    aria-expanded={moreOpen}
+                    aria-haspopup="true"
+                    onClick={() => setMoreOpen((v) => !v)}
                   >
-                    {item.label}
-                  </Link>
+                    Plus
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden
+                    >
+                      <path
+                        d="m6 9 6 6 6-6"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  {moreOpen ? (
+                    <ul className="nav-more__menu" role="menu">
+                      {SITE_NAV_MORE.map((item) => (
+                        <li key={item.href} role="none">
+                          <Link
+                            href={item.href}
+                            role="menuitem"
+                            className={
+                              pathname === item.href ? "is-active" : undefined
+                            }
+                            onClick={() => {
+                              setMoreOpen(false);
+                              setNavOpen(false);
+                            }}
+                          >
+                            {item.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
                 </li>
-              ))}
+              ) : null}
             </ul>
+
+            <div className="nav-drawer">
+              <p className="nav-drawer__label">Parcourir</p>
+              <ul className="nav-links nav-links--mobile">
+                {SITE_NAV.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={
+                        pathname === item.href ? "is-active" : undefined
+                      }
+                      onClick={() => setNavOpen(false)}
+                    >
+                      <span>{item.label}</span>
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        aria-hidden
+                      >
+                        <path
+                          d="M9 6l6 6-6 6"
+                          stroke="currentColor"
+                          strokeWidth="2.2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="nav-drawer__actions">
+                <button
+                  type="button"
+                  className="nav-cta"
+                  onClick={() => openQuoteModal("Demande de devis")}
+                >
+                  Demander un devis
+                </button>
+                <Link
+                  className="nav-drawer__admin"
+                  href="/admin"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Espace pro
+                </Link>
+              </div>
+            </div>
+
             <button
               type="button"
-              className="nav-cta"
+              className="nav-cta nav-cta--desktop"
               onClick={() => openQuoteModal("Demande de devis")}
             >
               Demander un devis
             </button>
-          </div>
+          </nav>
+
+          <button
+            className={`nav-toggle${navOpen ? " is-open" : ""}`}
+            type="button"
+            aria-label={navOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={navOpen}
+            aria-controls="site-nav"
+            onClick={() => setNavOpen((v) => !v)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </header>
 

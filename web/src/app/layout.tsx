@@ -1,9 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Figtree, Outfit } from "next/font/google";
+import { AppProviders } from "@/components/AppProviders";
 import { BrandFavicon } from "@/components/BrandAssets";
 import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 import "./site-premium.css";
+import "./identity-flyer.css";
 
 const APP_NAME = "NECS";
 const APP_TITLE = "NECS SARL — Propreté, Rigueur, Confiance";
@@ -73,7 +75,7 @@ export default function RootLayout({
         </a>
         <BrandFavicon />
         <PwaRegister />
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );

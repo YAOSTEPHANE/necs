@@ -225,9 +225,9 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "direction@necs.cm",
       role: "admin",
       phone: "+237 6XX XX XX XX",
-      password: "admin123",
+      password: "",
       active: true,
-      lastLogin: "Aujourd’hui",
+      lastLogin: "—",
     },
     {
       id: "USR-002",
@@ -235,9 +235,9 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "commercial@necs.cm",
       role: "commercial",
       phone: "+237 6XX XX XX XX",
-      password: "necs2026",
+      password: "",
       active: true,
-      lastLogin: "Hier",
+      lastLogin: "—",
     },
     {
       id: "USR-003",
@@ -245,9 +245,9 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "ops@necs.cm",
       role: "ops",
       phone: "+237 6XX XX XX XX",
-      password: "necs2026",
+      password: "",
       active: true,
-      lastLogin: "Il y a 2 jours",
+      lastLogin: "—",
     },
     {
       id: "USR-004",
@@ -255,9 +255,9 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "rh@necs.cm",
       role: "rh",
       phone: "+237 6XX XX XX XX",
-      password: "necs2026",
+      password: "",
       active: true,
-      lastLogin: "Il y a 5 jours",
+      lastLogin: "—",
     },
     {
       id: "USR-007",
@@ -265,7 +265,7 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "finance@necs.cm",
       role: "finance",
       phone: "+237 6XX XX XX XX",
-      password: "necs2026",
+      password: "",
       active: true,
       lastLogin: "—",
     },
@@ -275,7 +275,7 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "qualite@necs.cm",
       role: "qualite",
       phone: "+237 6XX XX XX XX",
-      password: "necs2026",
+      password: "",
       active: true,
       lastLogin: "—",
     },
@@ -285,7 +285,7 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "amina.kouam@necs.cm",
       role: "nettoyeur",
       phone: "+237 6XX XX XX XX",
-      password: "agent123",
+      password: "",
       active: true,
       lastLogin: "—",
       employeeId: "EMP-001",
@@ -296,7 +296,7 @@ export const DEFAULT_SETTINGS: AdminSettings = {
       email: "marc.ngo@necs.cm",
       role: "nettoyeur",
       phone: "+237 6XX XX XX XX",
-      password: "agent123",
+      password: "",
       active: true,
       lastLogin: "—",
       employeeId: "EMP-002",
@@ -383,26 +383,9 @@ export function loadSettings(): AdminSettings {
 
 /** Mot de passe manquant / fallback erroné (anciennes données sans champ password). */
 function resolveUserPassword(u: AdminUser): AdminUser {
-  const email = (u.email || "").trim().toLowerCase();
-  const def = DEFAULT_SETTINGS.users.find(
-    (d) =>
-      d.id === u.id || d.email.trim().toLowerCase() === email,
-  );
-  let password = (u.password || "").trim();
-
-  // Ancien merge mettait "necs2026" pour tous les comptes sans mot de passe,
-  // y compris Direction (démo = admin123).
-  if (!password) {
-    password = def?.password ?? "necs2026";
-  } else if (
-    email === "direction@necs.cm" &&
-    password === "necs2026" &&
-    def?.password === "admin123"
-  ) {
-    password = "admin123";
-  }
-
-  return { ...u, password };
+  // Les mots de passe ne sont plus stockés en clair côté client.
+  // L’auth réelle passe par MongoDB + hash bcrypt.
+  return { ...u, password: "" };
 }
 
 function normalizeAdminUser(u: AdminUser): AdminUser {

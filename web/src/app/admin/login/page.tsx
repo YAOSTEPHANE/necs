@@ -7,62 +7,72 @@ import { BrandLogo } from "@/components/BrandAssets";
 import {
   homeForRole,
   isAgentAllowedPath,
-  isAuthenticated,
-  loadSession,
   loginAdmin,
+  refreshSessionFromServer,
 } from "@/lib/auth";
+import { toast } from "@/lib/toast";
+import { sanitizeRedirectPath } from "@/lib/security";
 
 function resolvePostLoginPath(
   role: Parameters<typeof homeForRole>[0],
   next: string,
 ): string {
+  const safeNext = sanitizeRedirectPath(next);
   const fallback = homeForRole(role);
-  if (!next.startsWith("/admin")) return fallback;
+  if (!safeNext.startsWith("/admin")) return fallback;
   if (role === "nettoyeur") {
-    return isAgentAllowedPath(next) ? next : fallback;
+    return isAgentAllowedPath(safeNext) ? safeNext : fallback;
   }
   if (role !== "admin") {
-    // Pas de dashboard direction pour les rôles métier
-    if (next === "/admin" || next === "/admin/") return fallback;
-    if (next.startsWith("/admin/utilisateurs")) return fallback;
-    if (next.startsWith("/admin/parametres")) return fallback;
+    if (safeNext === "/admin" || safeNext === "/admin/") return fallback;
+    if (safeNext.startsWith("/admin/utilisateurs")) return fallback;
+    if (safeNext.startsWith("/admin/parametres")) return fallback;
   }
-  return next;
+  return safeNext;
 }
 
 function LoginForm() {
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next") || "";
-  const [email, setEmail] = useState("direction@necs.cm");
+  const next = sanitizeRedirectPath(search.get("next"));
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
+  /** Évite le mismatch d’hydratation des extensions (Kaspersky, etc.) qui injectent des nœuds dans les inputs. */
+  const [fieldsReady, setFieldsReady] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated()) return;
-    const session = loadSession();
-    if (!session) return;
-    router.replace(resolvePostLoginPath(session.role, next));
+    setFieldsReady(true);
+  }, []);
+
+  useEffect(() => {
+    void refreshSessionFromServer().then((session) => {
+      if (!session) return;
+      router.replace(resolvePostLoginPath(session.role, next));
+    });
   }, [router, next]);
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
-    // Petit délai pour le ressenti premium du loader
-    window.setTimeout(() => {
-      const result = loginAdmin(email, password, { remember });
-      setLoading(false);
+    try {
+      const result = await loginAdmin(email, password, { remember });
       if (!result.ok) {
         setError(result.error);
+        toast.error(result.error);
         return;
       }
+      toast.success(
+        `Bienvenue, ${result.session.name.split(" ")[0] ?? result.session.name}`,
+      );
       router.replace(resolvePostLoginPath(result.session.role, next));
-    }, 450);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -149,62 +159,78 @@ function LoginForm() {
 
               <label className="login-field">
                 <span>Adresse e-mail professionnelle</span>
-                <div className="login-field__control">
-                  <svg viewBox="0 0 24 24" aria-hidden>
-                    <path
-                      d="M4 6h16v12H4V6zm0 0l8 7 8-7"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                {fieldsReady ? (
+                  <div className="login-field__control">
+                    <svg viewBox="0 0 24 24" aria-hidden>
+                      <path
+                        d="M4 6h16v12H4V6zm0 0l8 7 8-7"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <input
+                      type="email"
+                      name="email"
+                      autoComplete="username"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="direction@necs.cm"
                     />
-                  </svg>
-                  <input
-                    type="email"
-                    autoComplete="username"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="direction@necs.cm"
+                  </div>
+                ) : (
+                  <div
+                    className="login-field__control login-field__control--pending"
+                    aria-hidden
                   />
-                </div>
+                )}
               </label>
 
               <label className="login-field">
                 <span>Mot de passe</span>
-                <div className="login-field__control">
-                  <svg viewBox="0 0 24 24" aria-hidden>
-                    <path
-                      d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6v-9z"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
+                {fieldsReady ? (
+                  <div className="login-field__control">
+                    <svg viewBox="0 0 24 24" aria-hidden>
+                      <path
+                        d="M7 11V8a5 5 0 0 1 10 0v3M6 11h12v9H6v-9z"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      autoComplete="current-password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
                     />
-                  </svg>
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    autoComplete="current-password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    <button
+                      type="button"
+                      className="login-field__eye"
+                      onClick={() => setShowPassword((v) => !v)}
+                      aria-label={
+                        showPassword
+                          ? "Masquer le mot de passe"
+                          : "Afficher le mot de passe"
+                      }
+                    >
+                      {showPassword ? "Masquer" : "Voir"}
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    className="login-field__control login-field__control--pending"
+                    aria-hidden
                   />
-                  <button
-                    type="button"
-                    className="login-field__eye"
-                    onClick={() => setShowPassword((v) => !v)}
-                    aria-label={
-                      showPassword
-                        ? "Masquer le mot de passe"
-                        : "Afficher le mot de passe"
-                    }
-                  >
-                    {showPassword ? "Masquer" : "Voir"}
-                  </button>
-                </div>
+                )}
               </label>
 
               <div className="login-row">
@@ -248,21 +274,10 @@ function LoginForm() {
               </button>
             </form>
 
-            <div className="login-demo">
-              <span>Accès démo Direction</span>
-              <code>direction@necs.cm</code>
-              <code>admin123</code>
-            </div>
-            <div className="login-demo">
-              <span>Espaces métier</span>
-              <code>commercial@ / ops@ / rh@ / finance@ / qualite@necs.cm</code>
-              <code>necs2026</code>
-            </div>
-            <div className="login-demo">
-              <span>Accès démo Nettoyeur</span>
-              <code>amina.kouam@necs.cm</code>
-              <code>agent123</code>
-            </div>
+            <p className="login-panel__hint">
+              Compte créé par l’administrateur. En cas d’oubli, contactez la
+              Direction NECS.
+            </p>
 
             <footer className="login-panel__foot">
               <p>© {new Date().getFullYear()} NECS SARL · Cameroun</p>

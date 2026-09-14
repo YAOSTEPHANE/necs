@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { saveLead, type NecsContent } from "@/lib/content";
+import { toast } from "@/lib/toast";
 import { BrandLogo } from "@/components/BrandAssets";
 
 export interface ContactModalProps {
@@ -53,15 +54,33 @@ export function ContactModal({
   function onContact(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    saveLead({
+    const payload = {
       name: String(fd.get("name") || ""),
       company: String(fd.get("company") || ""),
       email: String(fd.get("email") || ""),
       phone: String(fd.get("phone") || ""),
       subject: String(fd.get("subject") || subject),
       message: String(fd.get("message") || ""),
-    });
-    setSubmitted(true);
+    };
+    void (async () => {
+      try {
+        const res = await fetch("/api/leads", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const data = (await res.json()) as { error?: string };
+          toast.error(data.error || "Envoi impossible.");
+          return;
+        }
+        saveLead(payload);
+        toast.success("Demande envoyée — nous vous recontactons sous 24 h.");
+        setSubmitted(true);
+      } catch {
+        toast.error("Impossible d’envoyer la demande.");
+      }
+    })();
   }
 
   return (
