@@ -1,0 +1,483 @@
+/* Page « Ils nous font confiance » — alignée flyer NECS */
+
+.ncf {
+  --ncf-navy: #0a3a72;
+  --ncf-navy-deep: #06284f;
+  --ncf-green: #2f8f3a;
+  --ncf-green-deep: #1f6b2c;
+  --ncf-orange: #e67a18;
+  --ncf-lime: #8fd14a;
+  --ncf-ink: #122033;
+  --ncf-muted: #5b6b7c;
+  --ncf-line: #d7e3ee;
+  --ncf-paper: #f4f8fb;
+  color: var(--ncf-ink);
+  background: #fff;
+}
+
+.ncf-kicker {
+  margin: 0 0 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ncf-lime);
+}
+
+.ncf-script {
+  font-family: var(--font-script), cursive;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+/* Hero */
+.ncf-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(420px, 62vh, 560px);
+  display: flex;
+  align-items: stretch;
+  padding: 5.75rem 0 2.75rem;
+  color: #fff;
+  overflow: visible;
+}
+
+.ncf-hero > .container {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+}
+
+.ncf-hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+
+.ncf-hero__veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, rgba(6, 40, 79, 0.88) 0%, rgba(6, 40, 79, 0.72) 42%, rgba(6, 40, 79, 0.35) 72%, rgba(6, 40, 79, 0.2) 100%),
+    linear-gradient(180deg, rgba(6, 40, 79, 0.25) 0%, rgba(6, 40, 79, 0.55) 100%);
+}
+
+.ncf-hero__grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+  gap: 1.5rem 2.5rem;
+  align-items: start;
+  padding-top: 0.35rem;
+  padding-bottom: 0.25rem;
+}
+
+.ncf-hero__copy {
+  min-width: 0;
+  padding-right: 0.5rem;
+}
+
+.ncf-hero__copy h1 {
+  margin: 0 0 0.7rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+
+.ncf-hero__lead {
+  margin: 0 0 1.35rem;
+  max-width: 42ch;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.ncf-hero__chips {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.35rem;
+}
+
+.ncf-hero__chips li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  max-width: 100%;
+}
+
+.ncf-hero__chips svg {
+  flex-shrink: 0;
+}
+
+.ncf-hero > .container {
+  width: min(1100px, calc(100% - 3.5rem));
+}
+
+.ncf-hero__script {
+  margin: 0.35rem clamp(0.75rem, 3vw, 1.75rem) 0 0;
+  width: auto;
+  max-width: min(100%, 14.5rem);
+  justify-self: end;
+  align-self: start;
+  text-align: right;
+  font-size: clamp(1.35rem, 2.2vw, 1.7rem);
+  line-height: 1.28;
+  color: #e8f3ff;
+  padding: 0.35rem 0.85rem 0.35rem 0.5rem;
+  overflow: visible;
+}
+
+/* Pillars */
+.ncf-pillars {
+  padding: 2.5rem 0 1.5rem;
+  background: linear-gradient(180deg, #eef5fa 0%, #fff 48%);
+}
+
+.ncf-pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.ncf-pillar {
+  background: #fff;
+  border: 1px solid rgba(215, 227, 238, 0.95);
+  border-radius: 18px;
+  padding: 1.15rem 1rem 1rem;
+  box-shadow: 0 14px 30px rgba(3, 26, 54, 0.05);
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.ncf-pillar__icon {
+  margin-bottom: 0.75rem;
+}
+
+.ncf-pillar h2 {
+  margin: 0 0 0.45rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--ncf-navy-deep);
+}
+
+.ncf-pillar > p {
+  margin: 0 0 1rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--ncf-muted);
+  flex: 1;
+}
+
+.ncf-pillar__photo {
+  position: relative;
+  margin: 0;
+  min-height: 150px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.ncf-pillar__photo figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0.85rem 0.8rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #fff;
+  background: linear-gradient(180deg, transparent, rgba(6, 40, 79, 0.9));
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Process */
+.ncf-process {
+  padding: 1.5rem 0 2.5rem;
+}
+
+.ncf-process__head {
+  text-align: center;
+  margin-bottom: 1.6rem;
+}
+
+.ncf-process__head h2 {
+  margin: 0 0 0.35rem;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.45rem, 2.5vw, 1.85rem);
+  letter-spacing: -0.03em;
+  color: var(--ncf-navy-deep);
+  text-transform: uppercase;
+}
+
+.ncf-process__head p {
+  margin: 0;
+  color: var(--ncf-muted);
+}
+
+.ncf-steps {
+  list-style: none;
+  margin: 0;
+  padding: 1.15rem 1rem;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.35rem;
+  background: #fff;
+  border: 1px solid var(--ncf-line);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(3, 26, 54, 0.05);
+}
+
+.ncf-step {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.4rem 0.5rem;
+}
+
+.ncf-step strong {
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ncf-navy-deep);
+}
+
+.ncf-step span {
+  font-size: 0.78rem;
+  color: var(--ncf-muted);
+}
+
+.ncf-step__arrow {
+  position: absolute;
+  top: 1.35rem;
+  right: -0.85rem;
+  opacity: 0.55;
+}
+
+/* Why + CTA */
+.ncf-why {
+  padding: 0.5rem 0 2.5rem;
+}
+
+.ncf-why__goal {
+  margin: 0 auto 1.5rem;
+  max-width: 52rem;
+  text-align: center;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--ncf-navy-deep);
+}
+
+.ncf-why__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem 1.75rem;
+  align-items: center;
+}
+
+.ncf-why__grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.ncf-why__item {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ncf-navy);
+}
+
+.ncf-why__icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, #0a3a72, #1570b8);
+  box-shadow: 0 10px 20px rgba(10, 58, 114, 0.22);
+}
+
+.ncf-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.95rem 1.35rem;
+  font: inherit;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(120deg, #e67a18, #f0a03a);
+  box-shadow: 0 14px 28px rgba(230, 122, 24, 0.3);
+  transition: transform 0.2s ease, filter 0.2s ease;
+  white-space: nowrap;
+}
+
+.ncf-cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.ncf-cta__arrow {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+/* Contact bar */
+.ncf-contact {
+  padding: 1.35rem 0 1.6rem;
+  background: linear-gradient(120deg, #06284f 0%, #0a3a72 55%, #124a2a 100%);
+  color: #fff;
+}
+
+.ncf-contact__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: 1rem 1.25rem;
+  align-items: center;
+}
+
+.ncf-contact__item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.ncf-contact__item strong {
+  display: block;
+  font-size: 0.95rem;
+}
+
+.ncf-contact__item span {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.ncf-contact__values {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  justify-self: end;
+}
+
+.ncf-contact__values p {
+  margin: 0;
+  display: grid;
+  gap: 0.1rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.15;
+}
+
+.ncf-contact__more {
+  margin-top: 0.85rem;
+}
+
+.ncf-contact__more a {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.ncf-contact__more a:hover {
+  color: #fff;
+}
+
+@media (max-width: 1100px) {
+  .ncf-pillars__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ncf-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 1.1rem;
+  }
+
+  .ncf-step:nth-child(3) .ncf-step__arrow,
+  .ncf-step:nth-child(6) .ncf-step__arrow {
+    display: none;
+  }
+
+  .ncf-why__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .ncf-contact__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .ncf-contact__values {
+    justify-self: start;
+  }
+}
+
+@media (max-width: 720px) {
+  .ncf-hero {
+    min-height: 0;
+    padding: 4.75rem 0 2rem;
+  }
+
+  .ncf-hero__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ncf-hero__script {
+    justify-self: start;
+    text-align: left;
+    margin: 0.25rem 0 0;
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    width: auto;
+    max-width: min(100%, 16rem);
+    color: #ffb068;
+  }
+
+  .ncf-pillars__grid,
+  .ncf-steps,
+  .ncf-why__grid,
+  .ncf-why__row,
+  .ncf-contact__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ncf-step__arrow {
+    display: none;
+  }
+
+  .ncf-cta {
+    justify-content: center;
+    width: 100%;
+  }
+}

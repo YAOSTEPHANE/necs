@@ -187,7 +187,7 @@ export function TerrainPhotosWorkspace() {
         title={agentMode ? "Photos après nettoyage" : "Photos terrain"}
         description={
           agentMode
-            ? "Prenez les photos du site une fois le nettoyage terminé — preuve obligatoire."
+            ? "Prenez les photos du site une fois le nettoyage terminé ; preuve obligatoire."
             : "Les nettoyeurs déposent les preuves photo après nettoyage sur chaque site."
         }
         actions={
@@ -454,7 +454,7 @@ export function TerrainPhotosWorkspace() {
                     onChange={(e) =>
                       setDraft({ ...draft, site: e.target.value })
                     }
-                    placeholder="Ex. Immeuble Horizon — étage 3"
+                    placeholder="Ex. Immeuble Horizon ; étage 3"
                   />
                 </label>
                 <label className="settings-field">

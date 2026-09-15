@@ -1,4 +1,4 @@
-/* Auto-généré — ne pas éditer à la main (relancer _gen_documents_catalog.py) */
+/* Auto-généré ; ne pas éditer à la main (relancer _gen_documents_catalog.py) */
 import { applyDocEnrichment } from "@/lib/documents-enrichment";
 
 export type FieldKind = "text" | "tel" | "email" | "number" | "date" | "datetime-local" | "month" | "select" | "textarea";
@@ -89,8 +89,8 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "OFF-0001", label: "Société Exemple SA — Bureaux", status: "Brouillon", owner: "A. Mbarga", updated: "10/09/2026", amount: "655 000 FCFA" },
-      { id: "OFF-0002", label: "Mall Riviera — Premium", status: "Envoyée", owner: "P. Ngo", updated: "08/09/2026", amount: "2,1 M FCFA" },
+      { id: "OFF-0001", label: "Société Exemple SA ; Bureaux", status: "Brouillon", owner: "A. Mbarga", updated: "10/09/2026", amount: "655 000 FCFA" },
+      { id: "OFF-0002", label: "Mall Riviera ; Premium", status: "Envoyée", owner: "P. Ngo", updated: "08/09/2026", amount: "2,1 M FCFA" },
     ],
   },
   {
@@ -297,7 +297,7 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "AVN-0007", label: "Avenant #01 — CTR-0034", status: "Brouillon", owner: "Direction", updated: "05/09/2026", amount: "+120 000" },
+      { id: "AVN-0007", label: "Avenant #01 ; CTR-0034", status: "Brouillon", owner: "Direction", updated: "05/09/2026", amount: "+120 000" },
     ],
   },
   {
@@ -306,7 +306,7 @@ export const DOCUMENTS: DocumentDef[] = [
     title: "Contrat / document agent",
     module: "RH",
     file: "TMP-07-contrat-agent.html",
-    docType: "RH — Contrat",
+    docType: "RH ; Contrat",
     refPrefix: "NECS-RH-CTR",
     subtitle: "Document contractuel collaborateur.",
     note: "Accès restreint RH.",
@@ -335,7 +335,7 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "RH-CTR-019", label: "Grace Embolo — Agent", status: "À signer", owner: "RH", updated: "09/09/2026", amount: "—" },
+      { id: "RH-CTR-019", label: "Grace Embolo ; Agent", status: "À signer", owner: "RH", updated: "09/09/2026", amount: "—" },
     ],
   },
   {
@@ -526,8 +526,8 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "OT-1440", label: "Immeuble Horizon — quotidien", status: "En cours", owner: "S. Ndjock", updated: "10/09/2026", amount: "4 agents" },
-      { id: "OT-1441", label: "Usine Bassa — atelier", status: "Planifié", owner: "S. Ndjock", updated: "10/09/2026", amount: "6 agents" },
+      { id: "OT-1440", label: "Immeuble Horizon ; quotidien", status: "En cours", owner: "S. Ndjock", updated: "10/09/2026", amount: "4 agents" },
+      { id: "OT-1441", label: "Usine Bassa ; atelier", status: "Planifié", owner: "S. Ndjock", updated: "10/09/2026", amount: "6 agents" },
     ],
   },
   {
@@ -619,7 +619,7 @@ export const DOCUMENTS: DocumentDef[] = [
       { label: "Incidents", value: "1" },
     ],
     records: [
-      { id: "RP-0061", label: "Rapport site Horizon — Août", status: "Publié", owner: "Ops", updated: "02/09/2026", amount: "91% qualité" },
+      { id: "RP-0061", label: "Rapport site Horizon ; Août", status: "Publié", owner: "Ops", updated: "02/09/2026", amount: "91% qualité" },
     ],
   },
   {
@@ -693,7 +693,7 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "ABS-411", label: "A. Kouam — Congé", status: "En validation", owner: "Manager", updated: "08/09/2026", amount: "3 j" },
+      { id: "ABS-411", label: "A. Kouam ; Congé", status: "En validation", owner: "Manager", updated: "08/09/2026", amount: "3 j" },
     ],
   },
   {
@@ -730,8 +730,8 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "PTG-9001", label: "A. Kouam — 10/09", status: "Validé", owner: "Superviseur", updated: "10/09/2026", amount: "08:03" },
-      { id: "PTG-9002", label: "M. Ngo — 10/09", status: "Anomalie retard", owner: "Superviseur", updated: "10/09/2026", amount: "—" },
+      { id: "PTG-9001", label: "A. Kouam ; 10/09", status: "Validé", owner: "Superviseur", updated: "10/09/2026", amount: "08:03" },
+      { id: "PTG-9002", label: "M. Ngo ; 10/09", status: "Anomalie retard", owner: "Superviseur", updated: "10/09/2026", amount: "—" },
     ],
   },
   {
@@ -766,8 +766,8 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "PF-0112", label: "CTR-0034 — Mars 2026", status: "Validée", owner: "Finance", updated: "02/04/2026", amount: "600 000 FCFA" },
-      { id: "PF-0113", label: "CTR-0028 — Mars 2026", status: "En contrôle", owner: "Ops", updated: "03/04/2026", amount: "1,32 M FCFA" },
+      { id: "PF-0112", label: "CTR-0034 ; Mars 2026", status: "Validée", owner: "Finance", updated: "02/04/2026", amount: "600 000 FCFA" },
+      { id: "PF-0113", label: "CTR-0028 ; Mars 2026", status: "En contrôle", owner: "Ops", updated: "03/04/2026", amount: "1,32 M FCFA" },
     ],
   },
   {
@@ -791,7 +791,7 @@ export const DOCUMENTS: DocumentDef[] = [
           { name: "periode", label: "Période facturée", kind: "text" },
           { name: "date_fac", label: "Date facture", kind: "date", required: true },
           { name: "echeance", label: "Échéance", kind: "date", required: true },
-          { name: "modalites", label: "Modalités", kind: "text", defaultValue: "Virement — 30 jours" },
+          { name: "modalites", label: "Modalités", kind: "text", defaultValue: "Virement ; 30 jours" },
           { name: "banque", label: "Banque / compte", kind: "textarea", full: true },
           { name: "ref_paiement", label: "Référence à rappeler", kind: "text" },
         ],
@@ -800,13 +800,13 @@ export const DOCUMENTS: DocumentDef[] = [
     checks: [],
     lineHeaders: ["Désignation", "Qté", "P.U. HT", "Total HT"],
     lineRows: [
-      ["Prestations de nettoyage — Mars 2026", "1", "600 000", "600 000"],
+      ["Prestations de nettoyage ; Mars 2026", "1", "600 000", "600 000"],
     ],
     kpis: [
     ],
     records: [
-      { id: "FAC-0450", label: "Société Exemple SA — Mars", status: "Émise", owner: "Finance", updated: "05/04/2026", amount: "847 000 FCFA" },
-      { id: "FAC-0441", label: "Mall Riviera — Fév", status: "En recouvrement", owner: "Recouvrement", updated: "10/09/2026", amount: "2,05 M FCFA" },
+      { id: "FAC-0450", label: "Société Exemple SA ; Mars", status: "Émise", owner: "Finance", updated: "05/04/2026", amount: "847 000 FCFA" },
+      { id: "FAC-0441", label: "Mall Riviera ; Fév", status: "En recouvrement", owner: "Recouvrement", updated: "10/09/2026", amount: "2,05 M FCFA" },
     ],
   },
   {
@@ -896,10 +896,10 @@ export const DOCUMENTS: DocumentDef[] = [
         title: "Relance",
         fields: [
           { name: "client", label: "Client", kind: "text", required: true },
-          { name: "niveau", label: "Niveau", kind: "select", required: true, options: ["R1 — Amiable", "R2 — Fermeté", "R3 — Mise en demeure", "R4 — Escalade direction"] },
+          { name: "niveau", label: "Niveau", kind: "select", required: true, options: ["R1 ; Amiable", "R2 ; Fermeté", "R3 ; Mise en demeure", "R4 ; Escalade direction"] },
           { name: "canal", label: "Canal", kind: "select", options: ["Email", "Courrier", "Appel + email"] },
           { name: "date", label: "Date d’envoi", kind: "date" },
-          { name: "objet", label: "Objet", kind: "text", full: true, defaultValue: "Relance de paiement — factures échues" },
+          { name: "objet", label: "Objet", kind: "text", full: true, defaultValue: "Relance de paiement ; factures échues" },
           { name: "corps", label: "Corps du message", kind: "textarea", required: true, full: true },
         ],
       },
@@ -912,7 +912,7 @@ export const DOCUMENTS: DocumentDef[] = [
     kpis: [
     ],
     records: [
-      { id: "REL-0077", label: "Relance R2 — Mall Riviera", status: "Envoyée", owner: "Recouvrement", updated: "09/09/2026", amount: "2,05 M FCFA" },
+      { id: "REL-0077", label: "Relance R2 ; Mall Riviera", status: "Envoyée", owner: "Recouvrement", updated: "09/09/2026", amount: "2,05 M FCFA" },
     ],
   },
   {
@@ -994,7 +994,7 @@ export const DOCUMENTS: DocumentDef[] = [
       { label: "Actions closes", value: "5/6" },
     ],
     records: [
-      { id: "RM-2026-03", label: "Performance Mars — Exemple SA", status: "Publié", owner: "Direction", updated: "05/04/2026", amount: "92/100" },
+      { id: "RM-2026-03", label: "Performance Mars ; Exemple SA", status: "Publié", owner: "Direction", updated: "05/04/2026", amount: "92/100" },
     ],
   },
   {
@@ -1063,7 +1063,7 @@ export const DOCUMENTS: DocumentDef[] = [
           { name: "email", label: "Email", kind: "email", required: true },
           { name: "tel", label: "Téléphone", kind: "tel", required: true },
           { name: "ville", label: "Ville", kind: "text" },
-          { name: "source", label: "Source", kind: "text", defaultValue: "Site web — formulaire devis" },
+          { name: "source", label: "Source", kind: "text", defaultValue: "Site web ; formulaire devis" },
         ],
       },
       {

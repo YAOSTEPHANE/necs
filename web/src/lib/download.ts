@@ -49,7 +49,7 @@ export function downloadFromUrl(url: string, filename: string): void {
 /** Cœur Blob : crée un object URL, télécharge, puis révoque. */
 export function downloadBlob(blob: Blob, filename: string): void {
   if (!blob || blob.size === 0) {
-    throw new Error("Fichier vide — rien à télécharger");
+    throw new Error("Fichier vide ; rien à télécharger");
   }
   const name = withExtension(filename, blob.type || "application/octet-stream");
   const objectUrl = URL.createObjectURL(blob);
@@ -139,7 +139,7 @@ export async function downloadImage(
   }
   const blob = await response.blob();
   if (!blob.type.startsWith("image/") && blob.type !== "application/octet-stream") {
-    // certains serveurs omettent le mime — on force jpeg/png selon extension
+    // certains serveurs omettent le mime ; on force jpeg/png selon extension
     const forced = src.toLowerCase().endsWith(".png")
       ? "image/png"
       : src.toLowerCase().endsWith(".webp")

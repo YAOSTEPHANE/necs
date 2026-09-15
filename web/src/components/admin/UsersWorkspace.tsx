@@ -83,7 +83,7 @@ export function UsersWorkspace() {
         setUsers(data.users);
       } else if (res.status === 503) {
         setUsers(settings.users);
-        toast.warning("MongoDB indisponible — affichage local uniquement.");
+        toast.warning("MongoDB indisponible ; affichage local uniquement.");
       } else {
         setUsers([]);
       }

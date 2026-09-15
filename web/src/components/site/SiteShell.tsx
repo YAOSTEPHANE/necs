@@ -25,7 +25,7 @@ export const SITE_NAV = [
   { href: "/realisations", label: "Réalisations", primary: true },
   { href: "/objectif", label: "Objectif", primary: false },
   { href: "/activites", label: "Activités", primary: true },
-  { href: "/temoignages", label: "Témoignages", primary: false },
+  { href: "/temoignages", label: "Confiance", primary: false },
   { href: "/blog", label: "Blog", primary: true },
   { href: "/contact", label: "Contact", primary: true },
 ] as const;
@@ -110,11 +110,13 @@ export function PageHero({
   title,
   lead,
   image,
+  script,
 }: {
   eyebrow: string;
   title: string;
   lead: string;
   image?: string;
+  script?: string;
 }) {
   return (
     <section className="page-hero">
@@ -126,9 +128,14 @@ export function PageHero({
       ) : null}
       <div className="page-hero__veil" />
       <div className="container page-hero__content">
-        <p className="page-hero__eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="page-hero__lead">{lead}</p>
+        <div className="page-hero__copy">
+          <p className="page-hero__eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p className="page-hero__lead">{lead}</p>
+        </div>
+        {script ? (
+          <p className="page-hero__script">{script}</p>
+        ) : null}
       </div>
     </section>
   );
@@ -218,6 +225,34 @@ export function SiteShell({
     };
   }, [navOpen]);
 
+  useEffect(() => {
+    const els = document.querySelectorAll(".reveal:not(.is-visible)");
+    if (els.length === 0) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            io.unobserve(entry.target);
+          }
+        }
+      },
+      { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
+    );
+    els.forEach((el) => io.observe(el));
+    // Contenu déjà dans le viewport au chargement
+    requestAnimationFrame(() => {
+      els.forEach((el) => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight * 0.92 && rect.bottom > 0) {
+          el.classList.add("is-visible");
+          io.unobserve(el);
+        }
+      });
+    });
+    return () => io.disconnect();
+  }, [pathname, content]);
+
   return (
     <QuoteModalContext.Provider
       value={{
@@ -241,7 +276,7 @@ export function SiteShell({
           <Link
             className="brand"
             href="/"
-            aria-label="NECS — Accueil"
+            aria-label="NECS ; Accueil"
             scroll
             onClick={() => {
               setNavOpen(false);
@@ -424,7 +459,12 @@ export function SiteShell({
           <div className="footer-grid">
             <div className="footer-col footer-col--brand">
               <div className="footer-brand">
-                <BrandLogo alt="NECS" width={56} height={56} />
+                <BrandLogo
+                  alt="NECS"
+                  width={64}
+                  height={64}
+                  className="footer-brand__logo"
+                />
               </div>
               <p>{content.footerAbout}</p>
               <SocialLinks title="Réseaux sociaux" />

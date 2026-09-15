@@ -103,7 +103,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("BC ouverts|8", "À démarrer|5", "Montant engagé|4,6 M"),
     extraRecords: [
-      { id: "BC-0089", label: "Clinique La Roseraie — démarrage", status: "Validé", owner: "A. Mbarga", updated: "09/09/2026", amount: "890 000 FCFA" },
+      { id: "BC-0089", label: "Clinique La Roseraie ; démarrage", status: "Validé", owner: "A. Mbarga", updated: "09/09/2026", amount: "890 000 FCFA" },
     ],
   },
   "TMP-04": {
@@ -126,7 +126,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       },
     ],
     extraRecords: [
-      { id: "BL-0212", label: "Mall Riviera — livrables EPI", status: "Conforme", owner: "S. Ndjock", updated: "07/09/2026", amount: "—" },
+      { id: "BL-0212", label: "Mall Riviera ; livrables EPI", status: "Conforme", owner: "S. Ndjock", updated: "07/09/2026", amount: "—" },
     ],
   },
   "TMP-05": {
@@ -160,7 +160,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Avenants 2026|9", "Impact moyen|+7 %", "En attente|2"),
     extraRecords: [
-      { id: "AV-0018", label: "Extension horaires — Horizon", status: "Signé", owner: "Commercial", updated: "05/09/2026", amount: "+120 000" },
+      { id: "AV-0018", label: "Extension horaires ; Horizon", status: "Signé", owner: "Commercial", updated: "05/09/2026", amount: "+120 000" },
     ],
   },
   "TMP-07": {
@@ -174,7 +174,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Contrats agents|128", "Nouveaux mois|6", "Fin d’essai|4"),
     extraRecords: [
-      { id: "CA-0342", label: "M. Ngo — Agent sanitaires", status: "Actif", owner: "RH", updated: "01/09/2026", amount: "—" },
+      { id: "CA-0342", label: "M. Ngo ; Agent sanitaires", status: "Actif", owner: "RH", updated: "01/09/2026", amount: "—" },
     ],
   },
   "TMP-08": {
@@ -216,13 +216,13 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       },
     ],
     extraRecords: [
-      { id: "ENT-0091", label: "Candidat — Agent polyvalent", status: "Retenu", owner: "RH", updated: "06/09/2026", amount: "16/20" },
+      { id: "ENT-0091", label: "Candidat ; Agent polyvalent", status: "Retenu", owner: "RH", updated: "06/09/2026", amount: "16/20" },
     ],
   },
   "TMP-11": {
     kpis: moneyKpis("En intégration|5", "Terminés mois|3", "Taux complétion|92 %"),
     extraRecords: [
-      { id: "ONB-0044", label: "Intégration — site Bassa", status: "En cours", owner: "RH", updated: "09/09/2026", amount: "7/10" },
+      { id: "ONB-0044", label: "Intégration ; site Bassa", status: "En cours", owner: "RH", updated: "09/09/2026", amount: "7/10" },
     ],
   },
   "TMP-12": {
@@ -290,7 +290,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       "Validé superviseur",
     ],
     extraRecords: [
-      { id: "RP-0088", label: "Rapport — Usine Bassa S36", status: "Validé", owner: "S. Ndjock", updated: "08/09/2026", amount: "98 %" },
+      { id: "RP-0088", label: "Rapport ; Usine Bassa S36", status: "Validé", owner: "S. Ndjock", updated: "08/09/2026", amount: "98 %" },
     ],
   },
   "TMP-15": {
@@ -303,7 +303,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Demandes ouvertes|9", "Budget engagé|1,8 M", "Délai moyen|3 j"),
     extraRecords: [
-      { id: "DA-0155", label: "Consommables — Horizon", status: "Approuvé", owner: "OPS", updated: "07/09/2026", amount: "245 000" },
+      { id: "DA-0155", label: "Consommables ; Horizon", status: "Approuvé", owner: "OPS", updated: "07/09/2026", amount: "245 000" },
     ],
   },
   "TMP-16": {
@@ -326,7 +326,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       },
     ],
     extraRecords: [
-      { id: "CG-0072", label: "Congé — A. Kouam", status: "Approuvé", owner: "RH", updated: "04/09/2026", amount: "5 j" },
+      { id: "CG-0072", label: "Congé ; A. Kouam", status: "Approuvé", owner: "RH", updated: "04/09/2026", amount: "5 j" },
     ],
   },
   "TMP-17": {
@@ -339,7 +339,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Présents|86 %", "Retards|7", "Absences|4"),
     extraRecords: [
-      { id: "PT-1209", label: "Pointage — Horizon 10/09", status: "Clos", owner: "Chef équipe", updated: "10/09/2026", amount: "4/4" },
+      { id: "PT-1209", label: "Pointage ; Horizon 10/09", status: "Clos", owner: "Chef équipe", updated: "10/09/2026", amount: "4/4" },
     ],
   },
   "TMP-18": {
@@ -363,7 +363,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       },
     ],
     extraRecords: [
-      { id: "PF-0199", label: "Préfacture — Mall Riviera août", status: "Validé", owner: "Finance", updated: "02/09/2026", amount: "2,1 M" },
+      { id: "PF-0199", label: "Préfacture ; Mall Riviera août", status: "Validé", owner: "Finance", updated: "02/09/2026", amount: "2,1 M" },
     ],
   },
   "TMP-19": {
@@ -402,7 +402,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Avoirs mois|3", "Montant|420 k", "Délai traitement|2 j"),
     extraRecords: [
-      { id: "AVO-0031", label: "Avoir — trop-perçu Horizon", status: "Émis", owner: "Finance", updated: "05/09/2026", amount: "85 000" },
+      { id: "AVO-0031", label: "Avoir ; trop-perçu Horizon", status: "Émis", owner: "Finance", updated: "05/09/2026", amount: "85 000" },
     ],
   },
   "TMP-21": {
@@ -415,7 +415,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Relevés envoyés|12", "Solde dû|3,2 M", "À jour|8"),
     extraRecords: [
-      { id: "RC-0048", label: "Relevé — Société Exemple", status: "Envoyé", owner: "Finance", updated: "01/09/2026", amount: "655 000 dû" },
+      { id: "RC-0048", label: "Relevé ; Société Exemple", status: "Envoyé", owner: "Finance", updated: "01/09/2026", amount: "655 000 dû" },
     ],
   },
   "TMP-22": {
@@ -428,7 +428,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Relances mois|16", "Récupéré|1,4 M", "Taux succès|62 %"),
     extraRecords: [
-      { id: "RL-0112", label: "Relance 2 — Mall Riviera", status: "Envoyée", owner: "Finance", updated: "09/09/2026", amount: "2,1 M" },
+      { id: "RL-0112", label: "Relance 2 ; Mall Riviera", status: "Envoyée", owner: "Finance", updated: "09/09/2026", amount: "2,1 M" },
     ],
   },
   "TMP-23": {
@@ -444,7 +444,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       { id: "preuve", label: "Preuve de réception" },
     ],
     extraRecords: [
-      { id: "AR-0201", label: "AR — contrat signé Exemple SA", status: "Envoyé", owner: "Commercial", updated: "08/09/2026", amount: "—" },
+      { id: "AR-0201", label: "AR ; contrat signé Exemple SA", status: "Envoyé", owner: "Commercial", updated: "08/09/2026", amount: "—" },
     ],
   },
   "TMP-24": {
@@ -474,7 +474,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       { id: "contraintes", label: "Contraintes / accès" },
     ],
     extraRecords: [
-      { id: "VT-0067", label: "Visite — Immeuble Akwa Center", status: "Rapport prêt", owner: "Commercial", updated: "07/09/2026", amount: "2 100 m²" },
+      { id: "VT-0067", label: "Visite ; Immeuble Akwa Center", status: "Rapport prêt", owner: "Commercial", updated: "07/09/2026", amount: "2 100 m²" },
     ],
   },
   "DIG-01": {
@@ -487,7 +487,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Demandes web|34", "Traitées|29", "Converties|8"),
     extraRecords: [
-      { id: "LEAD-2410", label: "Demande devis — Hôtel Palm", status: "Nouveau", owner: "Commercial", updated: "10/09/2026", amount: "—" },
+      { id: "LEAD-2410", label: "Demande devis ; Hôtel Palm", status: "Nouveau", owner: "Commercial", updated: "10/09/2026", amount: "—" },
     ],
   },
   "DIG-02": {
@@ -499,7 +499,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Messages|41", "Répondus|38", "Délai médian|6 h"),
     extraRecords: [
-      { id: "CT-0188", label: "Contact — partenariats", status: "Répondu", owner: "Direction", updated: "09/09/2026", amount: "—" },
+      { id: "CT-0188", label: "Contact ; partenariats", status: "Répondu", owner: "Direction", updated: "09/09/2026", amount: "—" },
     ],
   },
   "DIG-03": {
@@ -512,7 +512,7 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
     ],
     kpis: moneyKpis("Demandes visite|12", "Planifiées|9", "Honorées|8"),
     extraRecords: [
-      { id: "DV-0095", label: "Visite — Commerce Bonapriso", status: "Planifiée", owner: "Commercial", updated: "10/09/2026", amount: "12/09 10h" },
+      { id: "DV-0095", label: "Visite ; Commerce Bonapriso", status: "Planifiée", owner: "Commercial", updated: "10/09/2026", amount: "12/09 10h" },
     ],
   },
 };

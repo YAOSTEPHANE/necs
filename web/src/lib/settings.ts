@@ -184,7 +184,7 @@ export const DEFAULT_SETTINGS: AdminSettings = {
     phone: "+237 6XX XX XX XX",
     email: "direction@necs.cm",
     whatsapp: "+237 6XX XX XX XX",
-    address: "Bonanjo — Douala",
+    address: "Bonanjo ; Douala",
     city: "Douala",
     country: "Cameroun",
     currency: "XAF (FCFA)",
@@ -197,9 +197,9 @@ export const DEFAULT_SETTINGS: AdminSettings = {
     contractPrefix: "CTR",
     missionPrefix: "MIS",
     defaultValidityDays: 30,
-    defaultPaymentTerms: "Virement — 30 jours",
+    defaultPaymentTerms: "Virement ; 30 jours",
     vatRate: 19.25,
-    pdfFooter: "NECS SARL — Propreté · Rigueur · Confiance — Cameroun",
+    pdfFooter: "NECS SARL ; Propreté · Rigueur · Confiance ; Cameroun",
     autoNumbering: true,
   },
   notifications: {
@@ -371,7 +371,7 @@ export function loadSettings(): AdminSettings {
       try {
         localStorage.setItem(NECS_SETTINGS_KEY, JSON.stringify(settings));
       } catch {
-        /* quota — ignore */
+        /* quota ; ignore */
       }
     }
 

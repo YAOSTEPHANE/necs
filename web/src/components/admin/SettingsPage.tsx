@@ -930,7 +930,7 @@ export function SettingsWorkspace() {
                 />
               </label>
               <label className="settings-field">
-                <span>TVA (%) — Cameroun</span>
+                <span>TVA (%) ; Cameroun</span>
                 <input
                   type="number"
                   step="0.01"

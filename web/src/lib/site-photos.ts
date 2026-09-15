@@ -82,7 +82,7 @@ function seedVisits(): SiteVisit[] {
   return [
     {
       id: "VIS-DEMO-001",
-      site: "Immeuble Horizon — Douala",
+      site: "Immeuble Horizon ; Douala",
       client: "Société Exemple SA",
       date: todayIso(),
       agent: "Équipe terrain",

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "dev": "npx --no-install next dev",
+    "build": "npx --no-install next build",
+    "start": "npx --no-install next start",
+    "lint": "npx --no-install eslint"
   },
   "dependencies": {
     "@vercel/blob": "^2.8.0",

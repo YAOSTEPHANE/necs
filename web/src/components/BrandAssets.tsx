@@ -14,6 +14,9 @@ export function useBrandAssets() {
   const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
   const [faviconUrl, setFaviconUrl] = useState(DEFAULT_LOGO);
   const [social, setSocial] = useState<SocialLink[]>([]);
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   useEffect(() => {
     const sync = () => {
@@ -21,6 +24,9 @@ export function useBrandAssets() {
       setLogoUrl(s.branding.logoUrl || DEFAULT_LOGO);
       setFaviconUrl(s.branding.faviconUrl || DEFAULT_LOGO);
       setSocial(getActiveSocialLinks(s));
+      setPhone(s.company.phone || "");
+      setEmail(s.company.email || "");
+      setWhatsapp(s.company.whatsapp || s.company.phone || "");
     };
     sync();
     window.addEventListener(NECS_SETTINGS_EVENT, sync);
@@ -31,7 +37,7 @@ export function useBrandAssets() {
     };
   }, []);
 
-  return { logoUrl, faviconUrl, social };
+  return { logoUrl, faviconUrl, social, phone, email, whatsapp };
 }
 
 /** Met à jour le favicon de l’onglet navigateur. */
@@ -102,60 +108,125 @@ export function BrandLogo({
 
 function SocialIcon({
   id,
-  size = 18,
+  size = 40,
 }: {
   id: SocialNetworkId;
   size?: number;
 }) {
+  const gid = `social-${id}`;
   const common = {
     width: size,
     height: size,
     viewBox: "0 0 24 24",
-    fill: "currentColor" as const,
     "aria-hidden": true as const,
+    className: "footer-social__icon",
   };
 
   switch (id) {
     case "facebook":
       return (
         <svg {...common}>
-          <path d="M14 9h3V6h-3c-1.7 0-3 1.3-3 3v2H9v3h2v7h3v-7h2.5l.5-3H14V9z" />
+          <circle cx="12" cy="12" r="12" fill="#1877F2" />
+          <path
+            fill="#fff"
+            d="M13.35 22.5v-7.85h2.64l.4-3.1h-3.04V9.55c0-.9.25-1.51 1.54-1.51h1.64V5.26A21.9 21.9 0 0 0 13.7 5c-2.5 0-4.21 1.53-4.21 4.33v2.42H6.75v3.1h2.74V22.5h3.86z"
+          />
         </svg>
       );
     case "instagram":
       return (
         <svg {...common}>
-          <path d="M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm10 2H7a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-5 3.5A3.5 3.5 0 1 1 8.5 12 3.5 3.5 0 0 1 12 8.5zm0 2A1.5 1.5 0 1 0 13.5 12 1.5 1.5 0 0 0 12 10.5zM17.2 7.3a.9.9 0 1 1-.9-.9.9.9 0 0 1 .9.9z" />
+          <defs>
+            <radialGradient id={`${gid}-bg`} cx="30%" cy="107%" r="150%">
+              <stop offset="0%" stopColor="#fdf497" />
+              <stop offset="45%" stopColor="#fd5949" />
+              <stop offset="60%" stopColor="#d6249f" />
+              <stop offset="90%" stopColor="#285AEB" />
+            </radialGradient>
+          </defs>
+          <circle cx="12" cy="12" r="12" fill={`url(#${gid}-bg)`} />
+          <rect
+            x="6.2"
+            y="6.2"
+            width="11.6"
+            height="11.6"
+            rx="3.4"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="1.55"
+          />
+          <circle
+            cx="12"
+            cy="12"
+            r="2.85"
+            fill="none"
+            stroke="#fff"
+            strokeWidth="1.55"
+          />
+          <circle cx="16.15" cy="7.95" r="0.95" fill="#fff" />
         </svg>
       );
     case "linkedin":
       return (
         <svg {...common}>
-          <path d="M6.5 9.5H4V20h2.5V9.5zM5.25 4A1.5 1.5 0 1 0 5.26 7a1.5 1.5 0 0 0-.01-3zM20 13.2c0-2.5-1.35-4.1-3.55-4.1a3.2 3.2 0 0 0-2.85 1.55V9.5H11V20h2.6v-5.35c0-1.4.55-2.35 1.8-2.35 1.1 0 1.6.8 1.6 2.35V20H20v-6.8z" />
+          <circle cx="12" cy="12" r="12" fill="#0A66C2" />
+          <path
+            fill="#fff"
+            d="M8.35 9.85H5.9V18.1h2.45V9.85zM7.12 5.4a1.42 1.42 0 1 0 0 2.84 1.42 1.42 0 0 0 0-2.84zM18.1 12.7c0-2.35-1.25-3.86-3.35-3.86a2.95 2.95 0 0 0-2.65 1.45v-1.24H9.7c.03.55 0 8.05 0 8.05h2.4v-4.5c0-1.2.55-1.95 1.6-1.95.95 0 1.45.7 1.45 1.95v4.5H18.1v-5.4z"
+          />
         </svg>
       );
     case "youtube":
       return (
         <svg {...common}>
-          <path d="M22 12.2s0-3.3-.4-4.8a2.8 2.8 0 0 0-2-2C17.8 5 12 5 12 5s-5.8 0-7.6.4a2.8 2.8 0 0 0-2 2C2 8.9 2 12.2 2 12.2s0 3.3.4 4.8a2.8 2.8 0 0 0 2 2C6.2 19.4 12 19.4 12 19.4s5.8 0 7.6-.4a2.8 2.8 0 0 0 2-2c.4-1.5.4-4.8.4-4.8zM10 15.3V9.1l5.2 3.1L10 15.3z" />
+          <circle cx="12" cy="12" r="12" fill="#FF0000" />
+          <path
+            fill="#fff"
+            d="M9.4 8.35c0-.4.35-.55.7-.35l6.05 3.5c.35.2.35.5 0 .7l-6.05 3.5c-.35.2-.7.05-.7-.35V8.35z"
+          />
         </svg>
       );
     case "tiktok":
       return (
         <svg {...common}>
-          <path d="M16.5 4c.5 1.7 1.7 3 3.5 3.4V10a7.4 7.4 0 0 1-3.5-1v6.1A5.6 5.6 0 1 1 10.8 9.6v2.5a3.1 3.1 0 1 0 2.2 3V4h3.5z" />
+          <circle cx="12" cy="12" r="12" fill="#010101" />
+          <g transform="translate(1.2 1.1) scale(0.9)">
+            <path
+              fill="#25F4EE"
+              d="M16.6 5.2c.35 1.35 1.25 2.45 2.55 2.95v2.05a5.9 5.9 0 0 1-2.55-.7v5.35a4.85 4.85 0 1 1-4.85-4.85c.2 0 .4.02.6.05v2.2a2.7 2.7 0 1 0 1.9 2.55V4.5h2.35z"
+              transform="translate(0.45 0.45)"
+            />
+            <path
+              fill="#FE2C55"
+              d="M16.6 5.2c.35 1.35 1.25 2.45 2.55 2.95v2.05a5.9 5.9 0 0 1-2.55-.7v5.35a4.85 4.85 0 1 1-4.85-4.85c.2 0 .4.02.6.05v2.2a2.7 2.7 0 1 0 1.9 2.55V4.5h2.35z"
+              transform="translate(-0.45 -0.45)"
+            />
+            <path
+              fill="#fff"
+              d="M16.6 5.2c.35 1.35 1.25 2.45 2.55 2.95v2.05a5.9 5.9 0 0 1-2.55-.7v5.35a4.85 4.85 0 1 1-4.85-4.85c.2 0 .4.02.6.05v2.2a2.7 2.7 0 1 0 1.9 2.55V4.5h2.35z"
+            />
+          </g>
         </svg>
       );
     case "x":
       return (
         <svg {...common}>
-          <path d="M4 4h4.2l4 5.6L16.8 4H20l-6.2 7.1L20.2 20h-4.2l-4.3-6-5 6H3.3l6.6-7.6L4 4zm3.1 1.7 9.7 12.6h1.5L8.6 5.7H7.1z" />
+          <circle cx="12" cy="12" r="12" fill="#000" />
+          <path
+            fill="#fff"
+            d="M16.6 6.2h1.9L13.9 11.3 19 17.8h-4.1l-3.2-4.2-3.7 4.2H6.1l4.8-5.5L6 6.2h4.2l2.9 3.9 3.5-3.9zm-.7 10.5h1.05L8.2 7.25H7.05L15.9 16.7z"
+          />
         </svg>
       );
     case "whatsapp":
       return (
         <svg {...common}>
-          <path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.7-1.2A9 9 0 1 0 12 3zm0 1.7a7.3 7.3 0 0 1 6.2 11 7.3 7.3 0 0 1-8.4 1.7l-.5-.3-2.8.7.7-2.7-.3-.5A7.3 7.3 0 0 1 12 4.7zm4.1 9.5c-.2-.1-1.2-.6-1.4-.7s-.3-.1-.5.1-.5.7-.7.8-.4.2-.6 0a5.7 5.7 0 0 1-1.7-1 6.4 6.4 0 0 1-1.2-1.5c-.1-.2 0-.4.1-.5l.4-.4.1-.3c0-.1 0-.3-.1-.4s-.5-1.2-.7-1.6-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3a2 2 0 0 0-.6 1.5 3.5 3.5 0 0 0 .7 1.8 8 8 0 0 0 3.1 3 7 7 0 0 0 2 .8 2.4 2.4 0 0 0 1.3-.1 2 2 0 0 0 1.3-1.1 1.6 1.6 0 0 0 .1-1c0-.1-.2-.2-.4-.3z" />
+          <circle cx="12" cy="12" r="12" fill="#25D366" />
+          <path
+            fill="#fff"
+            fillRule="evenodd"
+            d="M12 4.6A7.35 7.35 0 0 0 5.7 15.55L4.85 19.1l3.65-.95A7.35 7.35 0 1 0 12 4.6zm0 1.35a6 6 0 0 1 5.1 9.05 6 6 0 0 1-6.9 1.4l-.4-.22-2.3.6.58-2.25-.24-.42A6 6 0 0 1 12 5.95zm3.35 7.85c-.15-.08-.9-.45-1.04-.5-.14-.05-.24-.08-.34.08s-.39.5-.48.6c-.09.1-.18.11-.33.04a4.7 4.7 0 0 1-1.4-.86 5.2 5.2 0 0 1-.98-1.22c-.09-.16 0-.31.07-.4l.28-.34.1-.24a.35.35 0 0 0-.05-.34c-.05-.08-.34-.82-.47-1.12-.12-.3-.25-.25-.34-.25h-.28c-.1 0-.26.04-.4.19-.13.15-.51.5-.51 1.22s.52 1.41.6 1.51c.07.1 1.02 1.56 2.48 2.19 1.46.63 1.46.42 1.72.4.26-.03.87-.36 1-.7.12-.35.12-.65.08-.71-.04-.06-.13-.1-.28-.17z"
+          />
         </svg>
       );
     default: {
@@ -186,10 +257,13 @@ export function SocialLinks({
               target="_blank"
               rel="noopener noreferrer"
               className={`footer-social__link footer-social__link--${s.id}`}
-              aria-label={s.label}
+              aria-label={`${s.label} (nouvel onglet)`}
               title={s.label}
             >
-              <SocialIcon id={s.id} size={20} />
+              <SocialIcon id={s.id} size={44} />
+              <span className="footer-social__tip" aria-hidden>
+                {s.label}
+              </span>
             </a>
           </li>
         ))}

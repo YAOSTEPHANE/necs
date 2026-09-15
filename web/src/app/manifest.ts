@@ -3,10 +3,10 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "NECS SARL — Propreté & Services",
+    name: "NECS SARL ; Propreté & Services",
     short_name: "NECS",
     description:
-      "NECLEANING & SERVICES SARL — site public et back-office de digitalisation au Cameroun.",
+      "NECLEANING & SERVICES SARL ; site public et back-office de digitalisation au Cameroun.",
     start_url: "/",
     scope: "/",
     display: "standalone",

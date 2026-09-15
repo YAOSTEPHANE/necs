@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = BLOG_POSTS.find((p) => p.slug === slug);
   return {
-    title: post ? `${post.title} — NECS Blog` : "Article — NECS Blog",
+    title: post ? `${post.title} ; NECS Blog` : "Article ; NECS Blog",
     description: post?.excerpt,
   };
 }

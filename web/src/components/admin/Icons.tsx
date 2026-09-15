@@ -379,31 +379,31 @@ const BY_SLUG: Record<string, (props: IconProps) => ReactNode> = {
 
 /** Couleurs vives par module (lisibles sur sidebar sombre et cards claires). */
 export const DOC_ICON_COLORS: Record<string, string> = {
-  "tmp-01": "#38bdf8", // offre — cyan
-  "tmp-02": "#22d3ee", // devis — cyan clair
-  "tmp-03": "#60a5fa", // BC — bleu
-  "tmp-04": "#34d399", // BL — vert menthe
-  "tmp-05": "#818cf8", // contrat — indigo
-  "tmp-06": "#a78bfa", // avenant — violet
-  "tmp-07": "#4ade80", // contrat agent — vert
-  "tmp-08": "#fbbf24", // fiche poste — ambre
-  "tmp-09": "#fb923c", // embauche — orange
-  "tmp-10": "#f472b6", // entretien — rose
-  "tmp-11": "#2dd4bf", // onboarding — teal
-  "tmp-12": "#4ade80", // OT — vert
-  "tmp-13": "#a3e635", // qualité — lime
-  "tmp-14": "#38bdf8", // rapport — cyan
-  "tmp-15": "#f59e0b", // achat — ambre
-  "tmp-16": "#c084fc", // congé — violet
-  "tmp-17": "#22d3ee", // pointage — cyan
-  "tmp-18": "#60a5fa", // préfacture — bleu
-  "tmp-19": "#3b82f6", // facture — bleu vif
-  "tmp-20": "#34d399", // avoir — vert
-  "tmp-21": "#94a3b8", // relevé — gris bleuté
-  "tmp-22": "#f97316", // relance — orange
-  "tmp-23": "#4ade80", // AR — vert
-  "tmp-24": "#818cf8", // rapport mensuel — indigo
-  "tmp-25": "#fbbf24", // visite — ambre
+  "tmp-01": "#38bdf8", // offre ; cyan
+  "tmp-02": "#22d3ee", // devis ; cyan clair
+  "tmp-03": "#60a5fa", // BC ; bleu
+  "tmp-04": "#34d399", // BL ; vert menthe
+  "tmp-05": "#818cf8", // contrat ; indigo
+  "tmp-06": "#a78bfa", // avenant ; violet
+  "tmp-07": "#4ade80", // contrat agent ; vert
+  "tmp-08": "#fbbf24", // fiche poste ; ambre
+  "tmp-09": "#fb923c", // embauche ; orange
+  "tmp-10": "#f472b6", // entretien ; rose
+  "tmp-11": "#2dd4bf", // onboarding ; teal
+  "tmp-12": "#4ade80", // OT ; vert
+  "tmp-13": "#a3e635", // qualité ; lime
+  "tmp-14": "#38bdf8", // rapport ; cyan
+  "tmp-15": "#f59e0b", // achat ; ambre
+  "tmp-16": "#c084fc", // congé ; violet
+  "tmp-17": "#22d3ee", // pointage ; cyan
+  "tmp-18": "#60a5fa", // préfacture ; bleu
+  "tmp-19": "#3b82f6", // facture ; bleu vif
+  "tmp-20": "#34d399", // avoir ; vert
+  "tmp-21": "#94a3b8", // relevé ; gris bleuté
+  "tmp-22": "#f97316", // relance ; orange
+  "tmp-23": "#4ade80", // AR ; vert
+  "tmp-24": "#818cf8", // rapport mensuel ; indigo
+  "tmp-25": "#fbbf24", // visite ; ambre
   "dig-01": "#22d3ee", // devis web
   "dig-02": "#4ade80", // contact
   "dig-03": "#fbbf24", // visite web

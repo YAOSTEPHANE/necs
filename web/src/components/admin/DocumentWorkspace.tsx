@@ -190,7 +190,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     const id = `${doc.refPrefix}-${String(records.length + 1).padStart(4, "0")}`;
     const neu: StoredDocRecord = {
       id,
-      label: `Nouveau — ${doc.title}`,
+      label: `Nouveau ; ${doc.title}`,
       status: "Brouillon",
       owner: "Vous",
       updated: new Date().toLocaleDateString("fr-FR"),
@@ -569,7 +569,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                   <p>
                     Propreté · Rigueur · Confiance
                     <br />
-                    Siège : {company.address || "[Adresse — Cameroun]"}
+                    Siège : {company.address || "[Adresse ; Cameroun]"}
                     <br />
                     Tél. : {company.phone} · Email : {company.email}
                   </p>
@@ -804,7 +804,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                                     color: "var(--a-muted)",
                                   }}
                                 >
-                                  Aucune ligne — ajoutez-en une.
+                                  Aucune ligne ; ajoutez-en une.
                                 </td>
                               </tr>
                             ) : (

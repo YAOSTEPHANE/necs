@@ -10,7 +10,7 @@ export const dashboardKpis = [
 ];
 
 export const digitalLeads = [
-  { id: "LEAD-2401", source: "Site web — Devis", campaign: "SEO Local Douala", name: "Société Horizon SA", status: "Nouveau", sla: "2h", consent: "Oui" },
+  { id: "LEAD-2401", source: "Site web ; Devis", campaign: "SEO Local Douala", name: "Société Horizon SA", status: "Nouveau", sla: "2h", consent: "Oui" },
   { id: "LEAD-2402", source: "Facebook Lead Ads", campaign: "Nettoyage bureaux Q1", name: "Boutique Klaris", status: "Qualifié", sla: "OK", consent: "Oui" },
   { id: "LEAD-2403", source: "Contact web", campaign: "Organic", name: "Clinique Les Palmiers", status: "À rappeler", sla: "Retard", consent: "Oui" },
   { id: "LEAD-2404", source: "Visite technique", campaign: "Outbound Commercial", name: "LogiTrans Cameroun", status: "Visite planifiée", sla: "OK", consent: "Oui" },

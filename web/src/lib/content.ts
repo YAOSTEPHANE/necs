@@ -6,6 +6,7 @@ export type NecsImages = {
   actOffice: string;
   actIndustry: string;
   actCommerce: string;
+  actHome: string;
   blog1: string;
   blog2: string;
 };
@@ -52,6 +53,8 @@ export type NecsContent = {
   act2Text: string;
   act3Title: string;
   act3Text: string;
+  act4Title: string;
+  act4Text: string;
   testTitle: string;
   testLead: string;
   t1Text: string;
@@ -120,31 +123,37 @@ export const PUBLIC_IMAGE_SLOTS: Array<{
   },
   {
     key: "actOffice",
-    label: "Activité — Bureaux",
+    label: "Activité ; Bureaux",
     hint: "Entretien de bureaux",
     maxSize: 900,
   },
   {
     key: "actIndustry",
-    label: "Activité — Industrie",
+    label: "Activité ; Industrie",
     hint: "Nettoyage industriel",
     maxSize: 900,
   },
   {
     key: "actCommerce",
-    label: "Activité — Commerces",
+    label: "Activité ; Commerces",
     hint: "Commerces & espaces publics",
     maxSize: 900,
   },
   {
+    key: "actHome",
+    label: "Activité ; Particuliers",
+    hint: "Nettoyage pour les particuliers",
+    maxSize: 900,
+  },
+  {
     key: "blog1",
-    label: "Blog — article 1",
+    label: "Blog ; article 1",
     hint: "Vignette du premier article",
     maxSize: 800,
   },
   {
     key: "blog2",
-    label: "Blog — article 2",
+    label: "Blog ; article 2",
     hint: "Vignette du second article",
     maxSize: 800,
   },
@@ -156,7 +165,7 @@ export const DEFAULT_CONTENT: NecsContent = {
   heroEyebrow: "Propreté · Rigueur · Confiance",
   heroTitle: "L’excellence du nettoyage, élevée au rang d’art",
   heroLead:
-    "NECS accompagne entreprises, industries et commerces avec des prestations premium, digitales et mesurables — de la prospection à l’exécution terrain.",
+    "NECS accompagne entreprises, industries et commerces avec des prestations premium, digitales et mesurables ; de la prospection à l’exécution terrain.",
   whyTitle: "La différence NECS, visible dès le premier passage",
   whyLead:
     "Une organisation rigoureuse, des équipes formées et une plateforme digitale qui transforme chaque prestation en preuve de qualité.",
@@ -195,34 +204,37 @@ export const DEFAULT_CONTENT: NecsContent = {
   objTitle:
     "Être le partenaire de référence en Afrique centrale pour des environnements sains, sûrs et agréables à vivre.",
   objText:
-    "Digitaliser le cycle complet — prospect, contrat, exécution, RH, qualité, facturation — pour offrir à chaque client une expérience premium, transparente et durable.",
+    "Digitaliser le cycle complet ; prospect, contrat, exécution, RH, qualité, facturation ; pour offrir à chaque client une expérience premium, transparente et durable.",
   actTitle: "Des expertises adaptées à chaque environnement",
   actLead:
     "Du tertiaire à l’industrie, NECS déploie des protocoles sur mesure, avec les bons effectifs et le bon niveau de service.",
   act1Title: "Entretien de bureaux",
   act1Text:
-    "Sols, postes, sanitaires, vitrerie intérieure — pour un siège qui reflète votre image.",
+    "Sols, postes, sanitaires, vitrerie intérieure ; pour un siège qui reflète votre image.",
   act2Title: "Nettoyage industriel",
   act2Text:
     "Zones techniques, entrepôts et flux opérationnels avec consignes sécurité renforcées.",
   act3Title: "Commerces & espaces publics",
   act3Text:
     "Mall, retail et accueil client : propreté continue et expérience visiteur premium.",
+  act4Title: "Nettoyage pour les particuliers",
+  act4Text:
+    "Du salon à la cuisine, NECS prend soin de votre domicile avec des équipes discrètes, formées et des protocoles adaptés à la vie de famille.",
   testTitle: "Ils nous font confiance",
   testLead:
-    "La voix de nos clients — entreprises qui ont choisi la rigueur NECS au quotidien.",
+    "La rigueur de nos équipes et la qualité de nos prestations font la différence au quotidien.",
   t1Text:
     "Depuis le démarrage avec NECS, nos locaux sont impeccables et le reporting qualité nous donne une vraie visibilité.",
   t1Name: "Jean Okala",
-  t1Role: "DAF — Société Exemple SA",
+  t1Role: "DAF ; Société Exemple SA",
   t2Text:
     "Ponctualité, réactivité sur les absences, et une équipe vraiment professionnelle. Exactement ce dont nous avions besoin.",
   t2Name: "Amina Moussa",
-  t2Role: "Responsable Achats — Groupe Horizon",
+  t2Role: "Responsable Achats ; Groupe Horizon",
   t3Text:
     "Le passage au digital a simplifié devis, validations et factures. NECS est devenu un partenaire, pas seulement un prestataire.",
   t3Name: "Paul Kouam",
-  t3Role: "Directeur Ops — LogiTrans",
+  t3Role: "Directeur Ops ; LogiTrans",
   blogTitle: "Conseils, qualité & innovation terrain",
   blogLead:
     "Nos articles pour élever vos standards d’hygiène et comprendre nos méthodes.",
@@ -242,10 +254,10 @@ export const DEFAULT_CONTENT: NecsContent = {
     "Expliquez-nous votre besoin : un conseiller NECS vous répond sous 24 heures ouvrées.",
   contactPhone: "[+237] XX XX XX XX",
   contactEmail: "commercial@necs.cm",
-  contactAddress: "[Adresse siège — Cameroun]",
+  contactAddress: "[Adresse siège ; Cameroun]",
   contactHours: "Lun – Ven · 08h00 – 17h30",
   footerAbout:
-    "Propreté, Rigueur, Confiance — le partenaire premium du nettoyage professionnel au Cameroun.",
+    "Propreté, Rigueur, Confiance ; le partenaire premium du nettoyage professionnel au Cameroun.",
   images: {
     hero: "/images/necs-hero.jpg",
     about: "/images/necs-about.jpg",
@@ -254,6 +266,7 @@ export const DEFAULT_CONTENT: NecsContent = {
     actOffice: "/images/necs-activite-bureaux.jpg",
     actIndustry: "/images/necs-activite-industrie.jpg",
     actCommerce: "/images/necs-activite-commerce.jpg",
+    actHome: "/images/necs-about.jpg",
     blog1: "/images/necs-blog-1.jpg",
     blog2: "/images/necs-blog-2.jpg",
   },
@@ -265,7 +278,7 @@ export function loadContent(): NecsContent {
     const raw = localStorage.getItem(NECS_CONTENT_KEY);
     if (!raw) return structuredClone(DEFAULT_CONTENT);
     const parsed = JSON.parse(raw) as Partial<NecsContent>;
-    return {
+    const merged: NecsContent = {
       ...structuredClone(DEFAULT_CONTENT),
       ...parsed,
       images: {
@@ -273,9 +286,22 @@ export function loadContent(): NecsContent {
         ...(parsed.images ?? {}),
       },
     };
+    return sanitizeEmDashes(merged);
   } catch {
     return structuredClone(DEFAULT_CONTENT);
   }
+}
+
+function sanitizeEmDashes(data: NecsContent): NecsContent {
+  const out: NecsContent = { ...data, images: { ...data.images } };
+  (Object.keys(out) as Array<keyof NecsContent>).forEach((key) => {
+    if (key === "images") return;
+    const value = out[key];
+    if (typeof value === "string" && value.includes("—")) {
+      out[key] = value.replaceAll(" — ", " ; ") as never;
+    }
+  });
+  return out;
 }
 
 export function saveContent(data: NecsContent): void {

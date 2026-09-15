@@ -120,7 +120,7 @@ export function DashboardRequests() {
             {count > 0
               ? `${count} lead${count > 1 ? "s" : ""} depuis le site`
               : items.length > 0
-                ? "Aucune demande site — affichage démo"
+                ? "Aucune demande site ; affichage démo"
                 : "File vide"}
           </p>
         </div>

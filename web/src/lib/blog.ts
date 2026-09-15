@@ -20,7 +20,7 @@ export const BLOG_POSTS = [
     imageKey: "blog2" as const,
     body: [
       "Le contrôle papier arrive trop tard. Avec le digital, le superviseur valide les zones critiques sur le terrain, photographie les écarts et déclenche immédiatement une action corrective.",
-      "Les checklists NECS sont adaptées à chaque environnement — bureaux, industrie, commerce — et restent traçables pour vos audits internes.",
+      "Les checklists NECS sont adaptées à chaque environnement ; bureaux, industrie, commerce ; et restent traçables pour vos audits internes.",
       "Résultat : moins d’oublis, plus de transparence, et une preuve objective de la qualité livrée à chaque vacation.",
     ],
   },

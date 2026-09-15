@@ -27,7 +27,7 @@ export const ROLE_SPACES: Partial<Record<UserRole, RoleSpaceConfig>> = {
     role: "commercial",
     eyebrow: "Espace Commercial",
     title: "Pilotage CRM",
-    lead: "Offres, devis, commandes et suivi client — votre portefeuille au quotidien.",
+    lead: "Offres, devis, commandes et suivi client ; votre portefeuille au quotidien.",
     domains: ["CRM", "DIG"],
     tools: [
       {

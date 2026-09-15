@@ -14,11 +14,23 @@ export type SessionPayload = {
   employeeId?: string;
 };
 
-function getSecret(): Uint8Array {
-  const secret =
+function readAuthSecretRaw(): string {
+  const raw =
     process.env.AUTH_SECRET?.trim() ||
     process.env.NEXTAUTH_SECRET?.trim() ||
     "";
+  // Tolère les guillemets éventuels dans .env
+  if (
+    (raw.startsWith('"') && raw.endsWith('"')) ||
+    (raw.startsWith("'") && raw.endsWith("'"))
+  ) {
+    return raw.slice(1, -1).trim();
+  }
+  return raw;
+}
+
+function getSecret(): Uint8Array {
+  const secret = readAuthSecretRaw();
   if (!secret || secret.length < 32) {
     throw new Error(
       "AUTH_SECRET manquant ou trop court (min. 32 caractères).",
@@ -28,11 +40,7 @@ function getSecret(): Uint8Array {
 }
 
 export function hasAuthSecret(): boolean {
-  const secret =
-    process.env.AUTH_SECRET?.trim() ||
-    process.env.NEXTAUTH_SECRET?.trim() ||
-    "";
-  return secret.length >= 32;
+  return readAuthSecretRaw().length >= 32;
 }
 
 export async function signSessionToken(

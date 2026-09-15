@@ -1,16 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Figtree, Outfit } from "next/font/google";
+import { Caveat, Figtree, Outfit } from "next/font/google";
 import { AppProviders } from "@/components/AppProviders";
 import { BrandFavicon } from "@/components/BrandAssets";
 import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 import "./site-premium.css";
 import "./identity-flyer.css";
+import "./flyer-roadmap.css";
+import "./activity-services.css";
+import "./contact-premium.css";
+import "./confiance-premium.css";
+import "./site-flyer.css";
 
 const APP_NAME = "NECS";
-const APP_TITLE = "NECS SARL — Propreté, Rigueur, Confiance";
+const APP_TITLE = "NECS SARL ; Propreté, Rigueur, Confiance";
 const APP_DESCRIPTION =
-  "NECLEANING & SERVICES SARL — Site public et back-office de digitalisation au Cameroun.";
+  "NECLEANING & SERVICES SARL ; Site public et back-office de digitalisation au Cameroun.";
 
 const figtree = Figtree({
   variable: "--font-sans",
@@ -22,6 +27,12 @@ const outfit = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
+});
+
+const caveat = Caveat({
+  variable: "--font-script",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -68,7 +79,7 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr" className={`${figtree.variable} ${outfit.variable}`}>
+    <html lang="fr" className={`${figtree.variable} ${outfit.variable} ${caveat.variable}`}>
       <body>
         <a className="skip-link" href="#contenu">
           Aller au contenu

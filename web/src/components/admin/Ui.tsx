@@ -49,7 +49,7 @@ export function ModuleHeader({
   );
 }
 
-/** @deprecated Prefer ModuleHeader — kept for transitional call sites */
+/** @deprecated Prefer ModuleHeader ; kept for transitional call sites */
 export function PageHeader({
   code,
   title,

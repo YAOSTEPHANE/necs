@@ -307,8 +307,8 @@ export function PointageWorkspace() {
         title={agentMode ? "Mon pointage" : "Pointage des employés"}
         description={
           agentMode
-            ? "Enregistrez votre arrivée et votre départ — anti double-pointage intégré."
-            : "Arrivée et départ en un clic, détection des retards, validation superviseur — anti double-pointage intégré."
+            ? "Enregistrez votre arrivée et votre départ ; anti double-pointage intégré."
+            : "Arrivée et départ en un clic, détection des retards, validation superviseur ; anti double-pointage intégré."
         }
         meta={
           <>

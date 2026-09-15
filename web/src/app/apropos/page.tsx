@@ -3,7 +3,7 @@ import { SiteShell } from "@/components/site/SiteShell";
 import { IdentityFlyer } from "@/components/site/IdentityFlyer";
 
 export const metadata: Metadata = {
-  title: "À propos — NECS SARL",
+  title: "À propos ; NECS SARL",
   description:
     "Des espaces propres. Un service rigoureux. Une confiance durable. NECLEANING & SERVICES SARL accompagne entreprises, industries, commerces et particuliers.",
 };

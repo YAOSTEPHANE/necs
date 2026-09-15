@@ -106,7 +106,7 @@ function LoginForm() {
               <em> de vos opérations</em>
             </h2>
             <p className="login-showcase__lead">
-              Documents métier, qualité terrain, finance et CRM — une console
+              Documents métier, qualité terrain, finance et CRM ; une console
               unique pour NECS au Cameroun.
             </p>
 

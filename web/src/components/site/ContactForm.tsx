@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { saveLead, type NecsContent } from "@/lib/content";
 import { toast } from "@/lib/toast";
 import { BrandLogo } from "@/components/BrandAssets";
+import { ContactQuickActions } from "@/components/site/ContactQuickActions";
 
 export interface ContactModalProps {
   isOpen: boolean;
@@ -75,7 +76,7 @@ export function ContactModal({
           return;
         }
         saveLead(payload);
-        toast.success("Demande envoyée — nous vous recontactons sous 24 h.");
+        toast.success("Demande envoyée ; nous vous recontactons sous 24 h.");
         setSubmitted(true);
       } catch {
         toast.error("Impossible d’envoyer la demande.");
@@ -135,7 +136,7 @@ export function ContactModal({
               </div>
               <h2 id="contact-modal-title">Demande de devis</h2>
               <p className="necs-modal-lead">
-                Décrivez votre site en quelques lignes — un conseiller NECS vous
+                Décrivez votre site en quelques lignes ; un conseiller NECS vous
                 rappelle avec une proposition claire.
               </p>
             </div>
@@ -289,13 +290,19 @@ export function ContactForm({
               <span>{content.contactHours}</span>
             </li>
           </ul>
+          <ContactQuickActions
+            className="contact-panel__actions"
+            fallbackPhone={content.contactPhone}
+            fallbackEmail={content.contactEmail}
+            onFormClick={handleOpen}
+          />
         </aside>
 
         <div className="contact-card-cta reveal reveal-delay-1">
           <div className="contact-card-cta__badge">Devis sur mesure</div>
           <h3>Parlons de vos locaux</h3>
           <p>
-            Superficie, fréquence, contraintes site — nous construisons une
+            Superficie, fréquence, contraintes site ; nous construisons une
             proposition nette, sans jargon.
           </p>
           <ul className="contact-card-cta__points">
