@@ -565,6 +565,10 @@
   color: var(--sf-navy);
 }
 
+.blg-card__more::after {
+  content: "→";
+}
+
 .blg-article {
   padding: 2rem 0 3rem;
 }

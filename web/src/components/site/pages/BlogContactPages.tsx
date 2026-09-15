@@ -82,10 +82,7 @@ export function BlogIndexPage() {
                   <p className="blg-card__meta">{p.meta}</p>
                   <h2>{p.title}</h2>
                   <p>{p.excerpt}</p>
-                  <span className="blg-card__more">
-                    Lire la suite
-                    <IconArrow />
-                  </span>
+                  <span className="blg-card__more">Lire la suite</span>
                 </Link>
               </article>
             ))}

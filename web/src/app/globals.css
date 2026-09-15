@@ -2354,6 +2354,12 @@ a.more {
 .page-inline-more .more::after {
   content: "→";
 }
+.page-inline-more .more svg,
+a.more svg,
+.blg-card__more svg,
+.blog-card .more svg {
+  display: none !important;
+}
 .page-inline-more .more:hover,
 a.more:hover {
   gap: 0.65rem;

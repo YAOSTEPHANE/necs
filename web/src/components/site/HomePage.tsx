@@ -206,7 +206,7 @@ function HomeInner() {
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/pourquoi">
-              En savoir plus <IconArrow />
+              En savoir plus
             </Link>
           </div>
         </div>
@@ -241,7 +241,7 @@ function HomeInner() {
             </ul>
             <div className="page-inline-more">
               <Link className="more" href="/apropos">
-                Découvrir notre organisation <IconArrow />
+                Découvrir notre organisation
               </Link>
             </div>
           </div>
@@ -270,7 +270,7 @@ function HomeInner() {
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/realisations">
-              Voir nos réalisations <IconArrow />
+              Voir nos réalisations
             </Link>
           </div>
         </div>
@@ -287,7 +287,7 @@ function HomeInner() {
             </p>
             <div className="page-inline-more">
               <Link className="more" href="/objectif">
-                Lire notre vision stratégique <IconArrow />
+                Lire notre vision stratégique
               </Link>
             </div>
           </div>
@@ -334,7 +334,7 @@ function HomeInner() {
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/activites">
-              Explorer tous nos services <IconArrow />
+              Explorer tous nos services
             </Link>
           </div>
         </div>
@@ -367,7 +367,7 @@ function HomeInner() {
           </div>
           <div className="page-inline-more reveal">
             <Link className="more" href="/temoignages">
-              Voir notre engagement <IconArrow />
+              Voir notre engagement
             </Link>
           </div>
         </div>
@@ -422,10 +422,7 @@ function HomeInner() {
                   <p className="blg-card__meta">{meta}</p>
                   <h3>{title}</h3>
                   <p>{text}</p>
-                  <span className="blg-card__more">
-                    Lire la suite
-                    <IconArrow />
-                  </span>
+                  <span className="blg-card__more">Lire la suite</span>
                 </Link>
               </article>
             ))}
