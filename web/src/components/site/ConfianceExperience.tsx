@@ -471,14 +471,16 @@ export function ConfianceExperience({ content }: { content: NecsContent }) {
 
       <section className="ncf-pillars">
         <div className="container ncf-pillars__grid">
-          {PILLARS.map((pillar) => (
+          {PILLARS.map((pillar, i) => (
             <article key={pillar.title} className="ncf-pillar">
               <div className="ncf-pillar__icon">
                 <PillarIcon kind={pillar.icon} />
               </div>
               <h2>{pillar.title}</h2>
               <p>{pillar.text}</p>
-              <figure className="ncf-pillar__photo">
+              <figure
+                className={`ncf-pillar__photo reveal reveal-media public-img-wrap reveal-delay-${(i % 4) + 1}`}
+              >
                 <Image
                   src={content.images[pillar.imageKey]}
                   alt={pillar.caption}
@@ -540,6 +542,30 @@ export function ConfianceExperience({ content }: { content: NecsContent }) {
                 <IconArrow />
               </span>
             </button>
+          </div>
+        </div>
+      </section>
+
+      <section className="ncf-quotes" aria-label="Témoignages">
+        <div className="container">
+          <header className="ncf-quotes__head">
+            <p className="ncf-kicker">Témoignages</p>
+            <h2>Ce que disent nos clients</h2>
+          </header>
+          <div className="ncf-quotes__grid">
+            {[
+              [content.t1Text, content.t1Name, content.t1Role],
+              [content.t2Text, content.t2Name, content.t2Role],
+              [content.t3Text, content.t3Name, content.t3Role],
+            ].map(([text, name, role]) => (
+              <blockquote className="ncf-quote" key={name}>
+                <p>{text}</p>
+                <footer>
+                  <strong>{name}</strong>
+                  <span>{role}</span>
+                </footer>
+              </blockquote>
+            ))}
           </div>
         </div>
       </section>

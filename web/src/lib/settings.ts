@@ -165,8 +165,8 @@ export const DEFAULT_SOCIAL: SocialLink[] = [
   {
     id: "whatsapp",
     label: "WhatsApp",
-    url: "https://wa.me/2376",
-    enabled: false,
+    url: "https://wa.me/237641335553",
+    enabled: true,
   },
 ];
 
@@ -181,10 +181,10 @@ export const DEFAULT_SETTINGS: AdminSettings = {
     tradeName: "NECS",
     rccm: "RC/DLA/XXXX/B/XXXX",
     nif: "MXXXXXXXXXXXXX",
-    phone: "+237 6XX XX XX XX",
-    email: "direction@necs.cm",
-    whatsapp: "+237 6XX XX XX XX",
-    address: "Bonanjo ; Douala",
+    phone: "+237 641 33 55 53",
+    email: "contact@necs-cm.com",
+    whatsapp: "+237 641 33 55 53",
+    address: "Yaoundé, Douala et environs",
     city: "Douala",
     country: "Cameroun",
     currency: "XAF (FCFA)",

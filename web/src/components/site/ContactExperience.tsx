@@ -650,7 +650,7 @@ export function ContactExperience({ content }: { content: NecsContent }) {
               <li>Traçabilité</li>
             </ul>
           </div>
-          <div className="cxf-digital__media">
+          <div className="cxf-digital__media reveal reveal-media public-img-wrap">
             <Image
               src={content.images.objectif}
               alt="Pilotage digital NECS"
@@ -673,7 +673,7 @@ export function ContactExperience({ content }: { content: NecsContent }) {
             <span>Confiance</span>
           </p>
           <a className="cxf-btn cxf-btn--orange" href="#contact-form">
-            Contactez-nous dès maintenant
+            Demander un devis
             <IconArrow />
           </a>
         </div>

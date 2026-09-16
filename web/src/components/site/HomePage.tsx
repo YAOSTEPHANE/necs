@@ -100,10 +100,54 @@ function HomeInner() {
   ];
 
   const activities = [
-    { img: content.images.actOffice, title: content.act1Title, text: content.act1Text },
-    { img: content.images.actIndustry, title: content.act2Title, text: content.act2Text },
-    { img: content.images.actCommerce, title: content.act3Title, text: content.act3Text },
-    { img: content.images.actHome, title: content.act4Title, text: content.act4Text },
+    {
+      img: content.images.actOffice,
+      title: content.act1Title,
+      text: content.act1Text,
+      href: "/activites#bureaux",
+    },
+    {
+      img: content.images.actIndustry,
+      title: content.act2Title,
+      text: content.act2Text,
+      href: "/activites#industrie",
+    },
+    {
+      img: content.images.actCommerce,
+      title: content.act3Title,
+      text: content.act3Text,
+      href: "/activites#commerces",
+    },
+    {
+      img: content.images.actHome,
+      title: content.act4Title,
+      text: content.act4Text,
+      href: "/activites#particuliers",
+    },
+    {
+      img: content.images.about,
+      title: content.act5Title,
+      text: content.act5Text,
+      href: "/activites#sante",
+    },
+    {
+      img: content.images.objectif,
+      title: content.act6Title,
+      text: content.act6Text,
+      href: "/activites#hotels",
+    },
+    {
+      img: content.images.blog2,
+      title: content.act7Title,
+      text: content.act7Text,
+      href: "/activites#ecoles",
+    },
+    {
+      img: content.images.hero,
+      title: content.act8Title,
+      text: content.act8Text,
+      href: "/activites#espaces-publics",
+    },
   ];
 
   return (
@@ -138,11 +182,18 @@ function HomeInner() {
             {hero.before}
             {hero.accent ? (
               <>
-                , <em>{hero.accent}</em>
+                ,
+                <br />
+                <em>{hero.accent}</em>
               </>
             ) : null}
           </h1>
-          <p className="lead">{content.heroLead}</p>
+          <p className="lead">
+            NECS accompagne entreprises, industries et commerces avec des
+            prestations premium, digitales et mesurables&nbsp;;
+            <br />
+            de la prospection à l’exécution terrain.
+          </p>
           <div className="hero__actions">
             <button
               type="button"
@@ -214,7 +265,7 @@ function HomeInner() {
 
       <section className="section hp-about" id="apropos">
         <div className="container hp-about__grid">
-          <div className="hp-about__media reveal">
+          <div className="hp-about__media reveal public-img-wrap">
             <Image
               src={content.images.about}
               alt="À propos NECS"
@@ -255,7 +306,7 @@ function HomeInner() {
             <h2>{content.achTitle}</h2>
             <p>{content.achLead}</p>
           </div>
-          <div className="hp-shot reveal">
+          <div className="hp-shot reveal public-img-wrap">
             <Image
               src={content.images.achMain}
               alt="Chantier NECS"
@@ -291,7 +342,7 @@ function HomeInner() {
               </Link>
             </div>
           </div>
-          <div className="hp-objectif__media reveal reveal-delay-1">
+          <div className="hp-objectif__media reveal reveal-delay-1 public-img-wrap">
             <Image
               src={content.images.objectif}
               alt="Objectif NECS"
@@ -313,11 +364,12 @@ function HomeInner() {
           </div>
           <div className="hp-act__grid">
             {activities.map((item, i) => (
-              <article
+              <Link
                 className={`hp-act__card reveal reveal-delay-${(i % 3) + 1}`}
                 key={item.title}
+                href={item.href}
               >
-                <div className="hp-act__media">
+                <div className="hp-act__media public-img-wrap">
                   <Image
                     src={item.img}
                     alt={item.title}
@@ -329,7 +381,7 @@ function HomeInner() {
                 </div>
                 <h3>{item.title}</h3>
                 <p>{item.text}</p>
-              </article>
+              </Link>
             ))}
           </div>
           <div className="page-inline-more reveal">
@@ -409,7 +461,7 @@ function HomeInner() {
                 key={title}
               >
                 <Link href={href} className="blg-card__link">
-                  <div className="blg-card__media">
+                  <div className="blg-card__media public-img-wrap">
                     <Image
                       src={img}
                       alt={title}
@@ -444,7 +496,7 @@ function HomeInner() {
             className="sf-cta"
             onClick={() => openQuoteModal("Devis page accueil")}
           >
-            Contactez-nous dès maintenant
+            Demander un devis
             <span className="sf-cta__arrow" aria-hidden>
               <IconArrow />
             </span>

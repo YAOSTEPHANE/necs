@@ -9,7 +9,7 @@ import {
   StatusBadge,
 } from "@/components/admin/Ui";
 import { toast } from "@/lib/toast";
-import type { DocumentDef } from "@/lib/documents-catalog";
+import type { DocField, DocumentDef } from "@/lib/documents-catalog";
 import {
   type DocPhoto,
   type StoredDocRecord,
@@ -88,8 +88,82 @@ function buildDefaults(doc: DocumentDef): Record<string, string> {
 }
 
 function PrintValue({ value }: { value: string }) {
-  const text = value.trim() ? value : "—";
+  const text = value.trim();
+  if (!text) {
+    return (
+      <div className="doc-print-value doc-print-value--empty" aria-hidden>
+        —
+      </div>
+    );
+  }
   return <div className="doc-print-value">{text}</div>;
+}
+
+function fieldPlaceholder(field: DocField): string {
+  if (field.kind === "email") return "ex. contact@entreprise.cm";
+  if (field.kind === "tel") return "ex. +237 6XX XX XX XX";
+  if (field.kind === "number") return "0";
+  if (field.kind === "textarea") return `Saisir ${field.label.toLowerCase()}…`;
+  return "";
+}
+
+function DocFieldControl({
+  field,
+  value,
+  onChange,
+}: {
+  field: DocField;
+  value: string;
+  onChange: (next: string) => void;
+}) {
+  const filled = value.trim().length > 0;
+  return (
+    <label
+      className={`doc-field${field.full ? " is-full" : ""}${filled ? " is-filled" : " is-empty"}${field.required ? " is-required" : ""}`}
+    >
+      <span className="doc-field__label">
+        {field.label}
+        {field.required ? <em> *</em> : null}
+      </span>
+      {field.kind === "select" ? (
+        <select
+          className="doc-screen-only"
+          required={field.required}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="">— Sélectionner —</option>
+          {(field.options ?? []).map((o) => (
+            <option key={o} value={o}>
+              {o}
+            </option>
+          ))}
+        </select>
+      ) : field.kind === "textarea" ? (
+        <textarea
+          className="doc-screen-only"
+          required={field.required}
+          rows={4}
+          placeholder={fieldPlaceholder(field)}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ) : (
+        <input
+          className="doc-screen-only"
+          type={field.kind}
+          required={field.required}
+          placeholder={fieldPlaceholder(field)}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      )}
+      {field.hint ? (
+        <small className="doc-field__hint no-print">{field.hint}</small>
+      ) : null}
+      <PrintValue value={value} />
+    </label>
+  );
 }
 
 function amountColumnIndex(headers: string[]): number {
@@ -133,12 +207,17 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     amount: "—",
   });
   const [company, setCompany] = useState(() => loadSettings().company);
+  const [pdfFooter, setPdfFooter] = useState(
+    () => loadSettings().documents.pdfFooter,
+  );
   const photoInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
     const loaded = loadDocStore(doc.slug, doc.records, doc.lineRows);
+    const settings = loadSettings();
     setRecords(loaded);
-    setCompany(loadSettings().company);
+    setCompany(settings.company);
+    setPdfFooter(settings.documents.pdfFooter);
     setReady(true);
   }, [doc.slug, doc.records, doc.lineRows]);
 
@@ -317,6 +396,28 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
       ? lineRows.reduce((sum, row) => sum + parseAmount(row[amtCol] ?? ""), 0)
       : 0;
 
+  const formProgress = useMemo(() => {
+    const required: Array<{ key: string; ok: boolean }> = [
+      { key: "label", ok: draftMeta.label.trim().length > 0 },
+    ];
+    for (const section of doc.sections) {
+      for (const field of section.fields) {
+        if (!field.required) continue;
+        required.push({
+          key: field.name,
+          ok: (values[field.name] ?? "").trim().length > 0,
+        });
+      }
+    }
+    const done = required.filter((r) => r.ok).length;
+    const total = Math.max(1, required.length);
+    return {
+      done,
+      total,
+      pct: Math.round((done / total) * 100),
+    };
+  }, [doc.sections, draftMeta.label, values]);
+
   const filteredRecords = useMemo(() => {
     return records.filter((r) => {
       const matchSearch =
@@ -345,6 +446,34 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
     });
   }, [records, searchFilter, statusFilter]);
 
+  const tone = docIconTone(doc.slug);
+
+  const formSections = useMemo(() => {
+    const items: Array<{ id: string; title: string }> = [
+      { id: "doc-sec-identite", title: "Identité du dossier" },
+      ...doc.sections.map((section, i) => ({
+        id: `doc-sec-${i}`,
+        title: section.title,
+      })),
+    ];
+    if (doc.checks.length > 0) {
+      items.push({ id: "doc-sec-checklist", title: "Checklist" });
+    }
+    if (doc.lineHeaders.length > 0) {
+      items.push({ id: "doc-sec-lignes", title: "Lignes & détail" });
+    }
+    if (doc.photoKinds && doc.photoKinds.length > 0) {
+      items.push({ id: "doc-sec-photos", title: "Preuves photo" });
+    }
+    return items;
+  }, [doc]);
+
+  const sectionStepOf = useMemo(() => {
+    const map = new Map<string, number>();
+    formSections.forEach((sec, i) => map.set(sec.id, i + 1));
+    return map;
+  }, [formSections]);
+
   if (!ready) {
     return (
       <div className="doc-workspace">
@@ -352,8 +481,6 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
       </div>
     );
   }
-
-  const tone = docIconTone(doc.slug);
 
   return (
     <div className="doc-workspace">
@@ -561,17 +688,57 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </header>
 
           <div className="doc-editor__sheet doc-print-sheet">
+            <nav className="doc-editor__toc no-print" aria-label="Sections du formulaire">
+              <div className="doc-editor__progress">
+                <div className="doc-editor__progress-top">
+                  <p className="doc-editor__toc-label">
+                    Progression · {formProgress.done}/{formProgress.total} champs requis
+                  </p>
+                  <strong>{formProgress.pct}%</strong>
+                </div>
+                <div
+                  className="doc-editor__progress-bar"
+                  role="progressbar"
+                  aria-valuenow={formProgress.pct}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <span style={{ width: `${formProgress.pct}%` }} />
+                </div>
+              </div>
+              <p className="doc-editor__toc-label">
+                Sections ({formSections.length})
+              </p>
+              {formSections.map((sec, i) => (
+                <a key={sec.id} href={`#${sec.id}`}>
+                  <em>{String(i + 1).padStart(2, "0")}</em>
+                  {sec.title}
+                </a>
+              ))}
+            </nav>
             <header className="doc-print-letterhead">
               <div className="doc-print-letterhead__ribbon" aria-hidden />
               <div className="doc-print-letterhead__row">
                 <BrandLogo alt="NECS" width={72} height={72} />
                 <div className="doc-print-letterhead__brand">
+                  <strong className="doc-print-letterhead__company">
+                    {company.legalName || "NECLEANING & SERVICES SARL"}
+                  </strong>
+                  <span className="doc-print-letterhead__trade">
+                    {company.tradeName || "NECS"} · Propreté · Rigueur · Confiance
+                  </span>
                   <p>
-                    Propreté · Rigueur · Confiance
+                    {company.address || "[Adresse ; Cameroun]"}
                     <br />
-                    Siège : {company.address || "[Adresse ; Cameroun]"}
-                    <br />
-                    Tél. : {company.phone} · Email : {company.email}
+                    Tél. : {company.phone}
+                    {company.email ? ` · ${company.email}` : ""}
+                    {company.rccm ? (
+                      <>
+                        <br />
+                        RCCM : {company.rccm}
+                        {company.nif ? ` · NIF : ${company.nif}` : ""}
+                      </>
+                    ) : null}
                   </p>
                 </div>
                 <div className="doc-print-letterhead__meta">
@@ -589,8 +756,17 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                       })}
                     </strong>
                   </p>
-                  <p>{draftMeta.status}</p>
+                  <p className="doc-print-letterhead__status">
+                    Statut : <strong>{draftMeta.status}</strong>
+                  </p>
                 </div>
+              </div>
+              <div className="doc-print-doc-title">
+                <p className="doc-print-doc-title__domain">{doc.domain}</p>
+                <h1>{doc.title}</h1>
+                <p className="doc-print-doc-title__label">
+                  {draftMeta.label.trim() || "Document sans intitulé"}
+                </p>
               </div>
             </header>
 
@@ -599,13 +775,23 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
               className="doc-editor__form"
               onSubmit={onSave}
             >
-                  <Panel title="Identité du dossier">
+                  <Panel
+                    id="doc-sec-identite"
+                    step={sectionStepOf.get("doc-sec-identite")}
+                    title="Identité du dossier"
+                    hint="Référence, statut et responsable du document"
+                  >
                     <div className="doc-fields">
-                      <label className="doc-field is-full">
-                        <span>Intitulé</span>
+                      <label
+                        className={`doc-field is-full is-required${draftMeta.label.trim() ? " is-filled" : " is-empty"}`}
+                      >
+                        <span className="doc-field__label">
+                          Intitulé<em> *</em>
+                        </span>
                         <input
                           className="doc-screen-only"
                           value={draftMeta.label}
+                          placeholder="Nom clair du dossier"
                           onChange={(e) =>
                             setDraftMeta((m) => ({
                               ...m,
@@ -616,8 +802,10 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                         />
                         <PrintValue value={draftMeta.label} />
                       </label>
-                      <label className="doc-field">
-                        <span>Statut</span>
+                      <label
+                        className={`doc-field${draftMeta.status.trim() ? " is-filled" : " is-empty"}`}
+                      >
+                        <span className="doc-field__label">Statut</span>
                         <select
                           className="doc-screen-only"
                           value={draftMeta.status}
@@ -647,11 +835,14 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                         </select>
                         <PrintValue value={draftMeta.status} />
                       </label>
-                      <label className="doc-field">
-                        <span>Responsable</span>
+                      <label
+                        className={`doc-field${draftMeta.owner.trim() ? " is-filled" : " is-empty"}`}
+                      >
+                        <span className="doc-field__label">Responsable</span>
                         <input
                           className="doc-screen-only"
                           value={draftMeta.owner}
+                          placeholder="Nom du responsable"
                           onChange={(e) =>
                             setDraftMeta((m) => ({
                               ...m,
@@ -661,11 +852,18 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                         />
                         <PrintValue value={draftMeta.owner} />
                       </label>
-                      <label className="doc-field">
-                        <span>Montant / réf.</span>
+                      <label
+                        className={`doc-field${
+                          draftMeta.amount.trim() && draftMeta.amount !== "—"
+                            ? " is-filled"
+                            : " is-empty"
+                        }`}
+                      >
+                        <span className="doc-field__label">Montant / réf.</span>
                         <input
                           className="doc-screen-only"
                           value={draftMeta.amount}
+                          placeholder="ex. 250 000 FCFA"
                           onChange={(e) =>
                             setDraftMeta((m) => ({
                               ...m,
@@ -673,71 +871,36 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                             }))
                           }
                         />
-                        <PrintValue value={draftMeta.amount} />
+                        <PrintValue
+                          value={
+                            draftMeta.amount === "—" ? "" : draftMeta.amount
+                          }
+                        />
                       </label>
                     </div>
                   </Panel>
 
-                  {doc.sections.map((section) => (
-                    <Panel key={section.title} title={section.title}>
+                  {doc.sections.map((section, sectionIndex) => (
+                    <Panel
+                      key={section.title}
+                      id={`doc-sec-${sectionIndex}`}
+                      step={sectionStepOf.get(`doc-sec-${sectionIndex}`)}
+                      title={section.title}
+                      hint={`${section.fields.length} champ${section.fields.length > 1 ? "s" : ""}`}
+                    >
                       <div className="doc-fields">
                         {section.fields.map((field) => (
-                          <label
+                          <DocFieldControl
                             key={field.name}
-                            className={`doc-field${field.full ? " is-full" : ""}`}
-                          >
-                            <span>
-                              {field.label}
-                              {field.required ? <em> *</em> : null}
-                            </span>
-                            {field.kind === "select" ? (
-                              <select
-                                className="doc-screen-only"
-                                required={field.required}
-                                value={values[field.name] ?? ""}
-                                onChange={(e) =>
-                                  setValues((v) => ({
-                                    ...v,
-                                    [field.name]: e.target.value,
-                                  }))
-                                }
-                              >
-                                <option value="">— Sélectionner —</option>
-                                {(field.options ?? []).map((o) => (
-                                  <option key={o} value={o}>
-                                    {o}
-                                  </option>
-                                ))}
-                              </select>
-                            ) : field.kind === "textarea" ? (
-                              <textarea
-                                className="doc-screen-only"
-                                required={field.required}
-                                rows={4}
-                                value={values[field.name] ?? ""}
-                                onChange={(e) =>
-                                  setValues((v) => ({
-                                    ...v,
-                                    [field.name]: e.target.value,
-                                  }))
-                                }
-                              />
-                            ) : (
-                              <input
-                                className="doc-screen-only"
-                                type={field.kind}
-                                required={field.required}
-                                value={values[field.name] ?? ""}
-                                onChange={(e) =>
-                                  setValues((v) => ({
-                                    ...v,
-                                    [field.name]: e.target.value,
-                                  }))
-                                }
-                              />
-                            )}
-                            <PrintValue value={values[field.name] ?? ""} />
-                          </label>
+                            field={field}
+                            value={values[field.name] ?? ""}
+                            onChange={(next) =>
+                              setValues((v) => ({
+                                ...v,
+                                [field.name]: next,
+                              }))
+                            }
+                          />
                         ))}
                       </div>
                     </Panel>
@@ -745,11 +908,17 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
                   {doc.checks.length > 0 ? (
                     <Panel
+                      id="doc-sec-checklist"
+                      step={sectionStepOf.get("doc-sec-checklist")}
                       title={`Checklist (${checkedCount}/${doc.checks.length})`}
+                      hint="Cochez chaque point avant validation"
                     >
                       <div className="doc-checks">
                         {doc.checks.map((item, i) => (
-                          <label key={item} className="doc-check">
+                          <label
+                            key={item}
+                            className={`doc-check${checks[String(i)] ? " is-done" : ""}`}
+                          >
                             <input
                               className="doc-screen-only"
                               type="checkbox"
@@ -764,6 +933,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                             <span className="doc-print-check" aria-hidden>
                               {checks[String(i)] ? "☑" : "☐"}
                             </span>
+                            <span className="doc-check__mark" aria-hidden>
+                              {checks[String(i)] ? "✓" : ""}
+                            </span>
                             <span>{item}</span>
                           </label>
                         ))}
@@ -773,7 +945,10 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
                   {doc.lineHeaders.length > 0 ? (
                     <Panel
+                      id="doc-sec-lignes"
+                      step={sectionStepOf.get("doc-sec-lignes")}
                       title="Lignes & détail"
+                      hint="Ajoutez les lignes de détail du document"
                       action={
                         <button
                           type="button"
@@ -856,14 +1031,22 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                   ) : null}
 
                   {doc.photoKinds && doc.photoKinds.length > 0 ? (
-                    <Panel title="Preuves photo">
+                    <Panel
+                      id="doc-sec-photos"
+                      step={sectionStepOf.get("doc-sec-photos")}
+                      title="Preuves photo"
+                      hint="Ajoutez les photos de preuve par catégorie"
+                    >
                       <div className="doc-photo-kinds">
                         {doc.photoKinds.map((kind) => {
                           const kindPhotos = photos.filter(
                             (p) => p.kind === kind.id,
                           );
                           return (
-                            <div key={kind.id} className="doc-photo-kind">
+                            <div
+                              key={kind.id}
+                              className={`doc-photo-kind${kindPhotos.length === 0 ? " is-empty" : ""}`}
+                            >
                               <div className="doc-photo-kind__head no-print">
                                 <strong>{kind.label}</strong>
                                 <button
@@ -944,13 +1127,57 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                     </Panel>
                   ) : null}
             </form>
+
+            <div className="doc-print-spacer" aria-hidden />
+
+            <footer className="doc-print-signoff">
+              <div className="doc-print-signoff__grid">
+                <div>
+                  <p className="doc-print-signoff__role">Pour NECS</p>
+                  <p className="doc-print-signoff__name">
+                    {draftMeta.owner.trim() || "Responsable"}
+                  </p>
+                  <div className="doc-print-signoff__line" />
+                  <p className="doc-print-signoff__cap">
+                    Nom, signature et cachet
+                  </p>
+                </div>
+                <div>
+                  <p className="doc-print-signoff__role">Client / Partenaire</p>
+                  <p className="doc-print-signoff__name">&nbsp;</p>
+                  <div className="doc-print-signoff__line" />
+                  <p className="doc-print-signoff__cap">
+                    Nom, signature et date
+                  </p>
+                </div>
+              </div>
+              <div className="doc-print-signoff__foot">
+                <p>
+                  {pdfFooter ||
+                    `${company.tradeName || "NECS"} · Propreté · Rigueur · Confiance`}
+                </p>
+                <p>
+                  {[
+                    company.address,
+                    company.phone ? `Tél. ${company.phone}` : "",
+                    company.email,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+                <p>
+                  {doc.refPrefix} · {selected.id} ·{" "}
+                  {new Date().toLocaleDateString("fr-FR")}
+                </p>
+              </div>
+            </footer>
           </div>
 
           <footer className="doc-editor__footer no-print">
             <span>
               {savedAt
                 ? `Enregistré à ${savedAt}`
-                : "Faites défiler la page pour voir toutes les sections"}
+                : `${formProgress.pct}% complété · ${formSections.length} sections`}
             </span>
             <div className="doc-editor__bar-actions">
               <button

@@ -185,6 +185,19 @@
   font-size: 0.88rem;
 }
 
+.id-domain-link {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease;
+}
+
+.id-domain-link:hover {
+  transform: translateY(-2px);
+}
+
 .id-digital {
   padding: 2.2rem 0 2.6rem;
 }

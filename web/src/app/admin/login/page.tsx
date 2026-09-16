@@ -82,38 +82,66 @@ function LoginForm() {
         <span className="login-orb login-orb--b" />
         <span className="login-orb login-orb--c" />
         <span className="login-grid" />
+        <span className="login-sheen" />
       </div>
 
       <div className="login-shell">
         <aside className="login-showcase">
           <div className="login-showcase__media">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/necs-hero.jpg" alt="" />
+            <video
+              className="login-showcase__video"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-hidden
+            >
+              <source src="/videos/necs-hero.mp4" type="video/mp4" />
+            </video>
           </div>
           <div className="login-showcase__veil" />
           <div className="login-showcase__content">
             <div className="login-showcase__brand">
-              <BrandLogo alt="NECS" width={58} height={58} />
-              <div>
-                <strong>NECS</strong>
-                <span>NECLEANING & SERVICES SARL</span>
+              <div className="login-logo login-logo--showcase">
+                <BrandLogo
+                  alt="NECS — NECLEANING & SERVICES SARL"
+                  width={220}
+                  height={72}
+                  className="login-logo__img"
+                />
               </div>
             </div>
 
             <p className="login-showcase__eyebrow">Espace Direction</p>
             <h2>
-              Pilotage premium
-              <em> de vos opérations</em>
+              La console
+              <em> opérationnelle</em>
             </h2>
             <p className="login-showcase__lead">
-              Documents métier, qualité terrain, finance et CRM ; une console
-              unique pour NECS au Cameroun.
+              Documents, qualité terrain, finance et CRM — un cockpit unique
+              pour piloter NECS avec exigence.
             </p>
+
+            <div className="login-showcase__metrics" aria-hidden>
+              <div>
+                <strong>28</strong>
+                <span>docs métier</span>
+              </div>
+              <div>
+                <strong>7</strong>
+                <span>rôles sécurisés</span>
+              </div>
+              <div>
+                <strong>24/7</strong>
+                <span>accès cloud</span>
+              </div>
+            </div>
 
             <ul className="login-showcase__points">
               <li>
                 <i />
-                <span>28 documents métier digitalisés</span>
+                <span>Dossiers métier digitalisés & traçables</span>
               </li>
               <li>
                 <i />
@@ -121,7 +149,7 @@ function LoginForm() {
               </li>
               <li>
                 <i />
-                <span>Accès sécurisé multi-rôles</span>
+                <span>Accès multi-rôles chiffré</span>
               </li>
             </ul>
 
@@ -135,17 +163,26 @@ function LoginForm() {
         <section className="login-panel">
           <div className="login-panel__inner">
             <div className="login-panel__top">
-              <BrandLogo alt="NECS" width={48} height={48} />
               <Link href="/" className="login-panel__site">
-                Site public →
+                Site public
+                <svg viewBox="0 0 24 24" aria-hidden>
+                  <path
+                    d="M7 17L17 7M10 7h7v7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </Link>
             </div>
 
             <header className="login-panel__head">
-              <p className="login-panel__eyebrow">Authentification sécurisée</p>
-              <h1>Connexion</h1>
+              <p className="login-panel__eyebrow">Authentification</p>
+              <h1>Bon retour</h1>
               <p className="login-panel__sub">
-                Identifiez-vous pour ouvrir le back-office NECS.
+                Identifiez-vous pour ouvrir votre espace NECS.
               </p>
             </header>
 
@@ -158,7 +195,7 @@ function LoginForm() {
               ) : null}
 
               <label className="login-field">
-                <span>Adresse e-mail professionnelle</span>
+                <span>E-mail professionnel</span>
                 {fieldsReady ? (
                   <div className="login-field__control">
                     <svg viewBox="0 0 24 24" aria-hidden>
@@ -242,7 +279,18 @@ function LoginForm() {
                   />
                   <span>Rester connecté</span>
                 </label>
-                <span className="login-secure">Session chiffrée</span>
+                <span className="login-secure">
+                  <svg viewBox="0 0 24 24" aria-hidden>
+                    <path
+                      d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-3z"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Session chiffrée
+                </span>
               </div>
 
               <button

@@ -50,15 +50,18 @@ export function ActivityServiceFlyer({ service }: { service: ActivityService }) 
             ))}
           </ul>
         </div>
-        <figure className="svc__media">
+        <figure className="svc__media reveal reveal-media public-img-wrap">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={service.heroImage} alt={fullTitle} />
         </figure>
       </div>
 
       <div className="svc__gallery" aria-label={`Galerie ${fullTitle}`}>
-        {service.gallery.map((g) => (
-          <figure key={g.label}>
+        {service.gallery.map((g, i) => (
+          <figure
+            key={g.label}
+            className={`reveal reveal-media public-img-wrap reveal-delay-${(i % 4) + 1}`}
+          >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={g.src} alt={g.label} />
             <figcaption>{g.label}</figcaption>

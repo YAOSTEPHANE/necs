@@ -416,8 +416,71 @@
   color: #fff;
 }
 
+/* Témoignages */
+.ncf-quotes {
+  padding: 2.75rem 0 2.5rem;
+  background: linear-gradient(180deg, #eef5fa 0%, #fff 55%);
+}
+
+.ncf-quotes__head {
+  margin-bottom: 1.35rem;
+}
+
+.ncf-quotes__head .ncf-kicker {
+  color: var(--ncf-green);
+}
+
+.ncf-quotes__head h2 {
+  margin: 0;
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(1.45rem, 2.8vw, 2rem);
+  letter-spacing: -0.03em;
+  color: var(--ncf-navy-deep);
+}
+
+.ncf-quotes__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.ncf-quote {
+  margin: 0;
+  padding: 1.25rem 1.15rem;
+  background: #fff;
+  border: 1px solid rgba(215, 227, 238, 0.95);
+  border-radius: 18px;
+  box-shadow: 0 12px 28px rgba(3, 26, 54, 0.05);
+}
+
+.ncf-quote p {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ncf-ink);
+}
+
+.ncf-quote footer {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.ncf-quote strong {
+  color: var(--ncf-navy-deep);
+  font-size: 0.92rem;
+}
+
+.ncf-quote span {
+  font-size: 0.82rem;
+  color: var(--ncf-muted);
+}
+
 @media (max-width: 1100px) {
   .ncf-pillars__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ncf-quotes__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -468,6 +531,7 @@
   .ncf-steps,
   .ncf-why__grid,
   .ncf-why__row,
+  .ncf-quotes__grid,
   .ncf-contact__grid {
     grid-template-columns: 1fr;
   }

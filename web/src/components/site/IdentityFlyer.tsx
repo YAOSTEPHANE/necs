@@ -25,14 +25,14 @@ const PILLARS = [
 ] as const;
 
 const DOMAINS = [
-  { title: "Bureaux", icon: "office" },
-  { title: "Industries", icon: "industry" },
-  { title: "Commerces", icon: "shop" },
-  { title: "Établissements de santé", icon: "health" },
-  { title: "Particuliers", icon: "home" },
-  { title: "Hôtels & Résidences", icon: "hotel" },
-  { title: "Écoles & Universités", icon: "school" },
-  { title: "Salles & Espaces publics", icon: "public" },
+  { title: "Bureaux", icon: "office", href: "/activites#bureaux" },
+  { title: "Industries", icon: "industry", href: "/activites#industrie" },
+  { title: "Commerces", icon: "shop", href: "/activites#commerces" },
+  { title: "Établissements de santé", icon: "health", href: "/activites#sante" },
+  { title: "Particuliers", icon: "home", href: "/activites#particuliers" },
+  { title: "Hôtels & Résidences", icon: "hotel", href: "/activites#hotels" },
+  { title: "Écoles & Universités", icon: "school", href: "/activites#ecoles" },
+  { title: "Salles & Espaces publics", icon: "public", href: "/activites#espaces-publics" },
 ] as const;
 
 const DIGITAL_POINTS = [
@@ -238,7 +238,7 @@ export function IdentityFlyer() {
               qui rendent chaque prestation mesurable, transparente et fiable.
             </p>
           </div>
-          <figure className="id-hero__media">
+          <figure className="id-hero__media reveal reveal-media public-img-wrap">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/necs-identity-nettoyage.png"
@@ -272,13 +272,15 @@ export function IdentityFlyer() {
           <ul>
             {DOMAINS.map((domain) => (
               <li key={domain.title}>
-                <div
-                  className="id-icon id-icon--domain"
-                  data-tone={domain.icon}
-                >
-                  <Icon name={domain.icon} />
-                </div>
-                <span>{domain.title}</span>
+                <Link href={domain.href} className="id-domain-link">
+                  <div
+                    className="id-icon id-icon--domain"
+                    data-tone={domain.icon}
+                  >
+                    <Icon name={domain.icon} />
+                  </div>
+                  <span>{domain.title}</span>
+                </Link>
               </li>
             ))}
           </ul>

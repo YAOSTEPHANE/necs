@@ -55,6 +55,14 @@ export type NecsContent = {
   act3Text: string;
   act4Title: string;
   act4Text: string;
+  act5Title: string;
+  act5Text: string;
+  act6Title: string;
+  act6Text: string;
+  act7Title: string;
+  act7Text: string;
+  act8Title: string;
+  act8Text: string;
   testTitle: string;
   testLead: string;
   t1Text: string;
@@ -207,7 +215,7 @@ export const DEFAULT_CONTENT: NecsContent = {
     "Digitaliser le cycle complet ; prospect, contrat, exécution, RH, qualité, facturation ; pour offrir à chaque client une expérience premium, transparente et durable.",
   actTitle: "Des expertises adaptées à chaque environnement",
   actLead:
-    "Du tertiaire à l’industrie, NECS déploie des protocoles sur mesure, avec les bons effectifs et le bon niveau de service.",
+    "Du tertiaire à la santé, des hôtels aux écoles : NECS déploie des protocoles sur mesure, avec les bons effectifs et le bon niveau de service.",
   act1Title: "Entretien de bureaux",
   act1Text:
     "Sols, postes, sanitaires, vitrerie intérieure ; pour un siège qui reflète votre image.",
@@ -220,6 +228,18 @@ export const DEFAULT_CONTENT: NecsContent = {
   act4Title: "Nettoyage pour les particuliers",
   act4Text:
     "Du salon à la cuisine, NECS prend soin de votre domicile avec des équipes discrètes, formées et des protocoles adaptés à la vie de famille.",
+  act5Title: "Établissements de santé",
+  act5Text:
+    "Protocoles d’hygiène renforcés pour cliniques, cabinets et laboratoires : zones sensibles, traçabilité et équipes formées.",
+  act6Title: "Hôtels & résidences",
+  act6Text:
+    "Chambres, parties communes et back-office : une expérience client impeccable, du check-in au départ.",
+  act7Title: "Écoles & universités",
+  act7Text:
+    "Salles de classe, sanitaires et espaces collectifs entretenus hors temps scolaire pour un cadre sûr et accueillant.",
+  act8Title: "Salles & espaces publics",
+  act8Text:
+    "Salles polyvalentes, halls et lieux de passage : interventions planifiées selon les flux et les événements.",
   testTitle: "Ils nous font confiance",
   testLead:
     "La rigueur de nos équipes et la qualité de nos prestations font la différence au quotidien.",
@@ -252,9 +272,9 @@ export const DEFAULT_CONTENT: NecsContent = {
   contactTitle: "Contactez-nous",
   contactLead:
     "Expliquez-nous votre besoin : un conseiller NECS vous répond sous 24 heures ouvrées.",
-  contactPhone: "[+237] XX XX XX XX",
-  contactEmail: "commercial@necs.cm",
-  contactAddress: "[Adresse siège ; Cameroun]",
+  contactPhone: "+237 641 33 55 53",
+  contactEmail: "contact@necs-cm.com",
+  contactAddress: "Yaoundé, Douala et environs",
   contactHours: "Lun – Ven · 08h00 – 17h30",
   footerAbout:
     "Propreté, Rigueur, Confiance ; le partenaire premium du nettoyage professionnel au Cameroun.",

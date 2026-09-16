@@ -49,6 +49,63 @@ export function useQuoteModal() {
   return useContext(QuoteModalContext);
 }
 
+function NavToggleIcon({ open }: { open: boolean }) {
+  if (open) {
+    return (
+      <svg
+        className="nav-toggle__icon nav-toggle__icon--close"
+        width={22}
+        height={22}
+        viewBox="0 0 24 24"
+        fill="none"
+        aria-hidden
+      >
+        <path
+          d="M6 6l12 12M18 6 6 18"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+  return (
+    <svg
+      className="nav-toggle__icon nav-toggle__icon--menu"
+      width={22}
+      height={22}
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
+      <rect
+        x="4"
+        y="5.5"
+        width="16"
+        height="2.2"
+        rx="1.1"
+        fill="currentColor"
+      />
+      <rect
+        x="4"
+        y="10.9"
+        width="16"
+        height="2.2"
+        rx="1.1"
+        fill="currentColor"
+      />
+      <rect
+        x="4"
+        y="16.3"
+        width="11"
+        height="2.2"
+        rx="1.1"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}
+
 export function useNecsContent() {
   const [content, setContent] = useState<NecsContent>(DEFAULT_CONTENT);
   useEffect(() => {
@@ -226,7 +283,9 @@ export function SiteShell({
   }, [navOpen]);
 
   useEffect(() => {
-    const els = document.querySelectorAll(".reveal:not(.is-visible)");
+    const els = document.querySelectorAll(
+      ".reveal:not(.is-visible), .reveal-media:not(.is-visible)",
+    );
     if (els.length === 0) return;
     const io = new IntersectionObserver(
       (entries) => {
@@ -429,9 +488,7 @@ export function SiteShell({
             aria-controls="site-nav"
             onClick={() => setNavOpen((v) => !v)}
           >
-            <span />
-            <span />
-            <span />
+            <NavToggleIcon open={navOpen} />
           </button>
         </div>
       </header>
@@ -472,7 +529,7 @@ export function SiteShell({
             <div className="footer-col">
               <h4>Navigation</h4>
               <ul>
-                {SITE_NAV.slice(0, 4).map((item) => (
+                {SITE_NAV.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href}>{item.label}</Link>
                   </li>
@@ -483,7 +540,19 @@ export function SiteShell({
               <h4>Services</h4>
               <ul>
                 <li>
-                  <Link href="/activites">Nos activités</Link>
+                  <Link href="/activites#bureaux">Bureaux</Link>
+                </li>
+                <li>
+                  <Link href="/activites#industrie">Industrie</Link>
+                </li>
+                <li>
+                  <Link href="/activites#sante">Santé</Link>
+                </li>
+                <li>
+                  <Link href="/activites#hotels">Hôtels</Link>
+                </li>
+                <li>
+                  <Link href="/activites#ecoles">Écoles</Link>
                 </li>
                 <li>
                   <Link href="/contact">Nous contacter</Link>
@@ -491,10 +560,16 @@ export function SiteShell({
               </ul>
             </div>
             <div className="footer-col">
-              <h4>Espace pro</h4>
+              <h4>Informations</h4>
               <ul>
                 <li>
-                  <Link href="/admin">Connexion admin</Link>
+                  <Link href="/mentions-legales">Mentions légales</Link>
+                </li>
+                <li>
+                  <Link href="/confidentialite">Confidentialité</Link>
+                </li>
+                <li>
+                  <Link href="/admin">Espace admin</Link>
                 </li>
               </ul>
             </div>
@@ -503,7 +578,11 @@ export function SiteShell({
             <span suppressHydrationWarning>
               © {new Date().getFullYear()} NECS / NECLEANING & SERVICES SARL
             </span>
-            <span>Cameroun</span>
+            <span>
+              <Link href="/mentions-legales">Mentions légales</Link>
+              {" · "}
+              <Link href="/confidentialite">Confidentialité</Link>
+            </span>
           </div>
         </div>
       </footer>

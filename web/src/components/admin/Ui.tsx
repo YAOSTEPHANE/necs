@@ -82,6 +82,25 @@ export function EmptyState({
 }) {
   return (
     <div className="admin-empty">
+      <div className="admin-empty__icon" aria-hidden>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <rect
+            x="3.5"
+            y="4.5"
+            width="17"
+            height="15"
+            rx="3"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path
+            d="M7.5 10h9M7.5 13.5h6"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+      </div>
       <strong>{title}</strong>
       {hint ? <span>{hint}</span> : null}
       {action ? <div className="admin-empty__action">{action}</div> : null}
@@ -177,15 +196,31 @@ export function Panel({
   title,
   children,
   action,
+  id,
+  step,
+  hint,
 }: {
   title: string;
   children: ReactNode;
   action?: ReactNode;
+  id?: string;
+  step?: number;
+  hint?: string;
 }) {
   return (
-    <section className="panel-card">
+    <section className="panel-card panel-card--form" id={id}>
       <div className="panel-card__head">
-        <h3>{title}</h3>
+        <div className="panel-card__title-block">
+          {step != null ? (
+            <span className="panel-card__step" aria-hidden>
+              {String(step).padStart(2, "0")}
+            </span>
+          ) : null}
+          <div className="panel-card__titles">
+            <h3>{title}</h3>
+            {hint ? <p className="panel-card__hint">{hint}</p> : null}
+          </div>
+        </div>
         {action}
       </div>
       {children}

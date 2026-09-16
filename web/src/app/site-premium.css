@@ -34,12 +34,13 @@ h1, h2, h3, h4 {
   width: min(1120px, calc(100% - 2.5rem));
 }
 
-/* ——— Header glass / transparent over hero ——— */
+/* ——— Header : barre toujours lisible (mobile + PC) ——— */
 .site-header {
   backdrop-filter: blur(18px) saturate(1.35);
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
-  background: transparent;
-  border-bottom: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1px solid rgba(207, 220, 232, 0.75);
+  box-shadow: 0 6px 24px rgba(3, 26, 54, 0.06);
   transition:
     background 0.4s var(--ease),
     border-color 0.4s var(--ease),
@@ -48,16 +49,17 @@ h1, h2, h3, h4 {
 }
 
 .site-header.is-transparent {
-  background: linear-gradient(180deg, rgba(3, 26, 54, 0.45), transparent);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom-color: rgba(207, 220, 232, 0.65);
 }
 
 .site-header.is-transparent .nav-links a {
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--blue-950);
 }
 
 .site-header.is-transparent .nav-links a:hover,
 .site-header.is-transparent .nav-links a.is-active {
-  color: #fff;
+  color: var(--blue-700);
 }
 
 .site-header.is-transparent .nav-links a::after {
@@ -65,29 +67,32 @@ h1, h2, h3, h4 {
 }
 
 .site-header.is-transparent .nav-cta {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  box-shadow: none;
-  backdrop-filter: blur(10px);
+  background: var(--grad);
+  border: 0;
+  box-shadow: 0 10px 24px rgba(10, 58, 114, 0.2);
+  color: #fff;
 }
 
 .site-header.is-transparent .nav-cta:hover {
-  background: rgba(255, 255, 255, 0.2);
+  filter: brightness(1.04);
   transform: translateY(-1px);
 }
 
-.site-header.is-transparent .nav-toggle span {
-  background: #fff;
+.site-header.is-transparent .nav-toggle,
+.site-header.is-nav-open .nav-toggle,
+.site-header.is-transparent.is-nav-open .nav-toggle {
+  color: var(--blue-900);
 }
 
-.site-header.is-nav-open .nav-toggle span,
-.site-header.is-transparent.is-nav-open .nav-toggle span {
-  background: var(--blue-900);
-}
-
-.site-header.is-transparent .brand img {
+.site-header .brand img,
+.site-header.is-transparent .brand img,
+.site-header.is-scrolled.is-transparent .brand img {
   mix-blend-mode: normal;
-  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.35));
+  filter: none;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 12px;
+  padding: 0.2rem;
+  box-shadow: 0 4px 14px rgba(3, 26, 54, 0.08);
 }
 
 .site-header.is-transparent::after {
@@ -114,13 +119,8 @@ h1, h2, h3, h4 {
   box-shadow: 0 10px 24px rgba(10, 58, 114, 0.2);
 }
 
-.site-header.is-scrolled.is-transparent .nav-toggle span {
-  background: var(--blue-900);
-}
-
-.site-header.is-scrolled.is-transparent .brand img {
-  filter: none;
-  mix-blend-mode: multiply;
+.site-header.is-scrolled.is-transparent .nav-toggle {
+  color: var(--blue-900);
 }
 
 .nav {
@@ -157,11 +157,11 @@ h1, h2, h3, h4 {
 }
 
 .site-header.is-transparent:not(.is-scrolled) .brand__text strong {
-  color: #fff;
+  color: var(--blue-950);
 }
 
 .site-header.is-transparent:not(.is-scrolled) .brand__text em {
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
 }
 
 .nav-links {
@@ -230,14 +230,14 @@ h1, h2, h3, h4 {
 }
 
 .site-header.is-transparent:not(.is-scrolled) .nav-more__btn {
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--blue-950);
 }
 
 .site-header.is-transparent:not(.is-scrolled) .nav-more__btn:hover,
 .site-header.is-transparent:not(.is-scrolled) .nav-more.is-open .nav-more__btn,
 .site-header.is-transparent:not(.is-scrolled) .nav-more.is-active .nav-more__btn {
-  background: rgba(255, 255, 255, 0.12);
-  color: #fff;
+  background: rgba(18, 96, 168, 0.08);
+  color: var(--blue-700);
 }
 
 .nav-more__menu {
@@ -382,10 +382,10 @@ h1, h2, h3, h4 {
   transform: scale(1.045);
 }
 
-/* ——— Hero cinematic ——— */
+/* ——— Hero accueil : contenu visible dès le haut (PC + mobile) ——— */
 .hero {
-  min-height: 100svh;
-  align-items: end;
+  min-height: auto;
+  align-items: center;
 }
 
 .hero__overlay {
@@ -400,7 +400,7 @@ h1, h2, h3, h4 {
 }
 
 .hero__content {
-  padding: 8.5rem 0 6rem;
+  padding: clamp(5.25rem, 10vh, 6.75rem) 0 clamp(2.75rem, 6vh, 4.5rem);
   max-width: min(760px, 100%);
 }
 
@@ -420,9 +420,10 @@ h1, h2, h3, h4 {
 
 .hero h1 {
   font-size: clamp(2.55rem, 6.2vw, 4.35rem);
-  line-height: 0.98;
+  line-height: 1.08;
   letter-spacing: -0.05em;
-  max-width: 11.5ch;
+  max-width: none;
+  white-space: normal;
   margin-bottom: 1.25rem;
   text-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
 }
@@ -435,8 +436,8 @@ h1, h2, h3, h4 {
 
 .hero .lead {
   font-size: clamp(1.05rem, 1.7vw, 1.2rem);
-  line-height: 1.6;
-  max-width: 36ch;
+  line-height: 1.55;
+  max-width: 48ch;
   color: rgba(255, 255, 255, 0.9);
   margin-bottom: 2rem;
   font-weight: 400;
@@ -1074,8 +1075,13 @@ h1, h2, h3, h4 {
 }
 
 @media (max-width: 1100px) {
+  .hero {
+    min-height: auto;
+    align-items: center;
+  }
+
   .hero__content {
-    padding: 6.25rem 0 3.5rem;
+    padding: 5.75rem 0 2.75rem;
   }
 
   .hero h1 {
@@ -1085,10 +1091,6 @@ h1, h2, h3, h4 {
   .hero__logo {
     width: 72px !important;
     height: 72px !important;
-  }
-
-  .site-header.is-transparent {
-    background: linear-gradient(180deg, rgba(3, 26, 54, 0.55), transparent);
   }
 
   .stats {
@@ -1110,15 +1112,22 @@ h1, h2, h3, h4 {
   }
 
   .nav {
-    min-height: 64px;
+    min-height: 56px;
+    gap: 0.5rem;
+  }
+
+  .brand img {
+    width: 44px !important;
+    height: 44px !important;
   }
 
   .hero {
-    min-height: min(100svh, 720px);
+    min-height: auto;
+    align-items: center;
   }
 
   .hero__content {
-    padding: 5.5rem 0 2.5rem;
+    padding: 5.25rem 0 2.25rem;
     max-width: 100%;
   }
 
@@ -1126,6 +1135,7 @@ h1, h2, h3, h4 {
     font-size: clamp(1.85rem, 8vw, 2.4rem);
     line-height: 1.06;
     max-width: none;
+    white-space: normal;
     margin-bottom: 0.95rem;
   }
 
@@ -1145,6 +1155,10 @@ h1, h2, h3, h4 {
   .hero__actions .btn {
     width: 100%;
     justify-content: center;
+  }
+
+  .hero__scroll {
+    display: none;
   }
 
   .section-head {
@@ -1429,6 +1443,19 @@ h1, h2, h3, h4 {
   color: var(--blue-950);
   font-weight: 700;
   font-size: 0.88rem;
+}
+
+.id-domain-link {
+  display: grid;
+  justify-items: center;
+  gap: 0.45rem;
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease;
+}
+
+.id-domain-link:hover {
+  transform: translateY(-2px);
 }
 
 .id-digital {
