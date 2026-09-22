@@ -1,74 +1,134 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { ADMIN_DOC_NAV } from "@/lib/admin-nav";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  type AdminNavItem,
+  type NavIconId,
+  ADMIN_DOC_NAV,
+  ADMIN_HOME_APPS,
+  GROUP_LABEL,
+  homeAppsForRole,
+  isNavItemActive,
+  matchesNavQuery,
+  navDisplayLabel,
+  navItemTone,
+  searchDocNav,
+} from "@/lib/admin-nav";
 import {
   type AdminSession,
   NECS_AUTH_EVENT,
   hasRoleSpace,
   homeForRole,
   isAgentAllowedPath,
+  isClient,
+  isClientAllowedPath,
   isNettoyeur,
   loadSession,
   logoutAdmin,
   refreshSessionFromServer,
 } from "@/lib/auth";
-import { filterNavByRole, getRoleSpace } from "@/lib/role-spaces";
+import { safeRouterReplace } from "@/lib/safe-navigate";
+import { getRoleSpace } from "@/lib/role-spaces";
 import {
   DocIcon,
+  IconAlert,
+  IconApps,
+  IconBriefcase,
+  IconCalendar,
+  IconCamera,
+  IconCart,
+  IconChart,
+  IconChecklist,
+  IconClipboard,
   IconClock,
   IconClose,
+  IconContact,
+  IconContract,
+  IconFile,
+  IconFolder,
   IconHome,
+  IconInterview,
+  IconInvoice,
+  IconMail,
   IconMenu,
+  IconPackage,
+  IconPen,
+  IconQuality,
+  IconQuote,
+  IconOffer,
+  IconReport,
+  IconSearch,
   IconSettings,
   IconUser,
+  IconUsers,
   IconVisit,
   docIconTone,
 } from "@/components/admin/Icons";
 import { BrandLogo } from "@/components/BrandAssets";
 import { ProfileMenu } from "@/components/admin/ProfileMenu";
+import { OfflineSyncBar, OfflineSyncHost } from "@/components/admin/OfflineSyncHost";
 
-const GROUP_LABEL: Record<string, string> = {
-  DIG: "Digital",
-  CRM: "Commercial",
-  OPS: "Opérations",
-  Q: "Qualité",
-  RH: "RH",
-  FIN: "Finance",
-  BI: "Pilotage",
-};
-
-const GROUP_TONE: Record<string, string> = {
-  CRM: "#3ec8e8",
-  OPS: "#8fd14a",
-  Q: "#fbbf24",
-  RH: "#a78bfa",
-  FIN: "#60a5fa",
-  DIG: "#34d399",
-  BI: "#94a3b8",
-};
-
-const GROUP_ORDER = ["CRM", "OPS", "Q", "RH", "FIN", "DIG", "BI"];
-
-function Chevron({ open }: { open: boolean }) {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-      className={`dash-side__chevron${open ? " is-open" : ""}`}
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
+function NavIcon({ id, size = 16 }: { id?: NavIconId; size?: number }) {
+  switch (id) {
+    case "mail":
+      return <IconMail size={size} />;
+    case "contact":
+      return <IconContact size={size} />;
+    case "user":
+      return <IconUser size={size} />;
+    case "users":
+      return <IconUsers size={size} />;
+    case "visit":
+      return <IconVisit size={size} />;
+    case "quote":
+      return <IconQuote size={size} />;
+    case "offer":
+      return <IconOffer size={size} />;
+    case "chart":
+      return <IconChart size={size} />;
+    case "contract":
+      return <IconContract size={size} />; case "folder":
+      return <IconFolder size={size} />;
+    case "calendar":
+      return <IconCalendar size={size} />;
+    case "clipboard":
+      return <IconClipboard size={size} />;
+    case "package":
+      return <IconPackage size={size} />;
+    case "cart":
+      return <IconCart size={size} />;
+    case "checklist":
+      return <IconChecklist size={size} />;
+    case "quality":
+      return <IconQuality size={size} />;
+    case "alert":
+      return <IconAlert size={size} />;
+    case "briefcase":
+      return <IconBriefcase size={size} />;
+    case "clock":
+      return <IconClock size={size} />;
+    case "interview":
+      return <IconInterview size={size} />;
+    case "pen":
+      return <IconPen size={size} />;
+    case "camera":
+      return <IconCamera size={size} />;
+    case "report":
+      return <IconReport size={size} />;
+    case "invoice":
+      return <IconInvoice size={size} />;
+    case "library":
+      return <IconFile size={size} />;
+    case "settings":
+      return <IconSettings size={size} />;
+    case "space":
+      return <IconApps size={size} />;
+    case "home":
+    default:
+      return <IconHome size={size} />;
+  }
 }
 
 function pageTitle(
@@ -81,29 +141,90 @@ function pageTitle(
   if (pathname.startsWith("/admin/mon-espace")) {
     return { eyebrow: "Espace agent", title: "Mon espace" };
   }
-  if (pathname === "/admin") {
+  if (pathname === "/admin" || pathname === "/admin/") {
     return { eyebrow: "Espace Direction", title: "Tableau de bord" };
   }
-  if (pathname === "/admin/utilisateurs") {
+  if (pathname.startsWith("/admin/demandes")) {
+    return { eyebrow: "Digital", title: "Demandes digitales" };
+  }
+  if (pathname.startsWith("/admin/logistique")) {
+    return { eyebrow: "Opérations / Logistique", title: "Logistique" };
+  }
+  if (pathname.startsWith("/admin/achat")) {
+    return { eyebrow: "Achats", title: "Achats" };
+  }
+  if (pathname.startsWith("/admin/qualite")) {
+    return { eyebrow: "Qualité", title: "Qualité" };
+  }
+  if (pathname.startsWith("/admin/direction")) {
+    return { eyebrow: "Direction", title: "Direction" };
+  }
+  if (pathname.startsWith("/admin/juridique")) {
+    return { eyebrow: "Juridique", title: "Juridique" };
+  }
+  if (pathname.startsWith("/admin/operations")) {
+    return {
+      eyebrow: agent ? "Espace agent" : "Opérations",
+      title: agent ? "Mon terrain" : "Opérations",
+    };
+  }
+  if (pathname.startsWith("/admin/documents-signatures")) {
+    return {
+      eyebrow: agent ? "Espace agent" : "RH",
+      title: agent ? "Mes documents" : "Documents & signatures",
+    };
+  }
+  if (pathname.startsWith("/admin/rh")) {
+    return {
+      eyebrow: agent ? "Espace agent" : "RH",
+      title: agent ? "Mes documents" : "Ressources humaines",
+    };
+  }
+  if (pathname.startsWith("/admin/finance")) {
+    return { eyebrow: "Finance", title: "Finance" };
+  }
+  if (pathname.startsWith("/admin/commercial") || pathname.startsWith("/admin/crm")) {
+    return {
+      eyebrow: "CRM / Commercial",
+      title: "CRM",
+    };
+  }
+  if (pathname.startsWith("/admin/clients/nouveau")) {
+    return { eyebrow: "Commercial", title: "Nouveau client" };
+  }
+  if (pathname.startsWith("/admin/clients")) {
+    return { eyebrow: "Commercial", title: "Clients" };
+  }
+  if (pathname.startsWith("/admin/utilisateurs")) {
     return { eyebrow: "Administration", title: "Utilisateurs & rôles" };
   }
-  if (pathname === "/admin/terrain") {
+  if (pathname.startsWith("/admin/terrain")) {
     return {
       eyebrow: agent ? "Espace agent" : "Opérations",
       title: agent ? "Photos après nettoyage" : "Photos terrain",
     };
   }
-  if (pathname === "/admin/pointage") {
+  if (pathname.startsWith("/admin/pointage")) {
     return {
-      eyebrow: agent ? "Espace agent" : "Opérations · RH",
+      eyebrow: agent ? "Espace agent" : "Opérations",
       title: agent ? "Mon pointage" : "Pointage des employés",
     };
   }
-  if (pathname === "/admin/parametres") {
+  if (pathname.startsWith("/admin/parametres")) {
     return { eyebrow: "Configuration", title: "Paramètres" };
   }
   if (pathname === "/admin/templates") {
     return { eyebrow: "Bibliothèque", title: "Documents & modules" };
+  }
+  const app = ADMIN_HOME_APPS.find((item) => {
+    if (item.href === "/admin") return false;
+    return isNavItemActive(item, pathname);
+  });
+  if (app) {
+    return {
+      eyebrow: "Module",
+      title: app.label,
+    };
   }
   const doc = ADMIN_DOC_NAV.find((i) => i.href === pathname);
   if (doc) {
@@ -115,23 +236,112 @@ function pageTitle(
   return { eyebrow: "Espace Direction", title: "Console NECS" };
 }
 
+function SideLink({
+  item,
+  pathname,
+  search,
+  badge,
+  onNavigate,
+  compact,
+}: {
+  item: AdminNavItem;
+  pathname: string;
+  search?: string;
+  badge?: number;
+  onNavigate?: () => void;
+  compact?: boolean;
+}) {
+  const active = isNavItemActive(item, pathname, search);
+  const tone = navItemTone(item);
+  const label = navDisplayLabel(item, compact);
+  return (
+    <Link
+      href={item.href}
+      className={`dash-side__link${active ? " is-active" : ""}`}
+      style={{ ["--icon-c" as string]: tone }}
+      title={item.description ? `${item.label} — ${item.description}` : item.label}
+      aria-label={item.label}
+      aria-current={active ? "page" : undefined}
+      onClick={onNavigate}
+    >
+      <span className="dash-side__icon">
+        <NavIcon id={item.icon} size={16} />
+      </span>
+      <span className="dash-side__link-text">
+        <strong>{label}</strong>
+      </span>
+      {badge && badge > 0 ? (
+        <em className="dash-side__badge is-dot" aria-label="Nouveaux éléments" />
+      ) : null}
+    </Link>
+  );
+}
+
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const search = searchParams.toString();
   const router = useRouter();
-  const isLoginPage = pathname === "/admin/login";
+  /** Pages login / inscription / reset : shell sans sidebar ni redirections métier. */
+  const isAuthPage =
+    pathname.startsWith("/admin/login") ||
+    pathname.startsWith("/admin/inscription") ||
+    pathname.startsWith("/admin/mot-de-passe-oublie") ||
+    pathname.startsWith("/admin/reinitialiser-mot-de-passe");
+  // Alias HMR : d’anciens chunks Turbopack référencent encore isLoginPage.
+  const isLoginPage = isAuthPage;
+  const searchRef = useRef<HTMLInputElement>(null);
+  const sideNavRef = useRef<HTMLElement>(null);
   const [navOpen, setNavOpen] = useState(false);
   const [sideCollapsed, setSideCollapsed] = useState(false);
   const [session, setSession] = useState<AdminSession | null>(null);
   const [authReady, setAuthReady] = useState(false);
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+  const [leadsOpenCount, setLeadsOpenCount] = useState(0);
+  const [navQuery, setNavQuery] = useState("");
 
   useEffect(() => {
     try {
-      setSideCollapsed(localStorage.getItem("necs-admin-side-collapsed") === "1");
+      setSideCollapsed(
+        localStorage.getItem("necs-admin-side-collapsed") === "1",
+      );
     } catch {
       /* ignore */
     }
   }, []);
+
+  const canSeeLeads =
+    session?.role === "admin" ||
+    session?.role === "commercial" ||
+    session?.role === "marketing" ||
+    session?.role === "qualite";
+
+  useEffect(() => {
+    if (!canSeeLeads) {
+      setLeadsOpenCount(0);
+      return;
+    }
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/leads?meta=1", {
+          credentials: "same-origin",
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { open?: number; nouveau?: number };
+        if (!cancelled) {
+          setLeadsOpenCount(Number(data.open ?? data.nouveau ?? 0) || 0);
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    void load();
+    const id = window.setInterval(() => void load(), 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [canSeeLeads, pathname]);
 
   const toggleSideCollapsed = () => {
     setSideCollapsed((prev) => {
@@ -144,12 +354,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       return next;
     });
   };
+
   useEffect(() => {
     let cancelled = false;
     const sync = async () => {
+      // Sur login / inscription : pas de sonde serveur (évite appels inutiles).
+      if (isAuthPage) {
+        if (!cancelled) {
+          setSession(null);
+          setAuthReady(true);
+        }
+        return;
+      }
       const fromServer = await refreshSessionFromServer();
       if (cancelled) return;
-      setSession(fromServer ?? loadSession());
+      setSession(fromServer);
       setAuthReady(true);
     };
     void sync();
@@ -161,27 +380,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       window.removeEventListener(NECS_AUTH_EVENT, onAuth);
       window.removeEventListener("storage", onAuth);
     };
-  }, []);
+  }, [isAuthPage]);
 
   useEffect(() => {
-    if (!authReady || isLoginPage || !session) return;
+    if (!authReady || isAuthPage || isLoginPage || !session) return;
     if (isNettoyeur(session)) {
       if (!isAgentAllowedPath(pathname)) {
-        router.replace(homeForRole("nettoyeur"));
+        safeRouterReplace(router, homeForRole("nettoyeur"));
+      }
+      return;
+    }
+    if (isClient(session)) {
+      if (!isClientAllowedPath(pathname)) {
+        safeRouterReplace(router, homeForRole("client"));
       }
       return;
     }
     if (pathname.startsWith("/admin/mon-espace")) {
-      router.replace(homeForRole(session.role));
+      safeRouterReplace(router, homeForRole(session.role));
       return;
     }
-    // Rôles métier : dashboard direction → leur espace
     if (
       session.role !== "admin" &&
       hasRoleSpace(session.role) &&
       (pathname === "/admin" || pathname === "/admin/")
     ) {
-      router.replace(homeForRole(session.role));
+      safeRouterReplace(router, homeForRole(session.role));
       return;
     }
     if (
@@ -189,15 +413,25 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       (pathname.startsWith("/admin/utilisateurs") ||
         pathname.startsWith("/admin/parametres"))
     ) {
-      router.replace(homeForRole(session.role));
+      safeRouterReplace(router, homeForRole(session.role));
     }
-  }, [authReady, isLoginPage, session, pathname, router]);
+  }, [authReady, isAuthPage, isLoginPage, session, pathname, router]);
 
   useEffect(() => {
-    if (!authReady || isLoginPage) return;
+    if (!authReady) return;
+    // Garde explicite sur le pathname (évite un bounce login ↔ inscription).
+    if (
+      pathname.startsWith("/admin/login") ||
+      pathname.startsWith("/admin/inscription") ||
+      pathname.startsWith("/admin/mot-de-passe-oublie") ||
+      pathname.startsWith("/admin/reinitialiser-mot-de-passe") ||
+      isLoginPage
+    ) {
+      return;
+    }
     if (!session) {
       const next = encodeURIComponent(pathname || "/admin");
-      router.replace(`/admin/login?next=${next}`);
+      safeRouterReplace(router, `/admin/login?next=${next}`);
     }
   }, [authReady, isLoginPage, session, pathname, router]);
 
@@ -212,89 +446,66 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    const root = sideNavRef.current;
+    const focusables = root?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled])',
+    );
+    const first = focusables?.[0];
+    first?.focus();
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
     };
   }, [navOpen]);
 
-  const roleNavItems = useMemo(() => {
-    if (!session) return ADMIN_DOC_NAV;
-    return filterNavByRole(ADMIN_DOC_NAV, session.role);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        if (sideCollapsed) {
+          setSideCollapsed(false);
+          try {
+            localStorage.setItem("necs-admin-side-collapsed", "0");
+          } catch {
+            /* ignore */
+          }
+        }
+        setNavOpen(true);
+        window.setTimeout(() => searchRef.current?.focus(), 40);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sideCollapsed]);
+
+  const homeLinks = useMemo(() => {
+    if (!session) return [];
+    return homeAppsForRole(session.role);
   }, [session]);
 
-  const grouped = useMemo(() => {
-    const map = new Map<string, typeof ADMIN_DOC_NAV>();
-    for (const item of roleNavItems) {
-      const g = item.group ?? "CRM";
-      const list = map.get(g) ?? [];
-      list.push(item);
-      map.set(g, list);
-    }
-    return map;
-  }, [roleNavItems]);
+  const filteredHome = useMemo(() => {
+    if (!navQuery.trim()) return homeLinks;
+    return homeLinks.filter((item) => matchesNavQuery(item, navQuery));
+  }, [homeLinks, navQuery]);
 
-  useEffect(() => {
-    const activeGroup =
-      roleNavItems.find((i) => i.href === pathname)?.group ?? null;
-    setOpenGroups((prev) => {
-      const next = { ...prev };
-      for (const key of grouped.keys()) {
-        if (next[key] === undefined) {
-          next[key] = key === activeGroup || true;
-        }
-      }
-      if (activeGroup) next[activeGroup] = true;
-      return next;
-    });
-  }, [pathname, grouped, roleNavItems]);
+  const docHits = useMemo(() => {
+    if (!navQuery.trim() || !session || isNettoyeur(session)) return [];
+    return searchDocNav(navQuery);
+  }, [navQuery, session]);
 
-  const filteredGroups = useMemo(() => {
-    const keys = [
-      ...GROUP_ORDER.filter((k) => grouped.has(k)),
-      ...[...grouped.keys()].filter((k) => !GROUP_ORDER.includes(k)),
-    ];
-    return keys
-      .map((group) => ({
-        group,
-        items: grouped.get(group) ?? [],
-      }))
-      .filter((g) => g.items.length > 0);
-  }, [grouped]);
-
-  const moduleCount = useMemo(() => {
-    const docs = filteredGroups.reduce((n, g) => n + g.items.length, 0);
-    if (!session) return docs;
-    let extra = 0;
-    if (
-      session.role === "admin" ||
-      session.role === "ops" ||
-      session.role === "rh"
-    ) {
-      extra += 1; // pointage
-    }
-    if (
-      session.role === "admin" ||
-      session.role === "ops" ||
-      session.role === "qualite"
-    ) {
-      extra += 1; // terrain
-    }
-    return docs + extra;
-  }, [filteredGroups, session]);
-
-  const toggleGroup = (group: string) => {
-    setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
-  };
+  const searchEmpty =
+    Boolean(navQuery.trim()) &&
+    filteredHome.length === 0 &&
+    docHits.length === 0;
 
   const onLogout = () => {
     void logoutAdmin().then(() => {
       setSession(null);
-      router.replace("/admin/login");
+      safeRouterReplace(router, "/admin/login");
     });
   };
 
-  if (isLoginPage) {
+  if (isAuthPage) {
     return <>{children}</>;
   }
 
@@ -318,16 +529,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     return base;
   })();
 
-  const showPointage =
-    session.role === "admin" ||
-    session.role === "ops" ||
-    session.role === "rh";
-  const showTerrain =
-    session.role === "admin" ||
-    session.role === "ops" ||
-    session.role === "qualite";
-
   return (
+    <OfflineSyncHost>
     <div
       className={`dash-app${navOpen ? " is-nav-open" : ""}${sideCollapsed ? " is-side-collapsed" : ""}`}
     >
@@ -345,6 +548,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <BrandLogo alt="NECS" width={36} height={36} />
         </Link>
         <div className="dash-mobilebar__actions">
+          <OfflineSyncBar />
           <Link
             className="dash-mobilebar__site"
             href="/"
@@ -369,14 +573,19 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       />
 
       <div className="dash-body has-side">
-        <aside className="dash-side" id="dash-side-nav">
+        <aside
+          className="dash-side"
+          id="dash-side-nav"
+          ref={sideNavRef}
+          aria-label="Navigation admin"
+        >
           <div className="dash-side__glow" aria-hidden />
           <div className="dash-side__mesh" aria-hidden />
-
+          <div className="dash-side__scene">
           <div className="dash-side__brand-row">
             <Link
               className="dash-brand dash-side__brand"
-              href="/admin"
+              href={homeForRole(session.role)}
               aria-label="NECS Admin"
               title="NECS Admin"
             >
@@ -427,214 +636,92 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             </button>
           </div>
 
-          <div className="dash-side__nav">
-            {agentMode ? (
-              <>
-                <p className="dash-side__section-label">Mon espace</p>
-                <div className="dash-side__quick">
-                  <Link
-                    href="/admin/mon-espace"
-                    className={`dash-side__link${pathname.startsWith("/admin/mon-espace") ? " is-active" : ""}`}
-                    style={{ ["--icon-c" as string]: "#3ec8e8" }}
-                  >
-                    <span className="dash-side__icon">
-                      <IconHome size={16} />
-                    </span>
-                    <span className="dash-side__link-text">
-                      <strong>Accueil agent</strong>
-                      <small>Ma journée</small>
-                    </span>
-                  </Link>
-                  <Link
-                    href="/admin/pointage"
-                    className={`dash-side__link${pathname === "/admin/pointage" ? " is-active" : ""}`}
-                    style={{ ["--icon-c" as string]: "#3ec8e8" }}
-                  >
-                    <span className="dash-side__icon">
-                      <IconClock size={16} />
-                    </span>
-                    <span className="dash-side__link-text">
-                      <strong>Mon pointage</strong>
-                      <small>Arrivée & départ</small>
-                    </span>
-                  </Link>
-                  <Link
-                    href="/admin/terrain"
-                    className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
-                    style={{ ["--icon-c" as string]: "#8fd14a" }}
-                  >
-                    <span className="dash-side__icon">
-                      <IconVisit size={16} />
-                    </span>
-                    <span className="dash-side__link-text">
-                      <strong>Après nettoyage</strong>
-                      <small>Photos de preuve</small>
-                    </span>
-                  </Link>
-                </div>
-              </>
-            ) : (
-              <>
-            <div className="dash-side__section-head">
-              <p className="dash-side__section-label">Accueil</p>
-              <span className="dash-side__count">{moduleCount}</span>
-            </div>
+          {!agentMode ? (
+            <label className="dash-side__search-wrap">
+              <IconSearch size={15} />
+              <input
+                ref={searchRef}
+                type="search"
+                className="dash-side__search"
+                placeholder="Rechercher… (Ctrl+K)"
+                value={navQuery}
+                onChange={(e) => setNavQuery(e.target.value)}
+                aria-label="Rechercher dans le menu"
+              />
+              {navQuery ? (
+                <button
+                  type="button"
+                  className="dash-side__search-clear"
+                  aria-label="Effacer la recherche"
+                  onClick={() => setNavQuery("")}
+                >
+                  ×
+                </button>
+              ) : null}
+            </label>
+          ) : null}
 
+          <nav className="dash-side__nav">
             <div className="dash-side__quick">
-              {session.role === "admin" ? (
-                <Link
-                  href="/admin"
-                  className={`dash-side__link${pathname === "/admin" ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: "#3ec8e8" }}
-                  title="Tableau de bord"
-                >
-                  <span className="dash-side__icon">
-                    <IconHome size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Tableau de bord</strong>
-                    <small>Pilotage & synthèse</small>
-                  </span>
-                </Link>
-              ) : null}
-
-              {roleSpace ? (
-                <Link
-                  href="/admin/espace"
-                  className={`dash-side__link${pathname.startsWith("/admin/espace") ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: roleSpace.accent }}
-                  title="Mon espace"
-                >
-                  <span className="dash-side__icon">
-                    <IconHome size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Mon espace</strong>
-                    <small>{roleSpace.title}</small>
-                  </span>
-                </Link>
-              ) : null}
-
-              {session.role === "admin" ? (
-                <Link
-                  href="/admin/utilisateurs"
-                  className={`dash-side__link${pathname === "/admin/utilisateurs" ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: "#7dd3fc" }}
-                  title="Utilisateurs"
-                >
-                  <span className="dash-side__icon">
-                    <IconUser size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Utilisateurs</strong>
-                    <small>Comptes & rôles</small>
-                  </span>
-                </Link>
-              ) : null}
-
-              {showTerrain ? (
-                <Link
-                  href="/admin/terrain"
-                  className={`dash-side__link${pathname === "/admin/terrain" ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: "#8fd14a" }}
-                  title="Photos terrain"
-                >
-                  <span className="dash-side__icon">
-                    <IconVisit size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Photos terrain</strong>
-                    <small>Preuves après nettoyage</small>
-                  </span>
-                </Link>
-              ) : null}
-
-              {showPointage ? (
-                <Link
-                  href="/admin/pointage"
-                  className={`dash-side__link${pathname === "/admin/pointage" ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: "#3ec8e8" }}
-                  title="Pointage"
-                >
-                  <span className="dash-side__icon">
-                    <IconClock size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Pointage</strong>
-                    <small>Présences employés</small>
-                  </span>
-                </Link>
-              ) : null}
-
-              {session.role === "admin" ? (
-                <Link
-                  href="/admin/parametres"
-                  className={`dash-side__link${pathname === "/admin/parametres" ? " is-active" : ""}`}
-                  style={{ ["--icon-c" as string]: "#94a3b8" }}
-                  title="Paramètres"
-                >
-                  <span className="dash-side__icon">
-                    <IconSettings size={16} />
-                  </span>
-                  <span className="dash-side__link-text">
-                    <strong>Paramètres</strong>
-                    <small>Entreprise & marque</small>
-                  </span>
-                </Link>
-              ) : null}
+              {filteredHome.map((item) => (
+                <SideLink
+                  key={item.href}
+                  item={item}
+                  pathname={pathname}
+                  search={search}
+                  compact={sideCollapsed}
+                  badge={
+                    item.badgeKey === "leads" ? leadsOpenCount : undefined
+                  }
+                  onNavigate={() => setNavOpen(false)}
+                />
+              ))}
             </div>
 
-            {filteredGroups.map(({ group, items }) => {
-              const open = sideCollapsed || Boolean(openGroups[group]);
-              const tone = GROUP_TONE[group] ?? "#3ec8e8";
-              return (
-                <div
-                  key={group}
-                  className={`dash-side__group${open ? " is-open" : ""}`}
-                  style={{ ["--group-c" as string]: tone }}
-                >
-                  <button
-                    type="button"
-                    className="dash-side__group-toggle"
-                    onClick={() => toggleGroup(group)}
-                    aria-expanded={open}
-                    title={GROUP_LABEL[group] ?? group}
-                  >
-                    <i className="dash-side__group-dot" aria-hidden />
-                    <span>{GROUP_LABEL[group] ?? group}</span>
-                    <em>{items.length}</em>
-                    <Chevron open={open} />
-                  </button>
-                  {open ? (
-                    <div className="dash-side__group-items">
-                      {items.map((item) => {
-                        const active = pathname === item.href;
-                        const slug = item.href.split("/").pop() ?? "";
-                        const itemTone = docIconTone(slug);
-                        return (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            className={`dash-side__link dash-side__link--mod${active ? " is-active" : ""}`}
-                            title={item.label}
-                            style={{ ["--icon-c" as string]: itemTone }}
-                          >
-                            <span className="dash-side__icon">
-                              <DocIcon slug={slug} size={14} />
-                            </span>
-                            <span className="dash-side__link-text">
-                              <strong>{item.label}</strong>
-                            </span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  ) : null}
+            {docHits.length > 0 ? (
+              <div className="dash-side__section dash-side__section--docs">
+                <p className="dash-side__section-label">Documents</p>
+                <div className="dash-side__section-list">
+                  {docHits.map((item) => {
+                    const slug = item.href.split("/").pop() ?? "";
+                    const itemTone = docIconTone(slug);
+                    const active = isNavItemActive(item, pathname, search);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`dash-side__link dash-side__link--doc${active ? " is-active" : ""}`}
+                        title={item.label}
+                        aria-label={item.label}
+                        style={{ ["--icon-c" as string]: itemTone }}
+                        onClick={() => setNavOpen(false)}
+                      >
+                        <span className="dash-side__icon">
+                          <DocIcon slug={slug} size={14} />
+                        </span>
+                        <span className="dash-side__link-text">
+                          <strong>{item.label}</strong>
+                        </span>
+                      </Link>
+                    );
+                  })}
                 </div>
-              );
-            })}
-              </>
-            )}
+                <Link
+                  href="/admin/templates"
+                  className="dash-side__docs-more"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Voir la bibliothèque
+                </Link>
+              </div>
+            ) : null}
+
+            {searchEmpty ? (
+              <p className="dash-side__empty">
+                Aucun résultat pour « {navQuery} ».
+              </p>
+            ) : null}
+          </nav>
           </div>
         </aside>
 
@@ -645,9 +732,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               <strong className="dash-topbar__crumb">{heading.title}</strong>
             </div>
             <div className="dash-topbar__right">
-              <Link className="dash-topbar__site" href="/" target="_blank" rel="noopener noreferrer">
+              <OfflineSyncBar />
+              <Link
+                className="dash-topbar__site"
+                href="/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <span>Voir le site public</span>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden
+                >
                   <path
                     d="M7 17 17 7M9 7h8v8"
                     stroke="currentColor"
@@ -664,5 +763,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     </div>
+    </OfflineSyncHost>
   );
 }

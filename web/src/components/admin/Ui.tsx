@@ -27,7 +27,6 @@ export function ModuleHeader({
       className="doc-hero module-header"
       style={{ ["--doc-tone" as string]: tone }}
     >
-      <div className="doc-hero__glow" aria-hidden />
       <div className="doc-hero__main">
         {badge || icon ? (
           <div className="doc-hero__badge">
@@ -40,7 +39,9 @@ export function ModuleHeader({
           </div>
         ) : null}
         <h1>{title}</h1>
-        {description ? <p>{description}</p> : null}
+        {description ? (
+          <p className="doc-hero__description">{description}</p>
+        ) : null}
         {meta ? <div className="doc-hero__meta">{meta}</div> : null}
         {note ? <p className="doc-hero__note">{note}</p> : null}
       </div>

@@ -95,6 +95,26 @@ export function IconUser(props: IconProps) {
   );
 }
 
+export function IconUsers(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="3.5" />
+      <path d="M22 21v-2a3.5 3.5 0 0 0-2.5-3.35" />
+      <path d="M16 3.7a3.5 3.5 0 0 1 0 6.6" />
+    </Svg>
+  );
+}
+
+export function IconAlert(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" />
+      <path d="M12 9v4M12 17h.01" />
+    </Svg>
+  );
+}
+
 export function IconBriefcase(props: IconProps) {
   return (
     <Svg {...props}>
@@ -170,6 +190,16 @@ export function IconPurchase(props: IconProps) {
       <path d="M6 6L5 3H2" />
       <circle cx="9" cy="20" r="1" />
       <circle cx="17" cy="20" r="1" />
+    </Svg>
+  );
+}
+
+export function IconPackage(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+      <path d="M3.27 6.96 12 12.01l8.73-5.05" />
+      <path d="M12 22.08V12" />
     </Svg>
   );
 }
@@ -346,6 +376,35 @@ export function IconHome(props: IconProps) {
   );
 }
 
+export function IconApps(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="3" width="7" height="7" rx="1.5" />
+      <rect x="14" y="3" width="7" height="7" rx="1.5" />
+      <rect x="3" y="14" width="7" height="7" rx="1.5" />
+      <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    </Svg>
+  );
+}
+
+export function IconCamera(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 8h3l1.5-2h7L17 8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2z" />
+      <circle cx="12" cy="14" r="3.5" />
+    </Svg>
+  );
+}
+
+export function IconPen(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+    </Svg>
+  );
+}
+
 const BY_SLUG: Record<string, (props: IconProps) => ReactNode> = {
   "tmp-01": IconOffer,
   "tmp-02": IconQuote,
@@ -365,48 +424,48 @@ const BY_SLUG: Record<string, (props: IconProps) => ReactNode> = {
   "tmp-16": IconCalendar,
   "tmp-17": IconClock,
   "tmp-18": IconInvoice,
-  "tmp-19": IconInvoice,
+  "tmp-19": IconReceipt,
   "tmp-20": IconCredit,
   "tmp-21": IconStatement,
   "tmp-22": IconMail,
-  "tmp-23": IconReceipt,
+  "tmp-23": IconCheck,
   "tmp-24": IconChart,
   "tmp-25": IconVisit,
-  "dig-01": IconQuote,
+  "dig-01": IconOffer,
   "dig-02": IconContact,
-  "dig-03": IconVisit,
+  "dig-03": IconCamera,
 };
 
-/** Couleurs vives par module (lisibles sur sidebar sombre et cards claires). */
+/** Couleurs saturées par module (tuiles menu distinctes). */
 export const DOC_ICON_COLORS: Record<string, string> = {
-  "tmp-01": "#38bdf8", // offre ; cyan
-  "tmp-02": "#22d3ee", // devis ; cyan clair
-  "tmp-03": "#60a5fa", // BC ; bleu
-  "tmp-04": "#34d399", // BL ; vert menthe
-  "tmp-05": "#818cf8", // contrat ; indigo
-  "tmp-06": "#a78bfa", // avenant ; violet
-  "tmp-07": "#4ade80", // contrat agent ; vert
-  "tmp-08": "#fbbf24", // fiche poste ; ambre
-  "tmp-09": "#fb923c", // embauche ; orange
-  "tmp-10": "#f472b6", // entretien ; rose
-  "tmp-11": "#2dd4bf", // onboarding ; teal
-  "tmp-12": "#4ade80", // OT ; vert
-  "tmp-13": "#a3e635", // qualité ; lime
-  "tmp-14": "#38bdf8", // rapport ; cyan
-  "tmp-15": "#f59e0b", // achat ; ambre
-  "tmp-16": "#c084fc", // congé ; violet
-  "tmp-17": "#22d3ee", // pointage ; cyan
-  "tmp-18": "#60a5fa", // préfacture ; bleu
-  "tmp-19": "#3b82f6", // facture ; bleu vif
-  "tmp-20": "#34d399", // avoir ; vert
-  "tmp-21": "#94a3b8", // relevé ; gris bleuté
-  "tmp-22": "#f97316", // relance ; orange
-  "tmp-23": "#4ade80", // AR ; vert
-  "tmp-24": "#818cf8", // rapport mensuel ; indigo
-  "tmp-25": "#fbbf24", // visite ; ambre
-  "dig-01": "#22d3ee", // devis web
-  "dig-02": "#4ade80", // contact
-  "dig-03": "#fbbf24", // visite web
+  "tmp-01": "#0284c7",
+  "tmp-02": "#ea580c",
+  "tmp-03": "#2563eb",
+  "tmp-04": "#059669",
+  "tmp-05": "#4f46e5",
+  "tmp-06": "#7c3aed",
+  "tmp-07": "#0d9488",
+  "tmp-08": "#ca8a04",
+  "tmp-09": "#c2410c",
+  "tmp-10": "#db2777",
+  "tmp-11": "#0f766e",
+  "tmp-12": "#16a34a",
+  "tmp-13": "#65a30d",
+  "tmp-14": "#0369a1",
+  "tmp-15": "#d97706",
+  "tmp-16": "#9333ea",
+  "tmp-17": "#0891b2",
+  "tmp-18": "#1d4ed8",
+  "tmp-19": "#1e40af",
+  "tmp-20": "#15803d",
+  "tmp-21": "#64748b",
+  "tmp-22": "#ea580c",
+  "tmp-23": "#16a34a",
+  "tmp-24": "#4338ca",
+  "tmp-25": "#b45309",
+  "dig-01": "#0284c7",
+  "dig-02": "#db2777",
+  "dig-03": "#059669",
 };
 
 export function docIconTone(slug: string): string {
@@ -419,12 +478,5 @@ export function DocIcon({
   ...props
 }: IconProps & { slug: string }) {
   const Comp = BY_SLUG[slug.toLowerCase()] ?? IconFile;
-  const color = docIconTone(slug);
-  return (
-    <Comp
-      {...props}
-      style={{ color, stroke: color, ...style }}
-      color={color}
-    />
-  );
+  return <Comp {...props} style={style} />;
 }

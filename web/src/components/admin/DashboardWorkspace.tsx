@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   IconArrow,
   IconCalendar,
@@ -13,6 +13,7 @@ import {
   IconUser,
 } from "@/components/admin/Icons";
 import { DashboardRequests } from "@/components/admin/DashboardRequests";
+import { DashboardCharts } from "@/components/admin/DashboardCharts";
 import { ModuleHeader } from "@/components/admin/Ui";
 import { downloadCsv } from "@/lib/download";
 import { toast } from "@/lib/toast";
@@ -111,10 +112,250 @@ const ALL_MISSIONS: Mission[] = [
     time: "06:30",
     tone: "ok",
   },
+  {
+    id: "m9",
+    site: "Siège MTN Douala",
+    type: "Entretien bureaux",
+    status: "Confirmé",
+    day: 14,
+    dateLabel: "14 sep.",
+    time: "07:30",
+    tone: "ok",
+  },
+  {
+    id: "m10",
+    site: "Port autonome",
+    type: "Nettoyage industriel",
+    status: "Planifié",
+    day: 15,
+    dateLabel: "15 sep.",
+    time: "05:30",
+    tone: "info",
+  },
+  {
+    id: "m11",
+    site: "Carrefour Market Akwa",
+    type: "Sols + sanitaires",
+    status: "Confirmé",
+    day: 16,
+    dateLabel: "16 sep.",
+    time: "21:00",
+    tone: "ok",
+  },
+  {
+    id: "m12",
+    site: "Clinique de la Côte",
+    type: "Bio-désinfection",
+    status: "Confirmé",
+    day: 16,
+    dateLabel: "16 sep.",
+    time: "06:00",
+    tone: "ok",
+  },
+  {
+    id: "m13",
+    site: "Immeuble Sawa",
+    type: "Entretien quotidien",
+    status: "Anomalie",
+    day: 17,
+    dateLabel: "17 sep.",
+    time: "06:15",
+    tone: "danger",
+  },
+  {
+    id: "m14",
+    site: "Atelier Sodéco",
+    type: "Nettoyage atelier",
+    status: "Confirmé",
+    day: 17,
+    dateLabel: "17 sep.",
+    time: "13:00",
+    tone: "ok",
+  },
+  {
+    id: "m15",
+    site: "Banque Atlantique",
+    type: "Contrôle qualité",
+    status: "Confirmé",
+    day: 18,
+    dateLabel: "18 sep.",
+    time: "08:00",
+    tone: "ok",
+  },
+  {
+    id: "m16",
+    site: "Hôtel Onomo",
+    type: "Nettoyage chambres",
+    status: "Planifié",
+    day: 19,
+    dateLabel: "19 sep.",
+    time: "09:00",
+    tone: "info",
+  },
+  {
+    id: "m17",
+    site: "Tour Tradex",
+    type: "Vitrerie façade",
+    status: "Confirmé",
+    day: 20,
+    dateLabel: "20 sep.",
+    time: "07:00",
+    tone: "ok",
+  },
+  {
+    id: "m18",
+    site: "Usine Cimencam",
+    type: "Nettoyage industriel",
+    status: "Confirmé",
+    day: 20,
+    dateLabel: "20 sep.",
+    time: "15:00",
+    tone: "ok",
+  },
+  {
+    id: "m19",
+    site: "Mall Douala Grand Mall",
+    type: "Vitrerie + sols",
+    status: "Planifié",
+    day: 21,
+    dateLabel: "21 sep.",
+    time: "22:30",
+    tone: "info",
+  },
+  {
+    id: "m20",
+    site: "Immeuble Pacifique",
+    type: "Entretien bureaux",
+    status: "Confirmé",
+    day: 21,
+    dateLabel: "21 sep.",
+    time: "06:45",
+    tone: "ok",
+  },
+  {
+    id: "m21",
+    site: "Clinique Fouda",
+    type: "Désinfection zones",
+    status: "Anomalie",
+    day: 23,
+    dateLabel: "23 sep.",
+    time: "05:45",
+    tone: "danger",
+  },
+  {
+    id: "m22",
+    site: "Siège Orange CM",
+    type: "Entretien quotidien",
+    status: "Confirmé",
+    day: 23,
+    dateLabel: "23 sep.",
+    time: "07:15",
+    tone: "ok",
+  },
+  {
+    id: "m23",
+    site: "Commerce Bonapriso",
+    type: "Sols + sanitaires",
+    status: "Confirmé",
+    day: 24,
+    dateLabel: "24 sep.",
+    time: "20:00",
+    tone: "ok",
+  },
+  {
+    id: "m24",
+    site: "Banque BICEC",
+    type: "Contrôle qualité",
+    status: "Planifié",
+    day: 25,
+    dateLabel: "25 sep.",
+    time: "09:00",
+    tone: "info",
+  },
+  {
+    id: "m25",
+    site: "Atelier Metalcam",
+    type: "Nettoyage atelier",
+    status: "Confirmé",
+    day: 25,
+    dateLabel: "25 sep.",
+    time: "14:30",
+    tone: "ok",
+  },
+  {
+    id: "m26",
+    site: "Hôtel Pullman",
+    type: "Nettoyage chambres",
+    status: "Confirmé",
+    day: 26,
+    dateLabel: "26 sep.",
+    time: "10:30",
+    tone: "ok",
+  },
+  {
+    id: "m27",
+    site: "Centre médical Deido",
+    type: "Bio-désinfection",
+    status: "Planifié",
+    day: 27,
+    dateLabel: "27 sep.",
+    time: "06:00",
+    tone: "info",
+  },
+  {
+    id: "m28",
+    site: "Immeuble Plateau",
+    type: "Entretien bureaux",
+    status: "Confirmé",
+    day: 28,
+    dateLabel: "28 sep.",
+    time: "07:00",
+    tone: "ok",
+  },
+  {
+    id: "m29",
+    site: "Usine Alucam",
+    type: "Nettoyage industriel",
+    status: "Anomalie",
+    day: 28,
+    dateLabel: "28 sep.",
+    time: "16:00",
+    tone: "danger",
+  },
+  {
+    id: "m30",
+    site: "Mall City Center",
+    type: "Vitrerie + sols",
+    status: "Confirmé",
+    day: 29,
+    dateLabel: "29 sep.",
+    time: "21:30",
+    tone: "ok",
+  },
+  {
+    id: "m31",
+    site: "Tour Century",
+    type: "Entretien quotidien",
+    status: "Planifié",
+    day: 30,
+    dateLabel: "30 sep.",
+    time: "06:30",
+    tone: "info",
+  },
+  {
+    id: "m32",
+    site: "Clinique Laquintinie",
+    type: "Désinfection zones",
+    status: "Confirmé",
+    day: 30,
+    dateLabel: "30 sep.",
+    time: "05:30",
+    tone: "ok",
+  },
 ];
 
 const DATES = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
-const OFF_DAYS = new Set([19, 26]);
+const OFF_DAYS = new Set<number>([]);
 
 type Period = "mensuel" | "hebdo";
 
@@ -136,6 +377,84 @@ export function DashboardWorkspace() {
   const [showAll, setShowAll] = useState(false);
   const [openMissionId, setOpenMissionId] = useState<string | null>(null);
   const [menuMissionId, setMenuMissionId] = useState<string | null>(null);
+  const [pipelineKpi, setPipelineKpi] = useState<{
+    openCount: number;
+    weightedValue: number;
+    totalValue: number;
+    overdueCount: number;
+  } | null>(null);
+  const [satisfactionKpi, setSatisfactionKpi] = useState<{
+    rate: number | null;
+    delta: number | null;
+    plansOpen: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const [pipeRes, satRes] = await Promise.all([
+          fetch("/api/pipeline", { cache: "no-store" }),
+          fetch("/api/satisfaction?view=dashboard", { cache: "no-store" }),
+        ]);
+
+        if (pipeRes.ok) {
+          const data = (await pipeRes.json()) as {
+            dashboard?: {
+              openCount: number;
+              weightedValue: number;
+              totalValue: number;
+              overdueCount: number;
+            };
+          };
+          if (!cancelled && data.dashboard) {
+            setPipelineKpi({
+              openCount: data.dashboard.openCount,
+              weightedValue: data.dashboard.weightedValue,
+              totalValue: data.dashboard.totalValue,
+              overdueCount: data.dashboard.overdueCount,
+            });
+          }
+        }
+
+        if (satRes.ok) {
+          const data = (await satRes.json()) as {
+            dashboard?: {
+              satisfactionRate: number | null;
+              deltaPoints: number | null;
+              plansOpen: number;
+            };
+          };
+          if (!cancelled && data.dashboard) {
+            setSatisfactionKpi({
+              rate: data.dashboard.satisfactionRate,
+              delta: data.dashboard.deltaPoints,
+              plansOpen: data.dashboard.plansOpen,
+            });
+          }
+        }
+      } catch {
+        /* dashboard optionnel */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!openMissionId) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpenMissionId(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [openMissionId]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -157,6 +476,19 @@ export function DashboardWorkspace() {
     return list;
   }, [period, query, selectedDay, showAll]);
 
+  const demoPipelineKpi = {
+    openCount: 28,
+    weightedValue: 74_400_000,
+    totalValue: 186_000_000,
+    overdueCount: 4,
+  };
+  const demoSatisfactionKpi = {
+    rate: 92,
+    delta: 2.4,
+    plansOpen: 6,
+  };
+  const pipeKpi = pipelineKpi ?? demoPipelineKpi;
+  const satKpi = satisfactionKpi ?? demoSatisfactionKpi;
   const openMission = ALL_MISSIONS.find((m) => m.id === openMissionId) ?? null;
 
   function onExport() {
@@ -179,28 +511,39 @@ export function DashboardWorkspace() {
   }
 
   return (
-    <div className="symp-dash doc-workspace">
+    <div className="leads-page symp-dash doc-workspace">
       <ModuleHeader
-        tone="#1260a8"
+        tone="#0a3a72"
         badge={
           period === "mensuel"
-            ? "Pilotage NECS · Septembre 2026"
-            : "Pilotage NECS · Semaine du 14 au 20"
+            ? "Pilotage · Vue mensuelle"
+            : "Pilotage · Vue hebdo"
         }
-        title="Bon retour, Direction"
-        description="Vue synthétique des prestations, de la qualité et des demandes entrantes."
+        title="Tableau de bord"
+        description="Synthèse opérationnelle et accès rapides aux hubs métier."
+        meta={
+          <>
+            <span>
+              Synthèse <strong>opérationnelle</strong>
+            </span>
+            <span>
+              Période{" "}
+              <strong>{period === "mensuel" ? "mensuelle" : "hebdo"}</strong>
+            </span>
+          </>
+        }
         actions={
           <div className="module-header__tools">
             <label className="symp-search">
               <IconSearch size={16} />
               <input
-                placeholder="Rechercher un site, client…"
+                placeholder="Site, prestation, statut…"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 aria-label="Rechercher un site ou une prestation"
               />
             </label>
-            <div className="module-header__btns">
+            <div className="module-header__btns dash-period" role="group" aria-label="Période">
               <button
                 type="button"
                 className={`btn-admin${period === "mensuel" ? " btn-admin--primary" : " btn-admin--ghost"}`}
@@ -236,126 +579,209 @@ export function DashboardWorkspace() {
         }
       />
 
-      <section className="symp-kpis" aria-label="Indicateurs clés">
-        <article className="symp-kpi" style={{ ["--kpi-c" as string]: "#1260a8" }}>
+      <nav className="dash-shortcuts" aria-label="Accès rapides">
+        <Link href="/admin/commercial" className="dash-shortcut">
+          CRM
+        </Link>
+        <Link href="/admin/pipeline" className="dash-shortcut">
+          Pipeline
+        </Link>
+        <Link href="/admin/operations?tab=missions" className="dash-shortcut">
+          Missions
+        </Link>
+        <Link
+          href="/admin/operations?tab=planification"
+          className="dash-shortcut"
+        >
+          Planning
+        </Link>
+        <Link href="/admin/demandes" className="dash-shortcut">
+          Demandes
+        </Link>
+        <Link href="/admin/rh" className="dash-shortcut">
+          RH
+        </Link>
+        <Link href="/admin/finance" className="dash-shortcut">
+          Finance
+        </Link>
+        <Link href="/admin/qualite" className="dash-shortcut">
+          Qualité
+        </Link>
+      </nav>
+
+      {(pipelineKpi?.overdueCount ||
+        ALL_MISSIONS.some((m) => m.tone === "danger")) && (
+        <div className="dash-attention" role="status">
+          <strong>À traiter</strong>
+          <ul>
+            {pipelineKpi && pipelineKpi.overdueCount > 0 ? (
+              <li>
+                <Link href="/admin/pipeline">
+                  {pipelineKpi.overdueCount} échéance
+                  {pipelineKpi.overdueCount > 1 ? "s" : ""} pipeline dépassée
+                  {pipelineKpi.overdueCount > 1 ? "s" : ""}
+                </Link>
+              </li>
+            ) : null}
+            {ALL_MISSIONS.filter((m) => m.tone === "danger").map((m) => (
+              <li key={m.id}>
+                <button
+                  type="button"
+                  className="dash-attention__link"
+                  onClick={() => {
+                    setSelectedDay(m.day);
+                    setShowAll(false);
+                    setOpenMissionId(m.id);
+                  }}
+                >
+                  Anomalie · {m.site} ({m.dateLabel})
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <section className="symp-kpis dash-kpis" aria-label="Indicateurs clés">
+        <article
+          className="symp-kpi dash-kpi"
+          style={{ ["--kpi-c" as string]: "#0369a1" }}
+        >
           <div className="symp-kpi__top">
             <span className="symp-kpi__icon">
               <IconClipboard size={18} />
+            </span>
+            <span className="symp-kpi__hint">Commercial</span>
+          </div>
+          <h3>Pipeline pondéré</h3>
+          <div className="symp-kpi__value">
+            <strong>
+              {(pipeKpi.weightedValue / 1_000_000).toLocaleString("fr-FR", {
+                maximumFractionDigits: 1,
+              })}{" "}
+              M
+            </strong>
+            <em className={pipeKpi.overdueCount ? "down" : "up"}>
+              {pipeKpi.openCount} opp.
+            </em>
+          </div>
+          <p className="dash-kpi__foot">
+            Brut{" "}
+            {(pipeKpi.totalValue / 1_000_000).toLocaleString("fr-FR", {
+              maximumFractionDigits: 1,
+            })}{" "}
+            M · <Link href="/admin/pipeline">Ouvrir</Link>
+          </p>
+        </article>
+
+        <article
+          className="symp-kpi dash-kpi"
+          style={{ ["--kpi-c" as string]: "#1260a8" }}
+        >
+          <div className="symp-kpi__top">
+            <span className="symp-kpi__icon">
+              <IconCalendar size={18} />
             </span>
             <span className="symp-kpi__hint">
               {period === "mensuel" ? "Ce mois" : "Cette semaine"}
             </span>
           </div>
-          <h3>Prestations phares</h3>
+          <h3>Missions</h3>
           <div className="symp-kpi__value">
-            <strong>{period === "mensuel" ? "580" : "142"}</strong>
-            <em className="up">{period === "mensuel" ? "+24" : "+6"}</em>
+            <strong>
+              {period === "mensuel"
+                ? String(ALL_MISSIONS.length)
+                : String(
+                    ALL_MISSIONS.filter((m) => m.day >= 14 && m.day <= 20)
+                      .length,
+                  )}
+            </strong>
+            {ALL_MISSIONS.some((m) => m.tone === "danger") ? (
+              <em className="down">
+                {ALL_MISSIONS.filter((m) => m.tone === "danger").length}{" "}
+                anomalie
+                {ALL_MISSIONS.filter((m) => m.tone === "danger").length > 1
+                  ? "s"
+                  : ""}
+              </em>
+            ) : (
+              <em className="up">OK</em>
+            )}
           </div>
-          <div className="symp-bubbles" aria-hidden>
-            <span className="b b1" />
-            <span className="b b2" />
-            <span className="b b3" />
-            <span className="b b4" />
-          </div>
-          <ul className="symp-legend">
-            <li>
-              <i className="dot d1" />
-              Bureaux
-            </li>
-            <li>
-              <i className="dot d2" />
-              Industrie
-            </li>
-            <li>
-              <i className="dot d3" />
-              Commerce
-            </li>
-            <li>
-              <i className="dot d4" />
-              Santé
-            </li>
-          </ul>
+          <p className="dash-kpi__foot">
+            {ALL_MISSIONS.filter((m) => m.tone === "ok").length} confirmées ·{" "}
+            {ALL_MISSIONS.filter((m) => m.tone === "info").length} planifiées
+          </p>
         </article>
 
-        <article className="symp-kpi" style={{ ["--kpi-c" as string]: "#4faf2a" }}>
+        <article
+          className="symp-kpi dash-kpi"
+          style={{ ["--kpi-c" as string]: "#0f766e" }}
+          data-testid="dash-satisfaction-kpi"
+        >
           <div className="symp-kpi__top">
             <span className="symp-kpi__icon">
               <IconQuality size={18} />
             </span>
-            <span className="symp-kpi__hint">Clients actifs</span>
+            <span className="symp-kpi__hint">
+              {satKpi.plansOpen
+                ? `${satKpi.plansOpen} plan${satKpi.plansOpen > 1 ? "s" : ""}`
+                : "Qualité"}
+            </span>
           </div>
-          <h3>Taux de satisfaction</h3>
+          <h3>Satisfaction</h3>
           <div className="symp-kpi__value">
-            <strong>91%</strong>
-            <em className="down">-2%</em>
+            <strong>
+              {satKpi.rate == null ? "—" : `${Math.round(satKpi.rate)}%`}
+            </strong>
+            {satKpi.delta == null ? (
+              <em className="muted">n/d</em>
+            ) : (
+              <em className={satKpi.delta >= 0 ? "up" : "down"}>
+                {satKpi.delta >= 0 ? "+" : ""}
+                {satKpi.delta} pts
+              </em>
+            )}
           </div>
-          <div className="symp-gauge" aria-hidden>
-            <div className="symp-gauge__arc" />
-            <div className="symp-gauge__needle" />
-            <span>91</span>
-          </div>
+          <p className="dash-kpi__foot">
+            <Link href="/admin/operations?tab=qualite&feature=satisfaction">
+              Voir le détail →
+            </Link>
+          </p>
         </article>
 
-        <article className="symp-kpi" style={{ ["--kpi-c" as string]: "#1570b8" }}>
+        <article
+          className="symp-kpi dash-kpi"
+          style={{ ["--kpi-c" as string]: "#0a3a72" }}
+        >
           <div className="symp-kpi__top">
             <span className="symp-kpi__icon">
               <IconUser size={18} />
             </span>
-            <span className="symp-kpi__hint">Agents & chefs</span>
+            <span className="symp-kpi__hint">RH / Ops</span>
           </div>
           <h3>Effectif terrain</h3>
           <div className="symp-kpi__value">
             <strong>214</strong>
             <em className="up">+12</em>
           </div>
-          <div className="symp-stackbar" aria-hidden>
-            <span style={{ flex: 148 }} />
-            <span style={{ flex: 42 }} />
-            <span style={{ flex: 24 }} />
+          <div className="symp-stackbar dash-kpi__stack" aria-hidden>
+            <span style={{ flex: 148 }} title="Agents" />
+            <span style={{ flex: 42 }} title="Chefs" />
+            <span style={{ flex: 24 }} title="Recrutement" />
           </div>
-          <ul className="symp-legend">
-            <li>
-              <i className="dot d1" />
-              Agents 148
-            </li>
-            <li>
-              <i className="dot d2" />
-              Chefs 42
-            </li>
-            <li>
-              <i className="dot d3" />
-              Recrut. 24
-            </li>
-          </ul>
-        </article>
-
-        <article className="symp-kpi" style={{ ["--kpi-c" as string]: "#1f6b28" }}>
-          <div className="symp-kpi__top">
-            <span className="symp-kpi__icon">
-              <IconCalendar size={18} />
-            </span>
-            <span className="symp-kpi__hint">
-              {period === "mensuel" ? "Planifiées" : "Semaine"}
-            </span>
-          </div>
-          <h3>Missions du mois</h3>
-          <div className="symp-kpi__value">
-            <strong>{period === "mensuel" ? "260" : String(filtered.length || 3)}</strong>
-            <em className="up">{period === "mensuel" ? "+16" : "+2"}</em>
-          </div>
-          <div className="symp-bars" aria-hidden>
-            {[40, 55, 35, 70, 48, 82, 60, 45, 75, 50, 68, 58].map((h, i) => (
-              <span
-                key={i}
-                className={i === 5 ? "is-hot" : undefined}
-                style={{ height: `${h}%` }}
-              >
-                {i === 5 ? <b>18</b> : null}
-              </span>
-            ))}
-          </div>
+          <p className="dash-kpi__foot">148 agents · 42 chefs · 24 recrut.</p>
         </article>
       </section>
+
+      <DashboardCharts
+        period={period}
+        missions={
+          period === "hebdo"
+            ? ALL_MISSIONS.filter((m) => m.day >= 14 && m.day <= 20)
+            : ALL_MISSIONS
+        }
+      />
 
       <div className="symp-grid">
         <section className="symp-panel symp-panel--missions">
@@ -492,14 +918,14 @@ export function DashboardWorkspace() {
                                     Détail mission
                                   </button>
                                   <Link
-                                    href="/admin/terrain"
+                                    href="/admin/operations?tab=terrain"
                                     role="menuitem"
                                     onClick={() => setMenuMissionId(null)}
                                   >
                                     Photos terrain
                                   </Link>
                                   <Link
-                                    href="/admin/pointage"
+                                    href="/admin/operations?tab=pointage"
                                     role="menuitem"
                                     onClick={() => setMenuMissionId(null)}
                                   >
@@ -609,14 +1035,14 @@ export function DashboardWorkspace() {
             </div>
             <footer className="symp-modal__foot">
               <Link
-                href="/admin/terrain"
+                href="/admin/operations?tab=terrain"
                 className="symp-btn symp-btn--ghost"
                 onClick={() => setOpenMissionId(null)}
               >
                 Photos terrain
               </Link>
               <Link
-                href="/admin/pointage"
+                href="/admin/operations?tab=pointage"
                 className="symp-btn symp-btn--primary"
                 onClick={() => setOpenMissionId(null)}
               >

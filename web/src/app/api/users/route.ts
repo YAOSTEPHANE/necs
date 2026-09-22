@@ -4,6 +4,7 @@ import { getServerSession } from "@/lib/session-server";
 import {
   deleteDbUser,
   listUsers,
+  setUserActive,
   toPublicUser,
   upsertDbUser,
 } from "@/lib/users-repo";
@@ -131,6 +132,57 @@ export async function POST(request: Request) {
     console.error("[users/POST]", error);
     return NextResponse.json(
       { error: safeErrorMessage(error, "Enregistrement impossible.") },
+      { status: 400 },
+    );
+  }
+}
+
+export async function PATCH(request: Request) {
+  if (!assertSameOrigin(request)) {
+    return NextResponse.json({ error: "Origine non autorisée." }, { status: 403 });
+  }
+  if (!isJsonRequest(request)) {
+    return NextResponse.json(
+      { error: "Content-Type application/json requis." },
+      { status: 415 },
+    );
+  }
+  if (!hasMongoConfig()) {
+    return NextResponse.json(
+      { error: "Service indisponible." },
+      { status: 503 },
+    );
+  }
+  const gate = await requireAdmin();
+  if (gate.error) return gate.error;
+
+  try {
+    const body = (await request.json()) as { id?: string; active?: boolean };
+    const id = clampText(String(body.id || ""), 64);
+    if (!id) {
+      return NextResponse.json({ error: "id manquant" }, { status: 400 });
+    }
+    if (typeof body.active !== "boolean") {
+      return NextResponse.json(
+        { error: "Champ active (boolean) requis." },
+        { status: 400 },
+      );
+    }
+    if (id === gate.session.userId && body.active === false) {
+      return NextResponse.json(
+        { error: "Vous ne pouvez pas désactiver votre propre compte." },
+        { status: 400 },
+      );
+    }
+    const user = await setUserActive(id, body.active);
+    if (!user) {
+      return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
+    }
+    return NextResponse.json({ user: toPublicUser(user) });
+  } catch (error) {
+    console.error("[users/PATCH]", error);
+    return NextResponse.json(
+      { error: safeErrorMessage(error, "Mise à jour impossible.") },
       { status: 400 },
     );
   }

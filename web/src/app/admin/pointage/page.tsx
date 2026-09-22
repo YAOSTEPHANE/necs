@@ -1,5 +1,5 @@
-import { PointageWorkspace } from "@/components/admin/PointageWorkspace";
+import { redirect } from "next/navigation";
 
-export default function PointagePage() {
-  return <PointageWorkspace />;
+export default function AdminPointageRedirect() {
+  redirect("/admin/operations?tab=pointage");
 }

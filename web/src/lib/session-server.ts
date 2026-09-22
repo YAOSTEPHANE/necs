@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { readAuthSecretRaw } from "@/lib/auth-secret";
 import type { UserRole } from "@/lib/settings";
 
 export const SESSION_COOKIE = "necs_session";
@@ -12,22 +13,9 @@ export type SessionPayload = {
   roleLabel: string;
   initials: string;
   employeeId?: string;
+  /** Présent après verify (ms epoch) — absent à la signature. */
+  expiresAt?: number;
 };
-
-function readAuthSecretRaw(): string {
-  const raw =
-    process.env.AUTH_SECRET?.trim() ||
-    process.env.NEXTAUTH_SECRET?.trim() ||
-    "";
-  // Tolère les guillemets éventuels dans .env
-  if (
-    (raw.startsWith('"') && raw.endsWith('"')) ||
-    (raw.startsWith("'") && raw.endsWith("'"))
-  ) {
-    return raw.slice(1, -1).trim();
-  }
-  return raw;
-}
 
 function getSecret(): Uint8Array {
   const secret = readAuthSecretRaw();
@@ -71,6 +59,10 @@ export async function verifySessionToken(
     ) {
       return null;
     }
+    const expiresAt =
+      typeof payload.exp === "number"
+        ? payload.exp * 1000
+        : Date.now() + 4 * 60 * 60 * 1000;
     return {
       userId: payload.userId,
       name: String(payload.name ?? ""),
@@ -78,6 +70,7 @@ export async function verifySessionToken(
       role: payload.role as UserRole,
       roleLabel: String(payload.roleLabel ?? payload.role),
       initials: String(payload.initials ?? "NE"),
+      expiresAt,
       ...(typeof payload.employeeId === "string"
         ? { employeeId: payload.employeeId }
         : {}),

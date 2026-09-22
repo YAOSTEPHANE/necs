@@ -6,11 +6,14 @@ export const DEFAULT_LOGO = "/images/logo-necs.png?v=3";
 export type UserRole =
   | "admin"
   | "commercial"
+  | "marketing"
   | "ops"
   | "rh"
+  | "manager"
   | "finance"
   | "qualite"
-  | "nettoyeur";
+  | "nettoyeur"
+  | "client";
 
 export type AdminUser = {
   id: string;
@@ -97,21 +100,29 @@ export type AdminSettings = {
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrateur",
   commercial: "Commercial / CRM",
+  marketing: "Marketing / Capture leads",
   ops: "Opérations",
   rh: "Ressources humaines",
+  manager: "Manager / Responsable",
   finance: "Finance",
   qualite: "Qualité",
   nettoyeur: "Nettoyeur / Agent terrain",
+  client: "Client",
 };
 
 export const ROLE_DESCRIPTIONS: Record<UserRole, string> = {
   admin: "Accès complet : paramètres, utilisateurs et tous les modules.",
   commercial: "Offres, devis, commandes, contrats clients et relances.",
+  marketing: "Inbox leads site web, campagnes et qualification des prospects.",
   ops: "Ordres de travail, prestations, pointage et suivi terrain.",
   rh: "Recrutement, contrats agents, congés et dossiers RH.",
+  manager:
+    "Entretiens et évaluations des candidatures qui lui sont affectées.",
   finance: "Préfactures, factures, avoirs et suivi des règlements.",
   qualite: "Contrôles qualité, rapports et non-conformités.",
   nettoyeur: "Espace agent : pointage et photos après nettoyage sur site.",
+  client:
+    "Portail client : consulter offres, contrats et factures liés à votre compte.",
 };
 
 export const USER_ROLES = Object.keys(ROLE_LABELS) as UserRole[];
@@ -511,4 +522,146 @@ export function fileToOptimizedDataUrl(
 export function getActiveSocialLinks(settings?: AdminSettings): SocialLink[] {
   const s = settings ?? (typeof window !== "undefined" ? loadSettings() : DEFAULT_SETTINGS);
   return s.social.filter((l) => l.enabled && l.url.trim().length > 8);
+}
+
+/** Snapshot config sans mots de passe (export / dirty-check). */
+export function settingsConfigSnapshot(settings: AdminSettings): string {
+  const { users: _users, ...rest } = settings;
+  const sanitizedUsers = settings.users.map((u) => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role,
+    phone: u.phone,
+    active: u.active,
+    lastLogin: u.lastLogin,
+    employeeId: u.employeeId ?? "",
+  }));
+  return JSON.stringify({ ...rest, users: sanitizedUsers });
+}
+
+export type SettingsExportBundle = {
+  version: 1;
+  exportedAt: string;
+  settings: {
+    branding: AdminSettings["branding"];
+    social: AdminSettings["social"];
+    company: AdminSettings["company"];
+    documents: AdminSettings["documents"];
+    notifications: AdminSettings["notifications"];
+    security: AdminSettings["security"];
+  };
+  siteContact?: {
+    contactPhone: string;
+    contactEmail: string;
+    contactAddress: string;
+    contactHours: string;
+    contactTitle: string;
+    contactLead: string;
+    footerAbout: string;
+  };
+};
+
+export function buildSettingsExport(
+  settings: AdminSettings,
+  siteContact?: SettingsExportBundle["siteContact"],
+): SettingsExportBundle {
+  return {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    settings: {
+      branding: settings.branding,
+      social: settings.social,
+      company: settings.company,
+      documents: settings.documents,
+      notifications: settings.notifications,
+      security: settings.security,
+    },
+    ...(siteContact ? { siteContact } : {}),
+  };
+}
+
+export function applySettingsImport(
+  current: AdminSettings,
+  raw: unknown,
+): { settings: AdminSettings; siteContact?: SettingsExportBundle["siteContact"] } {
+  if (!raw || typeof raw !== "object") {
+    throw new Error("Fichier JSON invalide.");
+  }
+  const data = raw as Partial<SettingsExportBundle> & {
+    branding?: AdminSettings["branding"];
+    company?: AdminSettings["company"];
+  };
+
+  const incoming =
+    data.settings ??
+    (data.company || data.branding
+      ? {
+          branding: data.branding,
+          social: (data as { social?: SocialLink[] }).social,
+          company: data.company,
+          documents: (data as { documents?: AdminSettings["documents"] }).documents,
+          notifications: (data as { notifications?: AdminSettings["notifications"] })
+            .notifications,
+          security: (data as { security?: AdminSettings["security"] }).security,
+        }
+      : null);
+
+  if (!incoming) {
+    throw new Error("Aucune configuration reconnue dans ce fichier.");
+  }
+
+  return {
+    settings: {
+      ...current,
+      branding: {
+        ...current.branding,
+        ...(incoming.branding ?? {}),
+        logoUrl: normalizeBrandAssetUrl(
+          incoming.branding?.logoUrl ?? current.branding.logoUrl,
+        ),
+        faviconUrl: normalizeBrandAssetUrl(
+          incoming.branding?.faviconUrl ?? current.branding.faviconUrl,
+        ),
+      },
+      social: mergeSocial(incoming.social ?? current.social),
+      company: { ...current.company, ...(incoming.company ?? {}) },
+      documents: { ...current.documents, ...(incoming.documents ?? {}) },
+      notifications: {
+        ...current.notifications,
+        ...(incoming.notifications ?? {}),
+      },
+      security: { ...current.security, ...(incoming.security ?? {}) },
+      users: current.users,
+    },
+    siteContact: data.siteContact,
+  };
+}
+
+export function settingsHubStats(
+  settings: AdminSettings,
+  opts?: { customImages?: number; totalImages?: number; usersActive?: number },
+) {
+  const socialOn = settings.social.filter((l) => l.enabled).length;
+  const notifOn = Object.values(settings.notifications).filter(Boolean).length;
+  const notifTotal = Object.keys(settings.notifications).length;
+  let securityScore = 0;
+  if (settings.security.passwordMinLength >= 8) securityScore += 1;
+  if (settings.security.sessionMinutes <= 480) securityScore += 1;
+  if (settings.security.auditLog) securityScore += 1;
+  if (settings.security.require2fa) securityScore += 1;
+  if (settings.security.ipRestriction) securityScore += 1;
+  return {
+    socialOn,
+    socialTotal: settings.social.length,
+    notifOn,
+    notifTotal,
+    securityScore,
+    securityMax: 5,
+    customImages: opts?.customImages ?? 0,
+    totalImages: opts?.totalImages ?? 0,
+    usersActive: opts?.usersActive ?? settings.users.filter((u) => u.active).length,
+    currency: settings.company.currency,
+    tradeName: settings.company.tradeName,
+  };
 }

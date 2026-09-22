@@ -1,0 +1,14 @@
+{
+  "extends": ["web-recommended"],
+  "browserslist": [
+    "chrome >= 120",
+    "edge >= 120",
+    "firefox >= 115",
+    "safari >= 16.4",
+    "ios_saf >= 16.4"
+  ],
+  "hints": {
+    "compat-api/css": "off",
+    "compat-api/html": "off"
+  }
+}

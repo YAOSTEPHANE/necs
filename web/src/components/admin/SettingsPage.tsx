@@ -1,8 +1,17 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import {
   PUBLIC_IMAGE_SLOTS,
+  DEFAULT_CONTENT,
   loadContent,
   resetAllPublicImages,
   resetPublicImage,
@@ -11,22 +20,24 @@ import {
 } from "@/lib/content";
 import {
   type AdminSettings,
-  type AdminUser,
   type SocialLink,
-  type UserRole,
   DEFAULT_LOGO,
   DEFAULT_SETTINGS,
-  ROLE_LABELS,
+  NECS_SETTINGS_EVENT,
+  applySettingsImport,
+  buildSettingsExport,
   fileToOptimizedDataUrl,
   loadSettings,
-  nextUserId,
   resetSettings,
   saveSettings,
+  settingsConfigSnapshot,
+  settingsHubStats,
 } from "@/lib/settings";
-import { IconSettings } from "@/components/admin/Icons";
-import { ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { IconSettings, IconSearch } from "@/components/admin/Icons";
+import { ModuleHeader } from "@/components/admin/Ui";
 import { toast } from "@/lib/toast";
-import { downloadImage } from "@/lib/download";
+import { safeRouterReplace } from "@/lib/safe-navigate";
+import { downloadImage, downloadText } from "@/lib/download";
 import { persistOptimizedImage } from "@/lib/vercel-blob-client";
 
 type TabId =
@@ -39,38 +50,31 @@ type TabId =
   | "site"
   | "securite";
 
+type SiteContactState = {
+  contactPhone: string;
+  contactEmail: string;
+  contactAddress: string;
+  contactHours: string;
+  contactTitle: string;
+  contactLead: string;
+  footerAbout: string;
+};
+
 const TABS: Array<{ id: TabId; label: string; hint: string }> = [
   { id: "entreprise", label: "Entreprise", hint: "Identité légale & contact" },
   { id: "marque", label: "Marque", hint: "Logo, favicon & réseaux" },
   { id: "images", label: "Images site", hint: "Photos page publique" },
   { id: "utilisateurs", label: "Utilisateurs", hint: "Comptes & rôles" },
   { id: "documents", label: "Documents", hint: "Numérotation & PDF" },
-  { id: "notifications", label: "Notifications", hint: "Alertes e-mail" },
+  { id: "notifications", label: "Notifications", hint: "Préférences alertes" },
   { id: "site", label: "Site public", hint: "Coordonnées affichées" },
   { id: "securite", label: "Sécurité", hint: "Session & accès" },
 ];
 
-function roleTone(role: UserRole): "ok" | "info" | "warn" | "neutral" {
-  switch (role) {
-    case "admin":
-      return "ok";
-    case "commercial":
-    case "ops":
-      return "info";
-    case "finance":
-    case "qualite":
-      return "warn";
-    default:
-      return "neutral";
-  }
-}
+const TAB_IDS = new Set<string>(TABS.map((t) => t.id));
 
-export function SettingsWorkspace() {
-  const [tab, setTab] = useState<TabId>("entreprise");
-  const [settings, setSettings] = useState<AdminSettings>(DEFAULT_SETTINGS);
-  const [userOverlay, setUserOverlay] = useState(false);
-  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [siteContact, setSiteContact] = useState({
+function emptySiteContact(): SiteContactState {
+  return {
     contactPhone: "",
     contactEmail: "",
     contactAddress: "",
@@ -78,28 +82,164 @@ export function SettingsWorkspace() {
     contactTitle: "",
     contactLead: "",
     footerAbout: "",
-  });
-  const [siteImages, setSiteImages] = useState<NecsImages>(() =>
-    structuredClone(loadContent().images),
-  );
+  };
+}
 
+function contactFromContent(): SiteContactState {
+  const c = loadContent();
+  return {
+    contactPhone: c.contactPhone,
+    contactEmail: c.contactEmail,
+    contactAddress: c.contactAddress,
+    contactHours: c.contactHours,
+    contactTitle: c.contactTitle,
+    contactLead: c.contactLead,
+    footerAbout: c.footerAbout,
+  };
+}
+
+function snapshotBundle(
+  settings: AdminSettings,
+  siteContact: SiteContactState,
+  siteImages: NecsImages,
+): string {
+  return JSON.stringify({
+    settings: settingsConfigSnapshot(settings),
+    siteContact,
+    siteImages,
+  });
+}
+
+function useHydrated() {
+  return useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+}
+
+export function SettingsWorkspace() {
+  const hydrated = useHydrated();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+  const importRef = useRef<HTMLInputElement>(null);
+
+  const initialTab = (() => {
+    const q = searchParams.get("tab");
+    return q && TAB_IDS.has(q) ? (q as TabId) : "entreprise";
+  })();
+
+  const [tab, setTab] = useState<TabId>(initialTab);
+  const [settings, setSettings] = useState<AdminSettings>(DEFAULT_SETTINGS);
+  const [siteContact, setSiteContact] =
+    useState<SiteContactState>(emptySiteContact);
+  const [siteImages, setSiteImages] = useState<NecsImages>(() =>
+    structuredClone(DEFAULT_CONTENT.images),
+  );
+  const [baseline, setBaseline] = useState("");
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [usersActive, setUsersActive] = useState<number | null>(null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [tabQuery, setTabQuery] = useState("");
+
+  const captureBaseline = (
+    nextSettings: AdminSettings,
+    nextContact: SiteContactState,
+    nextImages: NecsImages,
+  ) => {
+    setBaseline(snapshotBundle(nextSettings, nextContact, nextImages));
+  };
+
+  const hydrate = () => {
+    const s = loadSettings();
+    const contact = contactFromContent();
+    const images = structuredClone(loadContent().images);
+    setSettings(s);
+    setSiteContact(contact);
+    setSiteImages(images);
+    captureBaseline(s, contact, images);
+  };
 
   useEffect(() => {
-    const s = loadSettings();
-    setSettings(s);
-    const c = loadContent();
-    setSiteContact({
-      contactPhone: c.contactPhone,
-      contactEmail: c.contactEmail,
-      contactAddress: c.contactAddress,
-      contactHours: c.contactHours,
-      contactTitle: c.contactTitle,
-      contactLead: c.contactLead,
-      footerAbout: c.footerAbout,
-    });
-    setSiteImages(structuredClone(c.images));
+    hydrate();
+    const onSync = () => hydrate();
+    window.addEventListener(NECS_SETTINGS_EVENT, onSync);
+    window.addEventListener("storage", onSync);
+    return () => {
+      window.removeEventListener(NECS_SETTINGS_EVENT, onSync);
+      window.removeEventListener("storage", onSync);
+    };
   }, []);
+
+  useEffect(() => {
+    const q = searchParams.get("tab");
+    if (q && TAB_IDS.has(q) && q !== tab) {
+      setTab(q as TabId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  useEffect(() => {
+    void fetch("/api/users")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { users?: Array<{ active?: boolean }> } | null) => {
+        if (!data?.users) return;
+        setUsersActive(data.users.filter((u) => u.active !== false).length);
+      })
+      .catch(() => {
+        /* offline / unauthorized */
+      });
+  }, []);
+
+  const dirty = useMemo(() => {
+    if (!baseline) return false;
+    return snapshotBundle(settings, siteContact, siteImages) !== baseline;
+  }, [baseline, settings, siteContact, siteImages]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
+  const selectTab = (id: TabId) => {
+    setTab(id);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tab", id);
+    safeRouterReplace(router, `${pathname}?${params.toString()}`);
+  };
+
+  const customImages = useMemo(() => {
+    return PUBLIC_IMAGE_SLOTS.filter(
+      (slot) => siteImages[slot.key] !== DEFAULT_CONTENT.images[slot.key],
+    ).length;
+  }, [siteImages]);
+
+  const hub = useMemo(
+    () =>
+      settingsHubStats(settings, {
+        customImages,
+        totalImages: PUBLIC_IMAGE_SLOTS.length,
+        usersActive: usersActive ?? undefined,
+      }),
+    [settings, customImages, usersActive],
+  );
+
+  const filteredTabs = useMemo(() => {
+    const q = tabQuery.trim().toLowerCase();
+    if (!q) return TABS;
+    return TABS.filter(
+      (t) =>
+        t.label.toLowerCase().includes(q) ||
+        t.hint.toLowerCase().includes(q) ||
+        t.id.includes(q),
+    );
+  }, [tabQuery]);
 
   const onUploadBrand = async (
     kind: "logoUrl" | "faviconUrl",
@@ -123,6 +263,25 @@ export function SettingsWorkspace() {
         err instanceof Error ? err.message : "Échec du chargement de l’image",
       );
     }
+  };
+
+  const markSaved = () => {
+    const stamp = new Date().toLocaleTimeString("fr-FR");
+    setLastSavedAt(stamp);
+    toast.success(`Enregistré à ${stamp}`);
+  };
+
+  const persist = (next: AdminSettings) => {
+    setSettings(next);
+    saveSettings(next);
+    captureBaseline(next, siteContact, siteImages);
+    markSaved();
+  };
+
+  const discardChanges = () => {
+    hydrate();
+    setUploadError(null);
+    toast.info("Modifications annulées.");
   };
 
   const saveBranding = (e: FormEvent) => {
@@ -179,6 +338,7 @@ export function SettingsWorkspace() {
     try {
       const content = loadContent();
       saveContent({ ...content, images: siteImages });
+      captureBaseline(settings, siteContact, siteImages);
       markSaved();
     } catch {
       setUploadError(
@@ -195,35 +355,24 @@ export function SettingsWorkspace() {
     setSiteImages(resetAllPublicImages());
   };
 
-  useEffect(() => {
-    if (!userOverlay) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setUserOverlay(false);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [userOverlay]);
-
-  const markSaved = () => {
-    toast.success(
-      `Enregistré à ${new Date().toLocaleTimeString("fr-FR")}`,
-    );
-  };
-
-  const persist = (next: AdminSettings) => {
-    setSettings(next);
-    saveSettings(next);
-    markSaved();
-  };
-
   const saveCompany = (e: FormEvent) => {
     e.preventDefault();
-    persist(settings);
+    // Propage email / téléphone / horaires / adresse vers le site public (formulaires).
+    const synced: SiteContactState = {
+      ...siteContact,
+      contactEmail: settings.company.email.trim() || siteContact.contactEmail,
+      contactPhone: settings.company.phone.trim() || siteContact.contactPhone,
+      contactHours: settings.company.hours.trim() || siteContact.contactHours,
+      contactAddress:
+        settings.company.address.trim() || siteContact.contactAddress,
+    };
+    const content = loadContent();
+    saveContent({ ...content, ...synced });
+    setSiteContact(synced);
+    setSettings(settings);
+    saveSettings(settings);
+    captureBaseline(settings, synced, siteImages);
+    markSaved();
   };
 
   const saveDocuments = (e: FormEvent) => {
@@ -248,7 +397,6 @@ export function SettingsWorkspace() {
       ...content,
       ...siteContact,
     });
-    // Aligner aussi le téléphone / email entreprise si utiles
     const next = {
       ...settings,
       company: {
@@ -259,85 +407,59 @@ export function SettingsWorkspace() {
         address: siteContact.contactAddress || settings.company.address,
       },
     };
-    persist(next);
+    setSettings(next);
+    saveSettings(next);
+    captureBaseline(next, siteContact, siteImages);
+    markSaved();
   };
 
-  const openNewUser = () => {
-    setEditingUser({
-      id: nextUserId(settings.users),
-      name: "",
-      email: "",
-      role: "commercial",
-      phone: "",
-      password: "",
-      active: true,
-      lastLogin: "Jamais",
-    });
-    setUserOverlay(true);
-  };
-
-  const openEditUser = (user: AdminUser) => {
-    setEditingUser({ ...user });
-    setUserOverlay(true);
-  };
-
-  const saveUser = (e: FormEvent) => {
-    e.preventDefault();
-    if (!editingUser || !editingUser.name.trim() || !editingUser.email.trim()) {
-      toast.warning("Nom et email sont obligatoires.");
+  const saveCurrentTab = () => {
+    if (tab === "images") {
+      const content = loadContent();
+      saveContent({ ...content, images: siteImages });
+      captureBaseline(settings, siteContact, siteImages);
+      markSaved();
       return;
     }
-    const email = editingUser.email.trim().toLowerCase();
-    const password = editingUser.password.trim();
-    if (password.length < (settings.security.passwordMinLength || 8)) {
-      toast.warning(
-        `Mot de passe : au moins ${settings.security.passwordMinLength || 8} caractères.`,
-      );
+    if (tab === "site") {
+      const content = loadContent();
+      saveContent({ ...content, ...siteContact });
+      const next = {
+        ...settings,
+        company: {
+          ...settings.company,
+          phone: siteContact.contactPhone || settings.company.phone,
+          email: siteContact.contactEmail || settings.company.email,
+          hours: siteContact.contactHours || settings.company.hours,
+          address: siteContact.contactAddress || settings.company.address,
+        },
+      };
+      setSettings(next);
+      saveSettings(next);
+      captureBaseline(next, siteContact, siteImages);
+      markSaved();
       return;
     }
-    const emailTaken = settings.users.some(
-      (u) =>
-        u.email.trim().toLowerCase() === email && u.id !== editingUser.id,
-    );
-    if (emailTaken) {
-      toast.warning("Un compte utilise déjà cet email.");
+    if (tab === "entreprise") {
+      const synced: SiteContactState = {
+        ...siteContact,
+        contactEmail: settings.company.email.trim() || siteContact.contactEmail,
+        contactPhone: settings.company.phone.trim() || siteContact.contactPhone,
+        contactHours: settings.company.hours.trim() || siteContact.contactHours,
+        contactAddress:
+          settings.company.address.trim() || siteContact.contactAddress,
+      };
+      const content = loadContent();
+      saveContent({ ...content, ...synced });
+      setSiteContact(synced);
+      setSettings(settings);
+      saveSettings(settings);
+      captureBaseline(settings, synced, siteImages);
+      markSaved();
       return;
     }
-    const saved: AdminUser = {
-      ...editingUser,
-      name: editingUser.name.trim(),
-      email,
-      password,
-      phone: editingUser.phone.trim(),
-    };
-    const exists = settings.users.some((u) => u.id === saved.id);
-    const users = exists
-      ? settings.users.map((u) => (u.id === saved.id ? saved : u))
-      : [saved, ...settings.users];
-    persist({ ...settings, users });
-    setUserOverlay(false);
-    setEditingUser(null);
-  };
-
-  const toggleUserActive = (id: string) => {
-    persist({
-      ...settings,
-      users: settings.users.map((u) =>
-        u.id === id ? { ...u, active: !u.active } : u,
-      ),
-    });
-  };
-
-  const deleteUser = (id: string) => {
-    if (id === "USR-001") {
-      toast.warning("Le compte administrateur principal ne peut pas être supprimé.");
-      return;
-    }
-    if (!confirm("Supprimer définitivement cet utilisateur ?")) return;
-    persist({
-      ...settings,
-      users: settings.users.filter((u) => u.id !== id),
-    });
+    if (tab === "utilisateurs") return;
+    persist(settings);
   };
 
   const onReset = () => {
@@ -350,8 +472,42 @@ export function SettingsWorkspace() {
     }
     resetSettings();
     const fresh = loadSettings();
+    const contact = contactFromContent();
+    const images = structuredClone(loadContent().images);
     setSettings(fresh);
+    setSiteContact(contact);
+    setSiteImages(images);
+    captureBaseline(fresh, contact, images);
     toast.info("Paramètres réinitialisés aux valeurs NECS.");
+  };
+
+  const exportJson = () => {
+    const bundle = buildSettingsExport(settings, siteContact);
+    downloadText(
+      JSON.stringify(bundle, null, 2),
+      `necs-parametres-${new Date().toISOString().slice(0, 10)}.json`,
+      "application/json;charset=utf-8",
+    );
+    toast.success("Export JSON téléchargé.");
+  };
+
+  const onImportFile = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed: unknown = JSON.parse(text);
+      const { settings: next, siteContact: importedContact } =
+        applySettingsImport(settings, parsed);
+      setSettings(next);
+      if (importedContact) {
+        setSiteContact((c) => ({ ...c, ...importedContact }));
+      }
+      toast.success("Import chargé — enregistrez pour appliquer.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Import JSON impossible.",
+      );
+    }
   };
 
   const patchCompany = <K extends keyof AdminSettings["company"]>(
@@ -394,37 +550,158 @@ export function SettingsWorkspace() {
     }));
   };
 
+  if (!hydrated) {
+    return (
+      <div className="settings-page" aria-busy="true">
+        <div className="settings-skel settings-skel--lg" />
+        <div className="settings-kpis">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="settings-skel" />
+          ))}
+        </div>
+        <div className="settings-skel settings-skel--tabs" />
+      </div>
+    );
+  }
+
   return (
-    <div className="settings-page doc-workspace">
+    <div className={`leads-page settings-page doc-workspace${dirty ? " is-dirty" : ""}`}>
       <ModuleHeader
-        tone="#64748b"
-        badge="Administration NECS"
+        tone="#475569"
+        badge="Pilotage · Paramètres"
         icon={<IconSettings size={22} />}
         title="Paramètres"
-        description="Configurez l’entreprise, les utilisateurs, la numérotation des documents, les notifications et le site public."
+        description="Hub de configuration : entreprise, marque, documents, notifications et site public."
+        meta={
+          <>
+            <span>
+              <strong>{hub.tradeName}</strong>
+            </span>
+            <span>
+              <strong>{hub.currency}</strong>
+            </span>
+            <span>
+              <strong>{hub.usersActive}</strong> comptes actifs
+            </span>
+            {lastSavedAt ? (
+              <span>
+                Sauvé <strong>{lastSavedAt}</strong>
+              </span>
+            ) : null}
+            {dirty ? (
+              <span className="settings-dirty-pill">Modifications en cours</span>
+            ) : null}
+          </>
+        }
+        note="Les utilisateurs sont gérés dans l’annuaire MongoDB. Export JSON sans mots de passe."
         actions={
-          <button
-            type="button"
-            className="btn-admin btn-admin--ghost"
-            onClick={onReset}
-          >
-            Réinitialiser
-          </button>
+          <>
+            <a
+              className="btn-admin btn-admin--ghost"
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Voir le site
+            </a>
+            <button
+              type="button"
+              className="btn-admin btn-admin--ghost"
+              onClick={exportJson}
+            >
+              Export JSON
+            </button>
+            <button
+              type="button"
+              className="btn-admin btn-admin--ghost"
+              onClick={() => importRef.current?.click()}
+            >
+              Import JSON
+            </button>
+            <input
+              ref={importRef}
+              type="file"
+              accept="application/json,.json"
+              hidden
+              onChange={(e) => {
+                void onImportFile(e.target.files?.[0] ?? null);
+                e.currentTarget.value = "";
+              }}
+            />
+            <button
+              type="button"
+              className="btn-admin btn-admin--ghost"
+              onClick={onReset}
+            >
+              Réinitialiser
+            </button>
+          </>
         }
       />
 
+      <section className="settings-kpis" aria-label="État de la configuration">
+        <article className="settings-kpi settings-kpi--accent">
+          <p>Réseaux actifs</p>
+          <strong>
+            {hub.socialOn}/{hub.socialTotal}
+          </strong>
+          <span>pied de page site</span>
+        </article>
+        <article className="settings-kpi">
+          <p>Images personnalisées</p>
+          <strong>
+            {hub.customImages}/{hub.totalImages}
+          </strong>
+          <span>slots site public</span>
+        </article>
+        <article className="settings-kpi">
+          <p>Notifications ON</p>
+          <strong>
+            {hub.notifOn}/{hub.notifTotal}
+          </strong>
+          <span>préférences enregistrées</span>
+        </article>
+        <article className="settings-kpi">
+          <p>Score sécurité</p>
+          <strong>
+            {hub.securityScore}/{hub.securityMax}
+          </strong>
+          <span>session · MDP · audit · 2FA · IP</span>
+        </article>
+      </section>
+
+      <div className="settings-toolbar">
+        <label className="settings-search">
+          <IconSearch size={16} />
+          <input
+            type="search"
+            value={tabQuery}
+            onChange={(e) => setTabQuery(e.target.value)}
+            placeholder="Filtrer les sections…"
+            aria-label="Filtrer les sections paramètres"
+          />
+        </label>
+        <a className="btn-admin btn-admin--ghost" href="/admin/utilisateurs">
+          Utilisateurs →
+        </a>
+      </div>
+
       <nav className="settings-tabs" aria-label="Sections paramètres">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`settings-tab${tab === t.id ? " is-active" : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            <strong>{t.label}</strong>
-            <span>{t.hint}</span>
-          </button>
-        ))}
+        {filteredTabs.length === 0 ? (
+          <p className="settings-tabs-empty">Aucune section pour « {tabQuery} ».</p>
+        ) : (
+          filteredTabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`settings-tab${tab === t.id ? " is-active" : ""}`}
+              onClick={() => selectTab(t.id)}
+            >
+              <strong>{t.label}</strong>
+              <span>{t.hint}</span>
+            </button>
+          ))
+        )}
       </nav>
 
       <div className="settings-panel">
@@ -479,12 +756,17 @@ export function SettingsWorkspace() {
                 />
               </label>
               <label className="settings-field">
-                <span>Email principal</span>
+                <span>Email formulaires & documents</span>
                 <input
                   type="email"
                   value={settings.company.email}
                   onChange={(e) => patchCompany("email", e.target.value)}
+                  placeholder="contact@necs-cm.com"
                 />
+                <em className="settings-field-hint">
+                  Affiché sur les formulaires publics (accueil, contact) et les
+                  documents.
+                </em>
               </label>
               <label className="settings-field">
                 <span>Horaires</span>
@@ -792,93 +1074,30 @@ export function SettingsWorkspace() {
         ) : null}
 
         {tab === "utilisateurs" ? (
-          <div>
-            <div className="settings-section-head settings-section-head--row">
+          <div className="settings-users-redirect">
+            <div className="settings-section-head">
+              <h2>Utilisateurs & rôles</h2>
+              <p>
+                La gestion des comptes est centralisée sur la page dédiée
+                (MongoDB). Créez, activez et attribuez les rôles depuis
+                l’annuaire admin.
+              </p>
+            </div>
+            <div className="settings-users-card">
               <div>
-                <h2>Utilisateurs & rôles</h2>
+                <p className="settings-users-card__eyebrow">Annuaire NECS</p>
+                <strong>Page Utilisateurs</strong>
                 <p>
-                  {settings.users.length} comptes · accès par module (CRM, OPS,
-                  RH, Finance…).{" "}
-                  <a href="/admin/utilisateurs">Ouvrir la page dédiée →</a>
+                  Inbox comptes, filtres par rôle, activation, lien agent
+                  pointage et export CSV.
                 </p>
               </div>
-              <button
-                type="button"
+              <a
+                href="/admin/utilisateurs"
                 className="btn-admin btn-admin--primary"
-                onClick={openNewUser}
               >
-                + Nouvel utilisateur
-              </button>
-            </div>
-
-            <div className="table-wrap">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Identifiant</th>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Rôle</th>
-                    <th>Statut</th>
-                    <th>Dernière connexion</th>
-                    <th style={{ textAlign: "right" }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {settings.users.map((u) => (
-                    <tr key={u.id}>
-                      <td>
-                        <strong style={{ color: "var(--a-blue)" }}>{u.id}</strong>
-                      </td>
-                      <td>
-                        <div className="settings-user-cell">
-                          <span className="dash-avatar sm">
-                            {u.name.slice(0, 1) || "?"}
-                          </span>
-                          <strong>{u.name}</strong>
-                        </div>
-                      </td>
-                      <td>{u.email}</td>
-                      <td>
-                        <StatusBadge tone={roleTone(u.role)}>
-                          {ROLE_LABELS[u.role]}
-                        </StatusBadge>
-                      </td>
-                      <td>
-                        <StatusBadge tone={u.active ? "ok" : "neutral"}>
-                          {u.active ? "Actif" : "Inactif"}
-                        </StatusBadge>
-                      </td>
-                      <td>{u.lastLogin}</td>
-                      <td style={{ textAlign: "right" }}>
-                        <div className="settings-row-actions">
-                          <button
-                            type="button"
-                            className="btn-admin btn-admin--ghost"
-                            onClick={() => openEditUser(u)}
-                          >
-                            Modifier
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-admin btn-admin--ghost"
-                            onClick={() => toggleUserActive(u.id)}
-                          >
-                            {u.active ? "Désactiver" : "Activer"}
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-admin btn-admin--ghost"
-                            onClick={() => deleteUser(u.id)}
-                          >
-                            Supprimer
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                Ouvrir Utilisateurs →
+              </a>
             </div>
           </div>
         ) : null}
@@ -984,8 +1203,15 @@ export function SettingsWorkspace() {
           <form className="settings-form" onSubmit={saveNotifications}>
             <div className="settings-section-head">
               <h2>Notifications</h2>
-              <p>Choisissez les alertes envoyées aux équipes NECS.</p>
+              <p>
+                Préférences d’alertes enregistrées localement. L’envoi e-mail
+                automatique sera branché sur le serveur de messagerie NECS.
+              </p>
             </div>
+            <p className="settings-hint-banner">
+              Statut : préférences prêtes · livraison e-mail en déploiement
+              progressif.
+            </p>
             <div className="settings-toggles">
               {(
                 [
@@ -1067,7 +1293,7 @@ export function SettingsWorkspace() {
                 />
               </label>
               <label className="settings-field">
-                <span>Email affiché</span>
+                <span>Email formulaires</span>
                 <input
                   type="email"
                   value={siteContact.contactEmail}
@@ -1077,7 +1303,11 @@ export function SettingsWorkspace() {
                       contactEmail: e.target.value,
                     }))
                   }
+                  placeholder="contact@necs-cm.com"
                 />
+                <em className="settings-field-hint">
+                  Même valeur que « Email formulaires & documents » (Entreprise).
+                </em>
               </label>
               <label className="settings-field">
                 <span>Horaires</span>
@@ -1129,8 +1359,16 @@ export function SettingsWorkspace() {
           <form className="settings-form" onSubmit={saveSecurity}>
             <div className="settings-section-head">
               <h2>Sécurité & accès</h2>
-              <p>Politique de session, mots de passe et journal d’audit.</p>
+              <p>
+                Politique de session et mots de passe. La longueur minimale est
+                appliquée à la création de comptes. 2FA / IP : options
+                préparées.
+              </p>
             </div>
+            <p className="settings-hint-banner">
+              Score actuel : {hub.securityScore}/{hub.securityMax} — activez 2FA
+              et restriction IP pour renforcer.
+            </p>
             <div className="settings-grid">
               <label className="settings-field">
                 <span>Durée de session (minutes)</span>
@@ -1201,153 +1439,28 @@ export function SettingsWorkspace() {
         ) : null}
       </div>
 
-      {/* Overlay utilisateur */}
-      {userOverlay && editingUser ? (
-        <div
-          className="doc-overlay-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="user-overlay-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setUserOverlay(false);
-          }}
-        >
-          <div className="settings-user-dialog">
-            <div className="doc-overlay-header">
-              <div>
-                <h2 id="user-overlay-title">
-                  {settings.users.some((u) => u.id === editingUser.id)
-                    ? "Modifier l’utilisateur"
-                    : "Nouvel utilisateur"}
-                </h2>
-                <p className="doc-overlay-header__sub">
-                  Compte · {editingUser.id}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="doc-overlay-close-btn"
-                aria-label="Fermer"
-                onClick={() => setUserOverlay(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <form className="settings-user-form" onSubmit={saveUser}>
-              <div className="settings-grid">
-                <label className="settings-field">
-                  <span>Nom complet *</span>
-                  <input
-                    required
-                    autoFocus
-                    value={editingUser.name}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, name: e.target.value })
-                    }
-                  />
-                </label>
-                <label className="settings-field">
-                  <span>Email *</span>
-                  <input
-                    type="email"
-                    required
-                    value={editingUser.email}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, email: e.target.value })
-                    }
-                  />
-                </label>
-                <label className="settings-field">
-                  <span>Téléphone</span>
-                  <input
-                    value={editingUser.phone}
-                    onChange={(e) =>
-                      setEditingUser({ ...editingUser, phone: e.target.value })
-                    }
-                  />
-                </label>
-                <label className="settings-field">
-                  <span>Mot de passe *</span>
-                  <input
-                    type="text"
-                    required
-                    minLength={settings.security.passwordMinLength}
-                    value={editingUser.password}
-                    onChange={(e) =>
-                      setEditingUser({
-                        ...editingUser,
-                        password: e.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label className="settings-field">
-                  <span>Rôle *</span>
-                  <select
-                    value={editingUser.role}
-                    onChange={(e) =>
-                      setEditingUser({
-                        ...editingUser,
-                        role: e.target.value as UserRole,
-                        employeeId:
-                          e.target.value === "nettoyeur"
-                            ? editingUser.employeeId
-                            : undefined,
-                      })
-                    }
-                  >
-                    {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => (
-                      <option key={r} value={r}>
-                        {ROLE_LABELS[r]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                {editingUser.role === "nettoyeur" ? (
-                  <label className="settings-field">
-                    <span>ID employé pointage</span>
-                    <input
-                      value={editingUser.employeeId ?? ""}
-                      onChange={(e) =>
-                        setEditingUser({
-                          ...editingUser,
-                          employeeId: e.target.value.trim() || undefined,
-                        })
-                      }
-                      placeholder="EMP-001"
-                    />
-                  </label>
-                ) : null}
-                <label className="settings-toggle is-full">
-                  <input
-                    type="checkbox"
-                    checked={editingUser.active}
-                    onChange={(e) =>
-                      setEditingUser({
-                        ...editingUser,
-                        active: e.target.checked,
-                      })
-                    }
-                  />
-                  <div>
-                    <strong>Compte actif</strong>
-                    <span>Peut se connecter à l’administration NECS.</span>
-                  </div>
-                </label>
-              </div>
-              <div className="settings-actions">
-                <button
-                  type="button"
-                  className="btn-admin btn-admin--ghost"
-                  onClick={() => setUserOverlay(false)}
-                >
-                  Annuler
-                </button>
-                <button type="submit" className="btn-admin btn-admin--primary">
-                  Enregistrer l’utilisateur
-                </button>
-              </div>
-            </form>
+      {dirty ? (
+        <div className="settings-dirty-bar" role="status">
+          <div>
+            <strong>Modifications non enregistrées</strong>
+            <span>Section « {TABS.find((t) => t.id === tab)?.label} »</span>
+          </div>
+          <div className="settings-dirty-bar__actions">
+            <button
+              type="button"
+              className="btn-admin btn-admin--ghost"
+              onClick={discardChanges}
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              className="btn-admin btn-admin--primary"
+              onClick={saveCurrentTab}
+              disabled={tab === "utilisateurs"}
+            >
+              Enregistrer
+            </button>
           </div>
         </div>
       ) : null}

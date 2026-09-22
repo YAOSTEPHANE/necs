@@ -141,7 +141,7 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
                   </span>
                 </Link>
                 <Link
-                  href="/admin/pointage"
+                  href="/admin/operations?tab=pointage"
                   role="menuitem"
                   className="profile-menu__item"
                   onClick={() => setOpen(false)}
@@ -155,7 +155,7 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
                   </span>
                 </Link>
                 <Link
-                  href="/admin/terrain"
+                  href="/admin/operations?tab=terrain"
                   role="menuitem"
                   className="profile-menu__item"
                   onClick={() => setOpen(false)}
@@ -223,7 +223,7 @@ export function ProfileMenu({ session, onLogout, compact = false }: Props) {
                   session.role === "ops" ||
                   session.role === "qualite") && (
                   <Link
-                    href="/admin/terrain"
+                    href="/admin/operations?tab=terrain"
                     role="menuitem"
                     className="profile-menu__item"
                     onClick={() => setOpen(false)}

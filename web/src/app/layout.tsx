@@ -79,7 +79,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr" className={`${figtree.variable} ${outfit.variable} ${caveat.variable}`}>
+    <html
+      lang="fr"
+      data-scroll-behavior="smooth"
+      className={`${figtree.variable} ${outfit.variable} ${caveat.variable}`}
+    >
       <body>
         <a className="skip-link" href="#contenu">
           Aller au contenu

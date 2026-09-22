@@ -2,6 +2,7 @@ import type { AdminUser, UserRole } from "@/lib/settings";
 import { ROLE_LABELS } from "@/lib/settings";
 import { getDb, hasMongoConfig } from "@/lib/mongo";
 import { hashPassword } from "@/lib/password";
+import { validatePasswordStrength } from "@/lib/security";
 
 export type DbUser = {
   _id?: string;
@@ -74,9 +75,13 @@ export async function ensureSeedAdmin(): Promise<void> {
     .trim()
     .toLowerCase();
   const password = process.env.ADMIN_BOOTSTRAP_PASSWORD?.trim();
-  if (!password || password.length < 8) {
+  const strengthError = password
+    ? validatePasswordStrength(password)
+    : "Mot de passe manquant";
+  if (!password || strengthError) {
     console.warn(
-      "[necs-auth] Aucun utilisateur en base. Définissez ADMIN_BOOTSTRAP_PASSWORD (≥8) pour créer le compte admin initial.",
+      "[necs-auth] Aucun utilisateur en base. Définissez ADMIN_BOOTSTRAP_PASSWORD (≥10, lettre+chiffre) pour créer le compte admin initial.",
+      strengthError || "",
     );
     return;
   }
@@ -186,6 +191,22 @@ export async function upsertDbUser(input: {
   return doc;
 }
 
+export async function setUserActive(
+  id: string,
+  active: boolean,
+): Promise<DbUser | null> {
+  const col = await usersCollection();
+  const existing = await col.findOne({ id });
+  if (!existing) return null;
+  const next: DbUser = {
+    ...existing,
+    active,
+    updatedAt: Date.now(),
+  };
+  await col.updateOne({ id }, { $set: { active, updatedAt: next.updatedAt } });
+  return next;
+}
+
 export async function deleteDbUser(id: string): Promise<void> {
   if (id === "USR-001") {
     throw new Error("Le compte administrateur principal ne peut pas être supprimé.");
@@ -210,28 +231,15 @@ export async function touchLastLogin(id: string): Promise<void> {
   );
 }
 
-export async function insertLead(lead: {
-  name: string;
-  company: string;
-  email: string;
-  phone: string;
-  subject: string;
-  message: string;
-}): Promise<void> {
-  const db = await getDb();
-  await db.collection("leads").insertOne({
-    ...lead,
-    at: new Date().toISOString(),
-    createdAt: Date.now(),
-  });
-}
-
-export async function listLeads(limit = 50) {
-  const db = await getDb();
-  return db
-    .collection("leads")
-    .find({})
-    .sort({ createdAt: -1 })
-    .limit(limit)
-    .toArray();
+export async function updateUserPassword(
+  id: string,
+  password: string,
+): Promise<DbUser | null> {
+  const col = await usersCollection();
+  const existing = await col.findOne({ id });
+  if (!existing) return null;
+  const passwordHash = await hashPassword(password.trim());
+  const updatedAt = Date.now();
+  await col.updateOne({ id }, { $set: { passwordHash, updatedAt } });
+  return { ...existing, passwordHash, updatedAt };
 }

@@ -2,8 +2,12 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { saveLead, type NecsContent } from "@/lib/content";
+import {
+  inferFormTypeFromSubject,
+  readLeadAttribution,
+} from "@/lib/lead-attribution";
 import { toast } from "@/lib/toast";
-import { BrandLogo } from "@/components/BrandAssets";
+import { BrandLogo, useBrandAssets } from "@/components/BrandAssets";
 import { ContactQuickActions } from "@/components/site/ContactQuickActions";
 
 export interface ContactModalProps {
@@ -20,6 +24,7 @@ export function ContactModal({
   initialSubject = "Demande de devis",
 }: ContactModalProps) {
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
   const [subject, setSubject] = useState(initialSubject);
 
   useEffect(() => {
@@ -31,6 +36,7 @@ export function ContactModal({
   useEffect(() => {
     if (!isOpen) {
       setSubmitted(false);
+      setSending(false);
       return;
     }
 
@@ -54,15 +60,26 @@ export function ContactModal({
 
   function onContact(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (sending || submitted) return;
     const fd = new FormData(e.currentTarget);
+    if (!fd.get("consent")) {
+      toast.error("Veuillez accepter le traitement de vos données.");
+      return;
+    }
+    const subjectValue = String(fd.get("subject") || subject);
+    const attribution = readLeadAttribution({ defaultSource: "site_web" });
     const payload = {
       name: String(fd.get("name") || ""),
       company: String(fd.get("company") || ""),
       email: String(fd.get("email") || ""),
       phone: String(fd.get("phone") || ""),
-      subject: String(fd.get("subject") || subject),
+      subject: subjectValue,
       message: String(fd.get("message") || ""),
+      formType: inferFormTypeFromSubject(subjectValue),
+      consent: true,
+      ...attribution,
     };
+    setSending(true);
     void (async () => {
       try {
         const res = await fetch("/api/leads", {
@@ -80,6 +97,8 @@ export function ContactModal({
         setSubmitted(true);
       } catch {
         toast.error("Impossible d’envoyer la demande.");
+      } finally {
+        setSending(false);
       }
     })();
   }
@@ -188,12 +207,15 @@ export function ContactModal({
 
               <div className="field">
                 <label htmlFor="modal-subject">Objet de votre demande</label>
-                <select
-                  id="modal-subject"
-                  name="subject"
-                  value={subject}
-                  onChange={(e) => setSubject(e.target.value)}
-                >
+                  <select
+                    id="modal-subject"
+                    name="subject"
+                    value={subject}
+                    onChange={(e) => {
+                      setSubject(e.target.value);
+                      e.currentTarget.blur();
+                    }}
+                  >
                   <option value="Demande de devis">Demande de devis personnalisé</option>
                   <option value="Nettoyage de bureaux">Entretien régulier de bureaux</option>
                   <option value="Nettoyage industriel">Nettoyage industriel & entrepôt</option>
@@ -217,9 +239,21 @@ export function ContactModal({
                 />
               </div>
 
+              <label className="field field--consent">
+                <input type="checkbox" name="consent" value="1" required />
+                <span>
+                  J’accepte que NECS traite mes données pour répondre à cette
+                  demande (devis / contact). *
+                </span>
+              </label>
+
               <div className="necs-modal-actions">
-                <button className="btn btn-primary" type="submit">
-                  Envoyer ma demande
+                <button
+                  className="btn btn-primary"
+                  type="submit"
+                  disabled={sending || submitted}
+                >
+                  {sending ? "Envoi…" : "Envoyer ma demande"}
                   <span aria-hidden className="btn__chev">
                     →
                   </span>
@@ -234,7 +268,8 @@ export function ContactModal({
               </div>
 
               <p className="form-note">
-                Un conseiller NECS vous répond sous 24 heures ouvrées. Données confidentielles.
+                Un conseiller NECS vous répond sous 24 heures ouvrées. Données
+                confidentielles ; consentement requis.
               </p>
             </form>
           </>
@@ -257,6 +292,9 @@ export function ContactForm({
   onOpenModal?: () => void;
 }) {
   const [internalModalOpen, setInternalModalOpen] = useState(false);
+  const { email, phone } = useBrandAssets();
+  const displayEmail = (email || content.contactEmail).trim();
+  const displayPhone = phone || content.contactPhone;
 
   const handleOpen = () => {
     if (onOpenModal) {
@@ -275,11 +313,11 @@ export function ContactForm({
           <ul>
             <li>
               <strong>Téléphone</strong>
-              <span>{content.contactPhone}</span>
+              <span>{displayPhone}</span>
             </li>
             <li>
               <strong>Email</strong>
-              <span>{content.contactEmail}</span>
+              <span>{displayEmail}</span>
             </li>
             <li>
               <strong>Adresse</strong>
@@ -292,8 +330,8 @@ export function ContactForm({
           </ul>
           <ContactQuickActions
             className="contact-panel__actions"
-            fallbackPhone={content.contactPhone}
-            fallbackEmail={content.contactEmail}
+            fallbackPhone={displayPhone}
+            fallbackEmail={displayEmail}
             onFormClick={handleOpen}
           />
         </aside>

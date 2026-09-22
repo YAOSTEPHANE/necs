@@ -80,11 +80,14 @@ export function assertSameOrigin(request: Request): boolean {
 const USER_ROLES = new Set([
   "admin",
   "commercial",
+  "marketing",
   "ops",
   "rh",
+  "manager",
   "finance",
   "qualite",
   "nettoyeur",
+  "client",
 ]);
 
 export function isValidRole(role: string): boolean {

@@ -193,3 +193,42 @@ export function countByKind(visit: SiteVisit, kind: PhotoKind): number {
 export function photoKindLabel(kind: PhotoKind): string {
   return kind === "after" ? "Après" : "Avant";
 }
+
+export function updateVisitMeta(
+  visit: SiteVisit,
+  patch: Partial<
+    Pick<SiteVisit, "site" | "client" | "date" | "agent" | "notes">
+  >,
+): SiteVisit {
+  return {
+    ...visit,
+    ...patch,
+    site: (patch.site ?? visit.site).trim(),
+    client: (patch.client ?? visit.client).trim(),
+    agent: (patch.agent ?? visit.agent).trim(),
+    notes: (patch.notes ?? visit.notes).trim(),
+    updatedAt: nowLabel(),
+  };
+}
+
+export function updatePhotoNote(
+  visit: SiteVisit,
+  photoId: string,
+  note: string,
+): SiteVisit {
+  return {
+    ...visit,
+    photos: visit.photos.map((p) =>
+      p.id === photoId ? { ...p, note: note.trim() } : p,
+    ),
+    updatedAt: nowLabel(),
+  };
+}
+
+export function isTodayVisit(isoDate: string): boolean {
+  return isoDate === todayIso();
+}
+
+export function visitNeedsProof(visit: SiteVisit): boolean {
+  return countByKind(visit, "after") === 0;
+}

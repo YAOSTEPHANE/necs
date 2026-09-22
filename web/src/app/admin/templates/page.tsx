@@ -13,6 +13,7 @@ import { EmptyState, ModuleHeader } from "@/components/admin/Ui";
 import { loadSession } from "@/lib/auth";
 import { domainsForRole, type DocDomain } from "@/lib/role-spaces";
 import type { UserRole } from "@/lib/settings";
+import { GROUP_LABEL } from "@/lib/admin-nav";
 
 function HubInner() {
   const search = useSearchParams();
@@ -68,23 +69,19 @@ function HubInner() {
   }, [domain, q, search, visibleDocs]);
 
   return (
-    <div className="symp-dash doc-hub doc-workspace">
+    <div className="leads-page symp-dash doc-hub doc-workspace">
       <ModuleHeader
-        tone="#1260a8"
-        badge="Bibliothèque métier"
+        tone="#0a3a72"
+        badge="Pilotage · Bibliothèque"
         title="Documents & modules"
-        description={`${visibleDocs.length} module${visibleDocs.length > 1 ? "s" : ""} accessible${visibleDocs.length > 1 ? "s" : ""} selon votre rôle.`}
+        description="Catalogue des modèles métier filtrables par domaine et rôle."
         meta={
           <>
             <span>
-              <strong>Modules</strong>
-              {visibleDocs.length}
+              <strong>{filtered.length}</strong> fiches visibles
             </span>
             <span>
-              <strong>Domaines</strong>
-              {allowedDomains === "all"
-                ? DOCUMENT_DOMAINS.length - 1
-                : allowedDomains.length}
+              Domaines <strong>DIG · CRM · OPS · Q · RH · FIN</strong>
             </span>
           </>
         }
@@ -134,17 +131,13 @@ function HubInner() {
               </span>
               <span className="symp-status tone-info">
                 <i />
-                {doc.domain}
+                {GROUP_LABEL[doc.domain] ?? doc.domain}
               </span>
             </div>
             <h3>{doc.title}</h3>
             <p>{doc.subtitle}</p>
             <div className="doc-hub-card__meta">
               <span>{doc.module}</span>
-              <span>
-                {doc.records.length} dossier
-                {doc.records.length > 1 ? "s" : ""}
-              </span>
             </div>
           </Link>
         ))}

@@ -16,6 +16,10 @@ import {
   loadContent,
   type NecsContent,
 } from "@/lib/content";
+import {
+  loadTrackingParams,
+  persistLeadAttributionFromUrl,
+} from "@/lib/lead-attribution";
 import { ContactModal } from "@/components/site/ContactForm";
 import { BrandLogo, SocialLinks } from "@/components/BrandAssets";
 
@@ -213,9 +217,14 @@ export function SiteShell({
   const [scrolled, setScrolled] = useState(false);
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [quoteSubject, setQuoteSubject] = useState("Demande de devis");
+  /** null = pas encore hydraté → toujours « Connexion » (évite mismatch SSR/client). */
+  const [authed, setAuthed] = useState<boolean | null>(null);
   const moreRef = useRef<HTMLLIElement>(null);
 
   const moreActive = SITE_NAV_MORE.some((item) => item.href === pathname);
+  const showEspacePro = authed === true;
+  const accountHref = showEspacePro ? "/admin" : "/admin/login";
+  const accountLabel = showEspacePro ? "Espace pro" : "Connexion";
 
   const openQuoteModal = (initialSubject?: string) => {
     if (initialSubject) {
@@ -229,6 +238,41 @@ export function SiteShell({
   const closeQuoteModal = () => {
     setIsQuoteModalOpen(false);
   };
+
+  useEffect(() => {
+    let cancelled = false;
+    const syncAuth = async () => {
+      try {
+        const res = await fetch("/api/auth/me", { credentials: "same-origin" });
+        const data = (await res.json()) as { authenticated?: boolean };
+        if (!cancelled) setAuthed(Boolean(data.authenticated));
+      } catch {
+        if (!cancelled) setAuthed(false);
+      }
+    };
+    void syncAuth();
+    const onFocus = () => {
+      void syncAuth();
+    };
+    window.addEventListener("focus", onFocus);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+
+  /** DIG-04 : figer source / campagne / medium dès la landing (first-touch). */
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const params = await loadTrackingParams();
+      if (cancelled) return;
+      persistLeadAttributionFromUrl(params);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setNavOpen(false);
@@ -462,22 +506,36 @@ export function SiteShell({
                   Demander un devis
                 </button>
                 <Link
-                  className="nav-drawer__admin"
-                  href="/admin"
+                  className={
+                    showEspacePro ? "nav-drawer__admin" : "nav-drawer__login"
+                  }
+                  href={accountHref}
                   onClick={() => setNavOpen(false)}
                 >
-                  Espace pro
+                  {accountLabel}
                 </Link>
               </div>
             </div>
 
-            <button
-              type="button"
-              className="nav-cta nav-cta--desktop"
-              onClick={() => openQuoteModal("Demande de devis")}
-            >
-              Demander un devis
-            </button>
+            <div className="nav-actions nav-actions--desktop">
+              <Link
+                className="nav-login"
+                href={accountHref}
+                onClick={() => {
+                  setNavOpen(false);
+                  setMoreOpen(false);
+                }}
+              >
+                {accountLabel}
+              </Link>
+              <button
+                type="button"
+                className="nav-cta"
+                onClick={() => openQuoteModal("Demande de devis")}
+              >
+                Demander un devis
+              </button>
+            </div>
           </nav>
 
           <button
@@ -567,9 +625,6 @@ export function SiteShell({
                 </li>
                 <li>
                   <Link href="/confidentialite">Confidentialité</Link>
-                </li>
-                <li>
-                  <Link href="/admin">Espace admin</Link>
                 </li>
               </ul>
             </div>

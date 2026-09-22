@@ -398,6 +398,25 @@
   line-height: 1.4;
 }
 
+.cxf-consent {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  margin: 0.35rem 0 0.85rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--cxf-muted);
+  cursor: pointer;
+}
+
+.cxf-consent input {
+  margin-top: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  accent-color: var(--cxf-navy, #0a3a72);
+}
+
 .cxf-success {
   text-align: center;
   padding: 2rem 1rem;

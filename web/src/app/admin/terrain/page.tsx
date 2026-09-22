@@ -1,5 +1,5 @@
-import { TerrainPhotosWorkspace } from "@/components/admin/TerrainPhotosWorkspace";
+import { redirect } from "next/navigation";
 
-export default function TerrainPage() {
-  return <TerrainPhotosWorkspace />;
+export default function AdminTerrainRedirect() {
+  redirect("/admin/operations?tab=terrain");
 }

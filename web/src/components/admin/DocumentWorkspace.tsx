@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { AdminOverlayPortal } from "@/components/admin/AdminOverlayPortal";
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import {
   EmptyState,
@@ -20,6 +21,7 @@ import {
 import type { StatusTone } from "@/lib/mock-data";
 import { DocIcon, docIconTone } from "@/components/admin/Icons";
 import { BrandLogo } from "@/components/BrandAssets";
+import { GROUP_LABEL } from "@/lib/admin-nav";
 import { fileToOptimizedDataUrl, loadSettings } from "@/lib/settings";
 import { downloadImage } from "@/lib/download";
 import {
@@ -100,6 +102,7 @@ function PrintValue({ value }: { value: string }) {
 }
 
 function fieldPlaceholder(field: DocField): string {
+  if (field.hint) return field.hint;
   if (field.kind === "email") return "ex. contact@entreprise.cm";
   if (field.kind === "tel") return "ex. +237 6XX XX XX XX";
   if (field.kind === "number") return "0";
@@ -130,7 +133,10 @@ function DocFieldControl({
           className="doc-screen-only"
           required={field.required}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => {
+            onChange(e.target.value);
+            e.currentTarget.blur();
+          }}
         >
           <option value="">— Sélectionner —</option>
           {(field.options ?? []).map((o) => (
@@ -228,11 +234,14 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
   useEffect(() => {
     if (!isOverlayOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") setIsOverlayOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => {
+      document.body.style.overflow = prev;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOverlayOpen]);
@@ -484,11 +493,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
 
   return (
     <div className="doc-workspace">
-      {!isOverlayOpen ? (
-        <>
       <ModuleHeader
         tone={tone}
-        badge={doc.domain}
+        badge={GROUP_LABEL[doc.domain] ?? doc.domain}
         icon={<DocIcon slug={doc.slug} size={22} />}
         title={doc.title}
         description={doc.subtitle}
@@ -502,16 +509,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
               <strong>Réf.</strong>
               {doc.refPrefix}
             </span>
-            <span>
-              <strong>Dossiers</strong>
-              {records.length}
-            </span>
-            {savedAt ? (
-              <span className="doc-hero__saved">Enregistré {savedAt}</span>
-            ) : null}
           </>
         }
-        note={doc.note}
+        note={doc.note?.replace(/\b(?:TMP|DIG|CRM|RH|OPS|FIN|BI)-\d+\b/gi, "").replace(/\s{2,}/g, " ").replace(/\s([·,;])/g, "$1").trim() || undefined}
         actions={
           <>
             <Link className="btn-admin btn-admin--ghost" href="/admin/templates">
@@ -527,6 +527,22 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </>
         }
       />
+
+      {doc.slug === "dig-01" || doc.slug === "dig-02" ? (
+        <div className="leads-callout" role="note">
+          <div>
+            <strong>Les envois du site public sont ailleurs</strong>
+            <p>
+              Les devis et contacts remplis sur le site web apparaissent dans{" "}
+              <Link href="/admin/demandes">Demandes site</Link>
+              . Cette page sert uniquement à créer un dossier manuel.
+            </p>
+          </div>
+          <Link className="btn-admin btn-admin--primary" href="/admin/demandes">
+            Ouvrir les demandes reçues
+          </Link>
+        </div>
+      ) : null}
 
       {doc.kpis.length > 0 ? (
         <div className="doc-kpi-strip">
@@ -645,27 +661,67 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
           </table>
         </div>
       </Panel>
-        </>
-      ) : null}
 
       {isOverlayOpen && selected ? (
+      <AdminOverlayPortal>
         <div
-          className="doc-editor"
-          role="region"
-          aria-labelledby="doc-overlay-title"
+          className="doc-overlay-backdrop clients-overlay"
+          role="presentation"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsOverlayOpen(false);
+          }}
         >
+          <div
+            className="doc-overlay-dialog doc-overlay-dialog--template"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="doc-overlay-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="doc-overlay-header no-print">
+              <div className="doc-overlay-header__left">
+                <p className="doc-overlay-header__tag">
+                  {GROUP_LABEL[doc.domain] ?? doc.domain}
+                </p>
+                <h2 id="doc-overlay-title">{doc.title}</h2>
+                <p className="doc-overlay-header__sub">
+                  {selected.id} · Esc ou clic hors zone pour fermer
+                </p>
+              </div>
+              <div className="doc-overlay-header__right">
+                <button
+                  type="button"
+                  className="btn-admin btn-admin--ghost"
+                  onClick={() => window.print()}
+                >
+                  Imprimer
+                </button>
+                <button
+                  type="submit"
+                  form={`form-${doc.slug}`}
+                  className="btn-admin btn-admin--primary"
+                >
+                  Enregistrer
+                </button>
+                <button
+                  type="button"
+                  className="doc-overlay-close-btn"
+                  aria-label="Fermer"
+                  onClick={() => setIsOverlayOpen(false)}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="clients-overlay__body doc-overlay-editor-body">
+              <div className="doc-editor">
           <header className="doc-editor__bar no-print">
             <div className="doc-editor__bar-left">
-              <button
-                type="button"
-                className="btn-admin btn-admin--ghost"
-                onClick={() => setIsOverlayOpen(false)}
-              >
-                ← Retour
-              </button>
               <div>
-                <p className="doc-editor__eyebrow">{doc.domain}</p>
-                <h2 id="doc-overlay-title">{doc.title}</h2>
+                <p className="doc-editor__eyebrow">
+                  {GROUP_LABEL[doc.domain] ?? doc.domain}
+                </p>
+                <h2>{doc.title}</h2>
                 <p className="doc-editor__ref">{selected.id}</p>
               </div>
             </div>
@@ -762,7 +818,9 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                 </div>
               </div>
               <div className="doc-print-doc-title">
-                <p className="doc-print-doc-title__domain">{doc.domain}</p>
+                <p className="doc-print-doc-title__domain">
+                  {GROUP_LABEL[doc.domain] ?? doc.domain}
+                </p>
                 <h1>{doc.title}</h1>
                 <p className="doc-print-doc-title__label">
                   {draftMeta.label.trim() || "Document sans intitulé"}
@@ -1192,7 +1250,7 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
                 className="btn-admin btn-admin--ghost"
                 onClick={() => setIsOverlayOpen(false)}
               >
-                Retour
+                Fermer
               </button>
               <button
                 type="submit"
@@ -1203,7 +1261,11 @@ export function DocumentWorkspace({ doc }: { doc: DocumentDef }) {
               </button>
             </div>
           </footer>
+              </div>
+            </div>
+          </div>
         </div>
+      </AdminOverlayPortal>
       ) : null}
     </div>
   );

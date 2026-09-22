@@ -1,30 +1,48 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
-  type Employee,
-  type PunchMode,
-  type PunchRecord,
-  type PointageStore,
-  createEmployeeId,
-  currentTimeHm,
-  ensureDayPunches,
-  loadPointageStore,
-  pointageStats,
-  punchIn,
-  punchOut,
-  savePointageStore,
-  todayIso,
-  updatePunchNote,
-  upsertEmployee,
-  validatePunch,
-  workedHours,
-} from "@/lib/pointage";
-import { isNettoyeur, loadSession } from "@/lib/auth";
+  FormEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { EmptyState, ModuleHeader, StatusBadge } from "@/components/admin/Ui";
+import { RhWorkspaceShell } from "@/components/admin/RhWorkspaceShell";
+import { IconClock, IconSearch } from "@/components/admin/Icons";
+import {
+  AdminFormWizard,
+  FwPanel,
+  FwPanelHead,
+  FwGrid,
+  FwField,
+  FwChips,
+  FwChip,
+  FwReview,
+  FwReviewCard,
+  FwWarn,
+} from "@/components/admin/form-wizard";
 import { toast } from "@/lib/toast";
-import { IconClock } from "@/components/admin/Icons";
+import { downloadCsv } from "@/lib/download";
+import { loadSession } from "@/lib/auth";
+import {
+  enqueueOfflineOp,
+  shouldUseOfflineQueue,
+} from "@/lib/offline-queue";
 import type { StatusTone } from "@/lib/mock-data";
+import {
+  currentTimeHm,
+  pointageStats,
+  todayIso,
+  workedHours,
+  type ConcurrentTestResult,
+  type PointagePunch,
+  type PunchMode,
+} from "@/lib/pointage-shared";
+
+type StatusFilter = "all" | "open" | "late" | "absent" | "ok" | "validated";
 
 function toneForStatus(status: string): StatusTone {
   const s = status.toLowerCase();
@@ -48,330 +66,707 @@ function formatDateLabel(iso: string): string {
   }
 }
 
-function ensureLinkedEmployee(
-  store: PointageStore,
-  opts: { employeeId: string; name: string },
-): PointageStore {
-  const exists = store.employees.some((e) => e.id === opts.employeeId);
-  if (exists) return store;
-  return upsertEmployee(store, {
-    id: opts.employeeId,
-    name: opts.name,
-    role: "Agent d’entretien",
-    site: "Immeuble Horizon",
-    shiftStart: "06:00",
-    shiftEnd: "14:00",
-    active: true,
+function newClientRequestId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
+async function readGeo(
+  enabled: boolean,
+): Promise<{ lat: number; lng: number; accuracy: number | null } | undefined> {
+  if (!enabled || typeof navigator === "undefined" || !navigator.geolocation) {
+    return undefined;
+  }
+  return new Promise((resolve) => {
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        resolve({
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          accuracy: pos.coords.accuracy ?? null,
+        }),
+      () => resolve(undefined),
+      { enableHighAccuracy: false, timeout: 4000, maximumAge: 60_000 },
+    );
   });
 }
 
-const SITES = [
-  "Immeuble Horizon",
-  "Usine Bassa",
-  "Mall Riviera",
-  "Tous les sites",
-] as const;
-
-export function PointageWorkspace() {
-  const [store, setStore] = useState<PointageStore | null>(null);
-  const [ready, setReady] = useState(false);
-  const [actorName, setActorName] = useState("Superviseur");
+export function PointageWorkspace({
+  embedded = false,
+}: {
+  embedded?: boolean;
+}) {
+  const [punches, setPunches] = useState<PointagePunch[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const busyLock = useRef(false);
+  const [canSupervise, setCanSupervise] = useState(false);
   const [agentMode, setAgentMode] = useState(false);
-  const [agentEmployeeId, setAgentEmployeeId] = useState<string | null>(null);
+  const [userId, setUserId] = useState("");
+  const [actorName, setActorName] = useState("Superviseur");
+  const [geoEnabled, setGeoEnabled] = useState(false);
+  const [concurrencyTarget, setConcurrencyTarget] = useState(50);
   const [date, setDate] = useState(todayIso());
-  const [siteFilter, setSiteFilter] = useState<string>("Tous les sites");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [siteFilter, setSiteFilter] = useState("Tous les sites");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [showEmployeeForm, setShowEmployeeForm] = useState(false);
-  const [empDraft, setEmpDraft] = useState<Employee | null>(null);
   const [clock, setClock] = useState(currentTimeHm());
+  const [punchOverlay, setPunchOverlay] = useState(false);
+  const [punchDraft, setPunchDraft] = useState<PointagePunch | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [punchStep, setPunchStep] = useState<"horaires" | "revue">("horaires");
+  const [punchShake, setPunchShake] = useState(false);
+  const [punchBusy, setPunchBusy] = useState(false);
+  const [anomalyReason, setAnomalyReason] = useState("");
+  const [lastTest, setLastTest] = useState<ConcurrentTestResult | null>(null);
+
+  const refresh = useCallback(async (d?: string) => {
+    setLoading(true);
+    try {
+      const day = d || date;
+      const res = await fetch(
+        `/api/pointage?date=${encodeURIComponent(day)}`,
+        { cache: "no-store" },
+      );
+      const data = (await res.json()) as {
+        punches?: PointagePunch[];
+        canSupervise?: boolean;
+        role?: string;
+        userId?: string;
+        geoEnabled?: boolean;
+        concurrencyTarget?: number;
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error || "Chargement");
+      setPunches(data.punches ?? []);
+      setCanSupervise(Boolean(data.canSupervise));
+      setAgentMode(data.role === "nettoyeur");
+      setUserId(data.userId ?? "");
+      setGeoEnabled(Boolean(data.geoEnabled));
+      setConcurrencyTarget(data.concurrencyTarget ?? 50);
+      setSelectedId((prev) => {
+        const list = data.punches ?? [];
+        if (prev && list.some((p) => p.id === prev)) return prev;
+        return list[0]?.id ?? null;
+      });
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur");
+    } finally {
+      setLoading(false);
+    }
+  }, [date]);
 
   useEffect(() => {
-    const session = loadSession();
-    setActorName(session?.name || "Superviseur");
-    const agent = isNettoyeur(session);
-    setAgentMode(agent);
-    let loaded = loadPointageStore();
-    if (agent && session) {
-      const empId =
-        session.employeeId ||
-        `EMP-${session.userId.replace(/^USR-/i, "")}`;
-      setAgentEmployeeId(empId);
-      loaded = ensureLinkedEmployee(loaded, {
-        employeeId: empId,
-        name: session.name,
-      });
-    }
-    loaded = ensureDayPunches(loaded, todayIso());
-    savePointageStore(loaded);
-    setStore(loaded);
-    setReady(true);
-  }, []);
+    void refresh();
+  }, [refresh]);
 
   useEffect(() => {
     const t = window.setInterval(() => setClock(currentTimeHm()), 30_000);
     return () => window.clearInterval(t);
   }, []);
 
-  const persist = (next: PointageStore) => {
-    setStore(next);
-    savePointageStore(next);
-  };
-
-  /** Toujours travailler sur un store qui contient les lignes du jour affiché. */
-  const baseForDate = (s: PointageStore) => ensureDayPunches(s, date);
-
-  const dayStore = useMemo(() => {
-    if (!store) return null;
-    return ensureDayPunches(store, date);
-  }, [store, date]);
+  useEffect(() => {
+    if (!punchOverlay) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setPunchOverlay(false);
+        setFormError(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [punchOverlay]);
 
   useEffect(() => {
-    if (!dayStore || !store) return;
-    if (dayStore.punches.length !== store.punches.length) {
-      persist(dayStore);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [date, dayStore?.punches.length]);
+    const session = loadSession();
+    if (session?.name) setActorName(session.name);
+  }, []);
 
-  const dayPunchesFixed = useMemo(() => {
-    if (!dayStore) return [];
+  const stats = useMemo(() => pointageStats(punches), [punches]);
+
+  const sites = useMemo(() => {
+    const set = new Set(punches.map((p) => p.site).filter(Boolean));
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "fr"));
+  }, [punches]);
+
+  const filters = useMemo(() => {
+    const count = (id: StatusFilter) => {
+      if (id === "all") return punches.length;
+      if (id === "open")
+        return punches.filter((p) => p.actualIn && !p.actualOut).length;
+      if (id === "late")
+        return punches.filter((p) => p.status === "Retard").length;
+      if (id === "absent")
+        return punches.filter((p) => !p.actualIn).length;
+      if (id === "ok")
+        return punches.filter(
+          (p) => p.status === "Complet" || p.status === "Validé",
+        ).length;
+      return punches.filter((p) => p.status === "Validé").length;
+    };
+    return (
+      [
+        { id: "all" as const, label: "Tous" },
+        { id: "open" as const, label: "En service" },
+        { id: "late" as const, label: "Retards" },
+        { id: "absent" as const, label: "Absents" },
+        { id: "ok" as const, label: "OK" },
+        { id: "validated" as const, label: "Validés" },
+      ] as const
+    ).map((f) => ({ ...f, count: count(f.id) }));
+  }, [punches]);
+
+  const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return dayStore.punches
-      .filter((p) => p.date === date)
-      .filter((p) =>
-        agentMode && agentEmployeeId
-          ? p.employeeId === agentEmployeeId
-          : true,
-      )
-      .filter((p) =>
-        agentMode || siteFilter === "Tous les sites"
-          ? true
-          : p.site === siteFilter,
-      )
+    return punches
       .filter((p) => {
-        if (agentMode || statusFilter === "all") return true;
+        if (siteFilter !== "Tous les sites" && p.site !== siteFilter)
+          return false;
         if (statusFilter === "open") return Boolean(p.actualIn && !p.actualOut);
         if (statusFilter === "late") return p.status === "Retard";
         if (statusFilter === "absent") return !p.actualIn;
         if (statusFilter === "ok")
           return p.status === "Complet" || p.status === "Validé";
+        if (statusFilter === "validated") return p.status === "Validé";
         return true;
       })
       .filter((p) => {
-        if (agentMode || !q) return true;
-        const emp = dayStore.employees.find((e) => e.id === p.employeeId);
+        if (!q) return true;
         return (
           p.employeeName.toLowerCase().includes(q) ||
           p.site.toLowerCase().includes(q) ||
-          (emp?.role ?? "").toLowerCase().includes(q)
+          p.email.toLowerCase().includes(q)
         );
       })
       .sort((a, b) => a.employeeName.localeCompare(b.employeeName, "fr"));
-  }, [
-    dayStore,
-    date,
-    siteFilter,
-    statusFilter,
-    query,
-    agentMode,
-    agentEmployeeId,
-  ]);
-
-  useEffect(() => {
-    if (!agentMode || dayPunchesFixed.length === 0) return;
-    if (!selectedId || !dayPunchesFixed.some((p) => p.id === selectedId)) {
-      setSelectedId(dayPunchesFixed[0]?.id ?? null);
-    }
-  }, [agentMode, dayPunchesFixed, selectedId]);
-
-  const stats = useMemo(
-    () =>
-      pointageStats(
-        (dayStore?.punches ?? []).filter((p) => p.date === date),
-      ),
-    [dayStore, date],
-  );
+  }, [punches, siteFilter, statusFilter, query]);
 
   const selected = useMemo(
-    () => dayPunchesFixed.find((p) => p.id === selectedId) ?? null,
-    [dayPunchesFixed, selectedId],
+    () => punches.find((p) => p.id === selectedId) ?? null,
+    [punches, selectedId],
   );
 
-  const onPunchIn = (id: string) => {
-    if (!store) return;
-    const base = baseForDate(store);
-    const target = base.punches.find((p) => p.id === id);
-    if (target?.actualIn) {
+  const post = async (
+    action: string,
+    payload: Record<string, unknown>,
+  ): Promise<Record<string, unknown> | null> => {
+    if (busy) return null;
+    if (busyLock.current) return null;
+    busyLock.current = true;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/pointage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action, ...payload }),
+      });
+      const data = (await res.json()) as Record<string, unknown> & {
+        error?: string;
+      };
+      if (!res.ok) throw new Error(data.error || "Échec");
+      return data;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Erreur");
+      return null;
+    } finally {
+      busyLock.current = false;
+      setBusy(false);
+    }
+  };
+
+  const onPunchIn = async (punch: PointagePunch) => {
+    if (punch.actualIn) {
       toast.warning("Arrivée déjà enregistrée (anti double-pointage).");
       return;
     }
-    if (!target) {
-      toast.error("Pointage introuvable pour ce jour.");
+    const geo = await readGeo(geoEnabled);
+    const uid = punch.userId || userId;
+    if (shouldUseOfflineQueue()) {
+      const session = loadSession();
+      const actorId = session?.userId || uid;
+      await enqueueOfflineOp({
+        userId: actorId,
+        kind: "pointage_in",
+        payload: {
+          userId: uid,
+          date,
+          mode: agentMode ? "Mobile" : "Terminal",
+          geo,
+        },
+        occurredAt: new Date().toISOString(),
+      });
+      // Miroir local optimiste pour l’UI
+      setPunches((prev) =>
+        prev.map((p) =>
+          p.id === punch.id
+            ? {
+                ...p,
+                actualIn: currentTimeHm(),
+                actualInAt: new Date().toISOString(),
+                status: "En cours",
+                anomaly: "Départ manquant · sync pending",
+              }
+            : p,
+        ),
+      );
+      toast.success("Arrivée enregistrée hors ligne — sync au retour réseau");
       return;
     }
-    persist(punchIn(base, id, "Mobile"));
-    setSelectedId(id);
-    toast.success(`Arrivée pointée à ${currentTimeHm()}`);
+    const data = await post("punch_in", {
+      userId: uid,
+      date,
+      mode: agentMode ? "Mobile" : "Terminal",
+      clientRequestId: newClientRequestId(),
+      geo,
+    });
+    if (!data) return;
+    if (data.duplicate || data.replay) {
+      toast.warning("Arrivée déjà enregistrée (anti double-pointage).");
+    } else {
+      toast.success(`Arrivée pointée à ${currentTimeHm()}`);
+    }
+    await refresh();
   };
 
-  const onPunchOut = (id: string) => {
-    if (!store) return;
-    const base = baseForDate(store);
-    const target = base.punches.find((p) => p.id === id);
-    if (!target?.actualIn) {
+  const onPunchOut = async (punch: PointagePunch) => {
+    if (!punch.actualIn) {
       toast.warning("Pointer l’arrivée d’abord.");
       return;
     }
-    if (target.actualOut) {
+    if (punch.actualOut) {
       toast.warning("Départ déjà enregistré.");
       return;
     }
-    persist(punchOut(base, id, "Mobile"));
-    setSelectedId(id);
-    toast.success(`Départ pointé à ${currentTimeHm()}`);
+    const geo = await readGeo(geoEnabled);
+    const uid = punch.userId || userId;
+    if (shouldUseOfflineQueue()) {
+      const session = loadSession();
+      const actorId = session?.userId || uid;
+      await enqueueOfflineOp({
+        userId: actorId,
+        kind: "pointage_out",
+        payload: {
+          userId: uid,
+          date,
+          mode: agentMode ? "Mobile" : "Terminal",
+          geo,
+        },
+        occurredAt: new Date().toISOString(),
+      });
+      setPunches((prev) =>
+        prev.map((p) =>
+          p.id === punch.id
+            ? {
+                ...p,
+                actualOut: currentTimeHm(),
+                actualOutAt: new Date().toISOString(),
+                status: "Complet",
+                anomaly: "Sync pending",
+              }
+            : p,
+        ),
+      );
+      toast.success("Départ enregistré hors ligne — sync au retour réseau");
+      return;
+    }
+    const data = await post("punch_out", {
+      userId: uid,
+      date,
+      mode: agentMode ? "Mobile" : "Terminal",
+      clientRequestId: newClientRequestId(),
+      geo,
+    });
+    if (!data) return;
+    if (data.duplicate || data.replay) {
+      toast.warning("Départ déjà enregistré.");
+    } else {
+      toast.success(`Départ pointé à ${currentTimeHm()}`);
+    }
+    await refresh();
   };
 
-  const onValidate = (id: string, pendingNote?: string) => {
-    if (!store) return;
-    let base = baseForDate(store);
-    const target = base.punches.find((p) => p.id === id);
-    if (!target?.actualIn || !target.actualOut) {
-      toast.warning("Arrivée et départ requis pour valider.");
-      return;
+  const onValidate = async (punch: PointagePunch, note?: string) => {
+    if (note !== undefined && note !== punch.note) {
+      await post("note", { id: punch.id, note });
     }
-    if (target.status === "Validé") {
-      toast.info("Déjà validé.");
-      return;
-    }
-    if (pendingNote !== undefined && pendingNote !== target.note) {
-      base = updatePunchNote(base, id, pendingNote);
-    }
-    persist(validatePunch(base, id, actorName));
+    const data = await post("validate", { id: punch.id });
+    if (!data) return;
     toast.success("Pointage validé.");
+    await refresh();
   };
 
-  const onSaveNote = (id: string, note: string) => {
-    if (!store) return;
-    persist(updatePunchNote(baseForDate(store), id, note));
+  const onSaveNote = async (id: string, note: string) => {
+    await post("note", { id, note });
+    await refresh();
   };
 
-  const openNewEmployee = () => {
-    setEmpDraft({
-      id: createEmployeeId(),
-      name: "",
-      role: "Agent d’entretien",
-      site: "Immeuble Horizon",
-      shiftStart: "06:00",
-      shiftEnd: "14:00",
-      active: true,
-    });
-    setShowEmployeeForm(true);
-  };
-
-  const saveEmployee = (e: FormEvent) => {
-    e.preventDefault();
-    if (!store || !empDraft) return;
-    if (!empDraft.name.trim()) {
-      toast.warning("Le nom est obligatoire.");
+  const onFlagAnomaly = async (punch: PointagePunch) => {
+    if (!anomalyReason.trim()) {
+      toast.warning("Indiquez le motif d’anomalie.");
       return;
     }
-    let next = upsertEmployee(baseForDate(store), {
-      ...empDraft,
-      name: empDraft.name.trim(),
-      role: empDraft.role.trim() || "Agent",
-      site: empDraft.site.trim(),
+    const data = await post("anomaly", {
+      id: punch.id,
+      reason: anomalyReason,
     });
-    next = ensureDayPunches(next, date);
-    persist(next);
-    setShowEmployeeForm(false);
-    setEmpDraft(null);
-    toast.success("Employé ajouté au pointage.");
+    if (!data) return;
+    setAnomalyReason("");
+    toast.success("Anomalie enregistrée.");
+    await refresh();
   };
 
-  if (!ready || !store || !dayStore) {
+  function pulsePunchError() {
+    setPunchShake(true);
+    window.setTimeout(() => setPunchShake(false), 420);
+  }
+
+  const openCorrectPunch = () => {
+    if (!selected) return;
+    setPunchDraft({ ...selected });
+    setFormError(null);
+    setPunchStep("horaires");
+    setPunchOverlay(true);
+  };
+
+  const punchHorairesReady = Boolean(
+    punchDraft &&
+      !(punchDraft.actualOut && !punchDraft.actualIn),
+  );
+
+  const savePunchCorrection = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!punchDraft || punchBusy) return;
+    if (punchDraft.actualOut && !punchDraft.actualIn) {
+      setFormError("Indiquez l’arrivée avant le départ.");
+      setPunchStep("horaires");
+      pulsePunchError();
+      return;
+    }
+    setPunchBusy(true);
+    try {
+      const data = await post("correct", {
+        id: punchDraft.id,
+        actualIn: punchDraft.actualIn,
+        actualOut: punchDraft.actualOut,
+        plannedIn: punchDraft.plannedIn,
+        plannedOut: punchDraft.plannedOut,
+        note: punchDraft.note,
+        mode: punchDraft.mode,
+      });
+      if (!data) return;
+      setPunchOverlay(false);
+      setPunchDraft(null);
+      toast.success("Pointage corrigé (mode Manuel).");
+      await refresh();
+    } finally {
+      setPunchBusy(false);
+    }
+  };
+
+  const runBurstTest = async () => {
+    const data = await post("concurrent_test", {
+      target: concurrencyTarget,
+    });
+    if (!data?.test) return;
+    const test = data.test as ConcurrentTestResult;
+    setLastTest(test);
+    if (test.ok) toast.success(test.detail);
+    else toast.error(test.detail);
+  };
+
+  const exportCsv = () => {
+    const rows = [
+      [
+        "ID",
+        "Date",
+        "Employé",
+        "Site",
+        "Planning",
+        "Prévu entrée",
+        "Prévu sortie",
+        "Réel entrée",
+        "Réel sortie",
+        "Durée",
+        "Mode",
+        "Statut",
+        "Anomalie",
+        "Validé par",
+        "Note",
+      ],
+      ...filtered.map((p) => [
+        p.id,
+        p.date,
+        p.employeeName,
+        p.site,
+        p.planningSlotId || "hors planning",
+        p.plannedIn,
+        p.plannedOut,
+        p.actualIn ?? "",
+        p.actualOut ?? "",
+        workedHours(p),
+        p.mode,
+        p.status,
+        p.anomaly,
+        p.validatedBy ?? "",
+        p.note,
+      ]),
+    ];
+    downloadCsv(rows, `necs-pointage-${date}`);
+  };
+
+  if (loading && punches.length === 0) {
     return (
-      <div className="doc-workspace">
-        <p className="note">Chargement du pointage…</p>
+      <div className="pointage-page" aria-busy="true">
+        <div className="pointage-skel pointage-skel--lg" />
+        <div className="pointage-kpis">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="pointage-skel" />
+          ))}
+        </div>
+        <div className="pointage-skel pointage-skel--board" />
       </div>
     );
   }
 
   return (
-    <div className="doc-workspace pointage-page">
+    <div className={`pointage-page${embedded ? " rh-workspace--embedded" : ""}`}>
+      {embedded ? (
+        <RhWorkspaceShell
+          embedded
+          badge="Pointage"
+          eyebrow="Présences"
+          icon={<IconClock size={20} />}
+          title="Fiche de pointage / relevé de présence"
+          meta={
+            <>
+              <span>
+                Agent · site · date · arrivée · départ · anomalies · export
+              </span>
+              <span>
+                <strong>{formatDateLabel(date)}</strong>
+              </span>
+            </>
+          }
+          actions={
+            !agentMode ? (
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={exportCsv}
+              >
+                Export CSV
+              </button>
+            ) : null
+          }
+        >
+          {null}
+        </RhWorkspaceShell>
+      ) : (
       <ModuleHeader
         tone="#1260a8"
-        badge="Opérations · RH"
+        badge={agentMode ? "Agent" : "Pointage"}
         icon={<IconClock size={22} />}
-        title={agentMode ? "Mon pointage" : "Pointage des employés"}
-        description={
-          agentMode
-            ? "Enregistrez votre arrivée et votre départ ; anti double-pointage intégré."
-            : "Arrivée et départ en un clic, détection des retards, validation superviseur ; anti double-pointage intégré."
-        }
+        title={agentMode ? "Mon pointage mobile" : "Pointage mobile simultané"}
         meta={
           <>
             <span>
-              <strong>Date</strong>
-              {formatDateLabel(date)}
+              <strong>{formatDateLabel(date)}</strong>
+              {date === todayIso() ? " · Aujourd’hui" : ""}
             </span>
             <span>
-              <strong>Heure</strong>
-              {clock}
+              <strong>{clock}</strong>
+            </span>
+            <span>
+              {geoEnabled ? "Géo active" : "Géo désactivée"}
             </span>
             {!agentMode ? (
               <span>
-                <strong>Effectif</strong>
-                {store.employees.filter((e) => e.active).length} actifs
+                Cible charge <strong>{concurrencyTarget}</strong>
               </span>
             ) : (
               <span>
-                <strong>Statut</strong>
-                {selected?.status ?? "—"}
+                <strong>{selected?.status ?? "—"}</strong>
               </span>
             )}
           </>
         }
         actions={
-          !agentMode ? (
+          agentMode ? (
+            <Link href="/admin/mon-espace" className="btn-admin btn-admin--ghost">
+              ← Accueil agent
+            </Link>
+          ) : (
             <>
               <button
                 type="button"
                 className="btn-admin btn-admin--ghost"
-                onClick={openNewEmployee}
+                onClick={() => void runBurstTest()}
+                disabled={busy}
               >
-                + Employé
+                Test charge ×{concurrencyTarget}
+              </button>
+              <button
+                type="button"
+                className="btn-admin btn-admin--ghost"
+                onClick={exportCsv}
+                disabled={filtered.length === 0}
+              >
+                Export CSV
               </button>
               <input
                 type="date"
                 className="pointage-date"
                 value={date}
-                onChange={(e) => setDate(e.target.value || todayIso())}
+                onChange={(e) => {
+                  const next = e.target.value || todayIso();
+                  setDate(next);
+                  void refresh(next);
+                }}
                 aria-label="Date de pointage"
               />
             </>
-          ) : undefined
+          )
         }
       />
+      )}
+
+      {lastTest ? (
+        <p
+          className={
+            lastTest.ok
+              ? "pointage-burst pointage-burst--ok"
+              : "pointage-burst pointage-burst--fail"
+          }
+        >
+          Recette simultanée : {lastTest.detail}
+        </p>
+      ) : null}
+
+      {agentMode && selected ? (
+        <section
+          className="agent-pointage-strip panel-card"
+          aria-label="Résumé du jour"
+        >
+          <div>
+            <strong>{selected.site}</strong>
+            <span>
+              Shift {selected.plannedIn} – {selected.plannedOut}
+              {selected.planningSlotId ? " · lié planning" : " · hors planning"}{" "}
+              · Durée {workedHours(selected)}
+            </span>
+          </div>
+          <div className="agent-pointage-strip__actions">
+            <button
+              type="button"
+              className="btn-admin btn-admin--primary"
+              disabled={busy || Boolean(selected.actualIn)}
+              onClick={() => void onPunchIn(selected)}
+            >
+              {selected.actualIn
+                ? `Arrivée ${selected.actualIn}`
+                : "Pointer l’arrivée"}
+            </button>
+            <button
+              type="button"
+              className="btn-admin btn-admin--ghost"
+              disabled={
+                busy || !selected.actualIn || Boolean(selected.actualOut)
+              }
+              onClick={() => void onPunchOut(selected)}
+            >
+              {selected.actualOut
+                ? `Départ ${selected.actualOut}`
+                : "Pointer le départ"}
+            </button>
+            <Link href="/admin/operations?tab=terrain" className="btn-admin btn-admin--ghost">
+              Photos terrain
+            </Link>
+            <Link
+              href="/admin/operations?tab=missions"
+              className="btn-admin btn-admin--ghost"
+            >
+              Missions
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       {!agentMode ? (
-        <div className="doc-kpi-strip">
-          <div className="doc-kpi">
-            <span>Présents</span>
+        <section className="pointage-kpis" aria-label="Indicateurs pointage">
+          <article className="pointage-kpi pointage-kpi--accent">
+            <p>Présents</p>
             <strong>{stats.present}</strong>
-          </div>
-          <div className="doc-kpi">
-            <span>En service</span>
+            <span>
+              {stats.total} au tableau · {stats.validated} validés
+            </span>
+          </article>
+          <article className="pointage-kpi">
+            <p>En service</p>
             <strong>{stats.open}</strong>
-          </div>
-          <div className="doc-kpi">
-            <span>Retards</span>
-            <strong>{stats.late}</strong>
-          </div>
-          <div className="doc-kpi">
-            <span>Absents</span>
+            <span>arrivée sans départ</span>
+          </article>
+          <article className="pointage-kpi">
+            <p>Retards / anomalies</p>
+            <strong>
+              {stats.late}/{stats.anomaly}
+            </strong>
+            <span>grâce 10 min · hors planning</span>
+          </article>
+          <article className="pointage-kpi">
+            <p>Absents</p>
             <strong>{stats.absent}</strong>
+            <span>pas d’arrivée</span>
+          </article>
+        </section>
+      ) : null}
+
+      {!agentMode ? (
+        <div className="pointage-toolbar-bar">
+          <label className="pointage-search">
+            <IconSearch size={16} />
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Rechercher agent, site…"
+              aria-label="Rechercher un agent"
+            />
+          </label>
+          <select
+            className="pointage-site-select"
+            value={siteFilter}
+            onChange={(e) => setSiteFilter(e.target.value)}
+            aria-label="Filtrer par site"
+          >
+            <option value="Tous les sites">Tous les sites</option>
+            {sites.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+          <div className="pointage-filters" role="tablist" aria-label="Filtres">
+            {filters.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                role="tab"
+                aria-selected={statusFilter === f.id}
+                className={`pointage-chip${statusFilter === f.id ? " is-active" : ""}`}
+                onClick={() => setStatusFilter(f.id)}
+              >
+                {f.label}
+                <em>{f.count}</em>
+              </button>
+            ))}
           </div>
         </div>
       ) : null}
@@ -381,124 +776,86 @@ export function PointageWorkspace() {
           <h3>
             {agentMode
               ? "Ma fiche du jour"
-              : `Tableau du jour (${dayPunchesFixed.length})`}
+              : `Tableau du jour (${filtered.length})`}
           </h3>
-          {!agentMode ? (
-            <div className="doc-records-toolbar pointage-toolbar">
-              <input
-                type="search"
-                className="doc-records-search"
-                placeholder="Rechercher un agent…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              <select
-                value={siteFilter}
-                onChange={(e) => setSiteFilter(e.target.value)}
-                aria-label="Filtrer par site"
-              >
-                {SITES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
-              </select>
-              <div className="doc-records-chips">
-                {(
-                  [
-                    ["all", "Tous"],
-                    ["open", "En service"],
-                    ["late", "Retards"],
-                    ["absent", "Absents"],
-                    ["ok", "OK"],
-                  ] as const
-                ).map(([id, label]) => (
-                  <button
-                    key={id}
-                    type="button"
-                    className={`doc-chip${statusFilter === id ? " is-active" : ""}`}
-                    onClick={() => setStatusFilter(id)}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
 
         <div className="pointage-grid">
           <div className="pointage-list">
-            {dayPunchesFixed.length === 0 ? (
+            {filtered.length === 0 ? (
               <EmptyState
                 title="Aucun pointage"
-                hint="Changez la date ou les filtres."
+                hint={
+                  agentMode
+                    ? "Votre fiche sera créée au premier chargement."
+                    : "Les agents apparaissent dès qu’ils ouvrent le pointage ou sont planifiés."
+                }
               />
             ) : (
-              dayPunchesFixed.map((p) => {
-                const emp = store.employees.find((e) => e.id === p.employeeId);
-                return (
-                  <div
-                    key={p.id}
-                    role="button"
-                    tabIndex={0}
-                    className={`pointage-card${selectedId === p.id ? " is-active" : ""}`}
-                    onClick={() => setSelectedId(p.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setSelectedId(p.id);
-                      }
-                    }}
-                  >
-                    <div className="pointage-card__top">
-                      <strong>{p.employeeName}</strong>
-                      <StatusBadge tone={toneForStatus(p.status)}>
-                        {p.status}
-                      </StatusBadge>
-                    </div>
-                    <p>
-                      {emp?.role ?? "Agent"} · {p.site}
-                    </p>
-                    <div className="pointage-card__times">
-                      <span>
-                        Arrivée <b>{p.actualIn ?? "—"}</b>
-                      </span>
-                      <span>
-                        Départ <b>{p.actualOut ?? "—"}</b>
-                      </span>
-                      <span>
-                        Durée <b>{workedHours(p)}</b>
-                      </span>
-                    </div>
-                    {p.anomaly !== "Aucune" && p.anomaly ? (
-                      <em className="pointage-card__anomaly">{p.anomaly}</em>
-                    ) : null}
-                    <div
-                      className="pointage-card__actions"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => e.stopPropagation()}
-                    >
-                      <button
-                        type="button"
-                        className="btn-admin btn-admin--primary"
-                        disabled={Boolean(p.actualIn)}
-                        onClick={() => onPunchIn(p.id)}
-                      >
-                        Arrivée
-                      </button>
-                      <button
-                        type="button"
-                        className="btn-admin btn-admin--ghost"
-                        disabled={!p.actualIn || Boolean(p.actualOut)}
-                        onClick={() => onPunchOut(p.id)}
-                      >
-                        Départ
-                      </button>
-                    </div>
+              filtered.map((p) => (
+                <div
+                  key={p.id}
+                  role="button"
+                  tabIndex={0}
+                  className={`pointage-card${selectedId === p.id ? " is-active" : ""}${!p.actualIn ? " is-warn" : ""}`}
+                  onClick={() => setSelectedId(p.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedId(p.id);
+                    }
+                  }}
+                >
+                  <div className="pointage-card__top">
+                    <strong>{p.employeeName}</strong>
+                    <StatusBadge tone={toneForStatus(p.status)}>
+                      {p.status}
+                    </StatusBadge>
                   </div>
-                );
-              })
+                  <p>
+                    {p.mode} · {p.site}
+                    {!p.planningSlotId ? " · hors planning" : ""}
+                  </p>
+                  <div className="pointage-card__times">
+                    <span>
+                      Arrivée <b>{p.actualIn ?? "—"}</b>
+                    </span>
+                    <span>
+                      Départ <b>{p.actualOut ?? "—"}</b>
+                    </span>
+                    <span>
+                      Durée <b>{workedHours(p)}</b>
+                    </span>
+                  </div>
+                  {p.anomaly !== "Aucune" && p.anomaly ? (
+                    <em className="pointage-card__anomaly">{p.anomaly}</em>
+                  ) : null}
+                  <div
+                    className="pointage-card__actions"
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      type="button"
+                      className="btn-admin btn-admin--primary"
+                      disabled={busy || Boolean(p.actualIn)}
+                      onClick={() => void onPunchIn(p)}
+                    >
+                      Arrivée
+                    </button>
+                    <button
+                      type="button"
+                      className="btn-admin btn-admin--ghost"
+                      disabled={
+                        busy || !p.actualIn || Boolean(p.actualOut)
+                      }
+                      onClick={() => void onPunchOut(p)}
+                    >
+                      Départ
+                    </button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
 
@@ -506,16 +863,23 @@ export function PointageWorkspace() {
             {selected ? (
               <PunchDetail
                 punch={selected}
-                role={
-                  store.employees.find((e) => e.id === selected.employeeId)
-                    ?.role ?? "Agent"
-                }
                 actorName={actorName}
                 agentMode={agentMode}
-                onPunchIn={() => onPunchIn(selected.id)}
-                onPunchOut={() => onPunchOut(selected.id)}
-                onValidate={(pendingNote) => onValidate(selected.id, pendingNote)}
-                onNote={(note) => onSaveNote(selected.id, note)}
+                canSupervise={canSupervise}
+                busy={busy}
+                geoEnabled={geoEnabled}
+                anomalyReason={anomalyReason}
+                onAnomalyReason={setAnomalyReason}
+                onPunchIn={() => void onPunchIn(selected)}
+                onPunchOut={() => void onPunchOut(selected)}
+                onValidate={(pendingNote) =>
+                  void onValidate(selected, pendingNote)
+                }
+                onNote={(note) => void onSaveNote(selected.id, note)}
+                onFlagAnomaly={() => void onFlagAnomaly(selected)}
+                onCorrectPunch={
+                  canSupervise ? openCorrectPunch : undefined
+                }
               />
             ) : (
               <EmptyState
@@ -527,97 +891,163 @@ export function PointageWorkspace() {
         </div>
       </section>
 
-      {showEmployeeForm && empDraft ? (
-        <div
-          className="doc-overlay-backdrop"
-          role="dialog"
-          aria-modal="true"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowEmployeeForm(false);
+      {punchOverlay && punchDraft ? (
+        <AdminFormWizard
+          open={punchOverlay}
+          onClose={() => {
+            setPunchOverlay(false);
+            setFormError(null);
           }}
+          titleId="pointage-correct-title"
+          eyebrow="Correction"
+          title="Corriger le pointage"
+          lead={`${punchDraft.employeeName} · mode Manuel`}
+          avatar={
+            punchDraft.employeeName
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((w) => w[0] ?? "")
+              .join("")
+              .toUpperCase() || "P"
+          }
+          steps={[
+            { id: "horaires", label: "Horaires", hint: "Prévu & réel" },
+            { id: "revue", label: "Revue", hint: "Contrôle avant enregistrement" },
+          ]}
+          stepId={punchStep}
+          onStepChange={(id) => setPunchStep(id as "horaires" | "revue")}
+          canEnterStep={(id) => id === "horaires" || punchHorairesReady}
+          onStepBlocked={() => {
+            setFormError("Indiquez l’arrivée avant le départ.");
+            pulsePunchError();
+          }}
+          shake={punchShake}
+          formId="necs-pointage-correct-form"
+          onSubmit={(e) => void savePunchCorrection(e)}
+          submitLabel="Enregistrer la correction"
+          busy={punchBusy}
+          canSubmit={punchHorairesReady}
+          narrow
         >
-          <div className="doc-overlay-dialog" style={{ maxWidth: 520 }}>
-            <div className="doc-overlay-header">
-              <div>
-                <h2>Nouvel employé</h2>
-                <p className="doc-overlay-header__sub">
-                  Ajouté au tableau de pointage du jour
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn-admin btn-admin--ghost"
-                onClick={() => setShowEmployeeForm(false)}
-              >
-                Fermer
-              </button>
-            </div>
-            <form className="doc-overlay-body" onSubmit={saveEmployee}>
-              <div className="doc-fields">
-                <label className="doc-field">
-                  <span>Nom complet</span>
-                  <input
-                    value={empDraft.name}
-                    onChange={(e) =>
-                      setEmpDraft({ ...empDraft, name: e.target.value })
-                    }
-                    required
-                  />
-                </label>
-                <label className="doc-field">
-                  <span>Poste</span>
-                  <input
-                    value={empDraft.role}
-                    onChange={(e) =>
-                      setEmpDraft({ ...empDraft, role: e.target.value })
-                    }
-                  />
-                </label>
-                <label className="doc-field">
-                  <span>Site</span>
-                  <select
-                    value={empDraft.site}
-                    onChange={(e) =>
-                      setEmpDraft({ ...empDraft, site: e.target.value })
-                    }
-                  >
-                    {SITES.filter((s) => s !== "Tous les sites").map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="doc-field">
-                  <span>Début shift</span>
+          {punchStep === "horaires" ? (
+            <FwPanel aria-label="Horaires">
+              <FwPanelHead
+                title="Horaires & mode"
+                description="Ajustez les heures prévues et réelles. La correction passe en mode Manuel."
+              />
+              {formError ? <FwWarn>{formError}</FwWarn> : null}
+              <FwGrid>
+                <FwField label="Prévu entrée">
                   <input
                     type="time"
-                    value={empDraft.shiftStart}
+                    value={punchDraft.plannedIn}
                     onChange={(e) =>
-                      setEmpDraft({ ...empDraft, shiftStart: e.target.value })
+                      setPunchDraft({
+                        ...punchDraft,
+                        plannedIn: e.target.value,
+                      })
                     }
                   />
-                </label>
-                <label className="doc-field">
-                  <span>Fin shift</span>
+                </FwField>
+                <FwField label="Prévu sortie">
                   <input
                     type="time"
-                    value={empDraft.shiftEnd}
+                    value={punchDraft.plannedOut}
                     onChange={(e) =>
-                      setEmpDraft({ ...empDraft, shiftEnd: e.target.value })
+                      setPunchDraft({
+                        ...punchDraft,
+                        plannedOut: e.target.value,
+                      })
                     }
                   />
-                </label>
-              </div>
-              <div className="doc-overlay-footer" style={{ marginTop: "1rem" }}>
-                <div />
-                <button type="submit" className="btn-admin btn-admin--primary">
-                  Enregistrer
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+                </FwField>
+                <FwField label="Arrivée réelle">
+                  <input
+                    type="time"
+                    value={punchDraft.actualIn ?? ""}
+                    onChange={(e) => {
+                      setFormError(null);
+                      setPunchDraft({
+                        ...punchDraft,
+                        actualIn: e.target.value || null,
+                      });
+                    }}
+                  />
+                </FwField>
+                <FwField label="Départ réel">
+                  <input
+                    type="time"
+                    value={punchDraft.actualOut ?? ""}
+                    onChange={(e) => {
+                      setFormError(null);
+                      setPunchDraft({
+                        ...punchDraft,
+                        actualOut: e.target.value || null,
+                      });
+                    }}
+                  />
+                </FwField>
+                <FwField label="Note" wide>
+                  <textarea
+                    rows={3}
+                    value={punchDraft.note}
+                    onChange={(e) =>
+                      setPunchDraft({
+                        ...punchDraft,
+                        note: e.target.value,
+                      })
+                    }
+                  />
+                </FwField>
+              </FwGrid>
+              <FwChips>
+                {(
+                  [
+                    { value: "Manuel" as PunchMode, hint: "Saisie superviseur" },
+                    { value: "Mobile" as PunchMode, hint: "App terrain" },
+                    { value: "Terminal" as PunchMode, hint: "Badgeuse" },
+                  ] as const
+                ).map((m) => (
+                  <FwChip
+                    key={m.value}
+                    selected={punchDraft.mode === m.value}
+                    title={m.value}
+                    hint={m.hint}
+                    onClick={() =>
+                      setPunchDraft({ ...punchDraft, mode: m.value })
+                    }
+                  />
+                ))}
+              </FwChips>
+            </FwPanel>
+          ) : null}
+          {punchStep === "revue" ? (
+            <FwPanel aria-label="Revue">
+              <FwPanelHead
+                title="Revue avant enregistrement"
+                description="Vérifiez les horaires corrigés."
+              />
+              <FwReview>
+                <FwReviewCard
+                  title="Pointage"
+                  rows={[
+                    { label: "Agent", value: punchDraft.employeeName },
+                    {
+                      label: "Prévu",
+                      value: `${punchDraft.plannedIn || "—"} → ${punchDraft.plannedOut || "—"}`,
+                    },
+                    {
+                      label: "Réel",
+                      value: `${punchDraft.actualIn || "—"} → ${punchDraft.actualOut || "—"}`,
+                    },
+                    { label: "Mode", value: punchDraft.mode },
+                    { label: "Note", value: punchDraft.note || "—" },
+                  ]}
+                />
+              </FwReview>
+            </FwPanel>
+          ) : null}
+        </AdminFormWizard>
       ) : null}
     </div>
   );
@@ -625,25 +1055,36 @@ export function PointageWorkspace() {
 
 function PunchDetail({
   punch,
-  role,
   actorName,
   agentMode,
+  canSupervise,
+  busy,
+  geoEnabled,
+  anomalyReason,
+  onAnomalyReason,
   onPunchIn,
   onPunchOut,
   onValidate,
   onNote,
+  onFlagAnomaly,
+  onCorrectPunch,
 }: {
-  punch: PunchRecord;
-  role: string;
+  punch: PointagePunch;
   actorName: string;
   agentMode: boolean;
+  canSupervise: boolean;
+  busy: boolean;
+  geoEnabled: boolean;
+  anomalyReason: string;
+  onAnomalyReason: (v: string) => void;
   onPunchIn: () => void;
   onPunchOut: () => void;
   onValidate: (pendingNote?: string) => void;
   onNote: (note: string) => void;
+  onFlagAnomaly: () => void;
+  onCorrectPunch?: () => void;
 }) {
   const [note, setNote] = useState(punch.note);
-  const [mode] = useState<PunchMode>(punch.mode);
 
   useEffect(() => {
     setNote(punch.note);
@@ -653,12 +1094,34 @@ function PunchDetail({
     <div className="pointage-detail__inner">
       <header className="pointage-detail__head">
         <div>
-          <p className="pointage-detail__eyebrow">{role}</p>
+          <p className="pointage-detail__eyebrow">
+            {punch.mode}
+            {geoEnabled ? " · géo applicable" : ""}
+          </p>
           <h3>{punch.employeeName}</h3>
-          <p>{punch.site}</p>
+          <p>
+            {punch.site}
+            {punch.planningSlotId
+              ? ` · créneau ${punch.planningSlotId}`
+              : " · hors planning"}
+          </p>
         </div>
-        <StatusBadge tone={toneForStatus(punch.status)}>{punch.status}</StatusBadge>
+        <StatusBadge tone={toneForStatus(punch.status)}>
+          {punch.status}
+        </StatusBadge>
       </header>
+
+      {!agentMode && onCorrectPunch ? (
+        <div className="pointage-detail__admin-actions">
+          <button
+            type="button"
+            className="btn-admin btn-admin--ghost"
+            onClick={onCorrectPunch}
+          >
+            Corriger horaires
+          </button>
+        </div>
+      ) : null}
 
       <div className="pointage-detail__plan">
         <div>
@@ -669,7 +1132,7 @@ function PunchDetail({
         </div>
         <div>
           <span>Mode</span>
-          <strong>{mode}</strong>
+          <strong>{punch.mode}</strong>
         </div>
         <div>
           <span>Durée</span>
@@ -684,7 +1147,7 @@ function PunchDetail({
           <button
             type="button"
             className="btn-admin btn-admin--primary"
-            disabled={Boolean(punch.actualIn)}
+            disabled={busy || Boolean(punch.actualIn)}
             onClick={onPunchIn}
           >
             Pointer arrivée
@@ -696,7 +1159,7 @@ function PunchDetail({
           <button
             type="button"
             className="btn-admin btn-admin--ghost"
-            disabled={!punch.actualIn || Boolean(punch.actualOut)}
+            disabled={busy || !punch.actualIn || Boolean(punch.actualOut)}
             onClick={onPunchOut}
           >
             Pointer départ
@@ -709,6 +1172,37 @@ function PunchDetail({
       ) : (
         <p className="pointage-detail__ok">Aucune anomalie détectée</p>
       )}
+
+      {(punch.geoIn || punch.geoOut) && geoEnabled ? (
+        <p className="pointage-detail__ok">
+          Géo arrivée{" "}
+          {punch.geoIn
+            ? `${punch.geoIn.lat.toFixed(4)}, ${punch.geoIn.lng.toFixed(4)}`
+            : "—"}{" "}
+          · départ{" "}
+          {punch.geoOut
+            ? `${punch.geoOut.lat.toFixed(4)}, ${punch.geoOut.lng.toFixed(4)}`
+            : "—"}
+        </p>
+      ) : null}
+
+      {canSupervise && !agentMode ? (
+        <div className="pointage-anomaly-row">
+          <input
+            placeholder="Motif anomalie…"
+            value={anomalyReason}
+            onChange={(e) => onAnomalyReason(e.target.value)}
+          />
+          <button
+            type="button"
+            className="btn-admin btn-admin--ghost"
+            disabled={busy || !anomalyReason.trim()}
+            onClick={onFlagAnomaly}
+          >
+            Signaler
+          </button>
+        </div>
+      ) : null}
 
       {!agentMode ? (
         <label className="doc-field">
@@ -734,6 +1228,7 @@ function PunchDetail({
             type="button"
             className="btn-admin btn-admin--primary"
             disabled={
+              busy ||
               !punch.actualIn ||
               !punch.actualOut ||
               punch.status === "Validé"
@@ -745,6 +1240,19 @@ function PunchDetail({
         </div>
       ) : punch.validatedBy ? (
         <p className="pointage-detail__ok">Validé par {punch.validatedBy}</p>
+      ) : null}
+
+      {punch.history.length > 0 ? (
+        <ol className="pointage-history">
+          {punch.history.slice(0, 8).map((h) => (
+            <li key={h.id}>
+              <time>{new Date(h.at).toLocaleString("fr-FR")}</time>
+              <span>
+                {h.byName} — {h.detail}
+              </span>
+            </li>
+          ))}
+        </ol>
       ) : null}
     </div>
   );

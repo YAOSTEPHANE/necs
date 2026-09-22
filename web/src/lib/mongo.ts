@@ -23,7 +23,7 @@ export function hasMongoConfig(): boolean {
 function getClientPromise(): Promise<MongoClient> {
   if (!global.__necsMongoClientPromise) {
     const client = new MongoClient(resolveMongoUri(), {
-      maxPoolSize: 8,
+      maxPoolSize: 32,
     });
     global.__necsMongoClientPromise = client.connect();
   }

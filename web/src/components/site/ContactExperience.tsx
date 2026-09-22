@@ -4,6 +4,10 @@ import Image from "next/image";
 import { FormEvent, useId, useState } from "react";
 import { useBrandAssets } from "@/components/BrandAssets";
 import { saveLead, type NecsContent } from "@/lib/content";
+import {
+  inferFormTypeFromSubject,
+  readLeadAttribution,
+} from "@/lib/lead-attribution";
 import { toast } from "@/lib/toast";
 
 const SERVICE_OPTIONS = [
@@ -253,15 +257,23 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const fd = new FormData(e.currentTarget);
+    if (sending || submitted) return;
+    const form = e.currentTarget;
+    const fd = new FormData(form);
+    if (!fd.get("consent")) {
+      toast.error("Veuillez accepter le traitement de vos données.");
+      return;
+    }
     const baseMessage = String(fd.get("message") || "");
     const city = String(fd.get("city") || "");
+    const subject = "Demande de devis";
+    const attribution = readLeadAttribution({ defaultSource: "site_web" });
     const payload = {
       name: String(fd.get("name") || ""),
       company: String(fd.get("company") || ""),
       email: String(fd.get("email") || ""),
       phone: String(fd.get("phone") || ""),
-      subject: "Demande de devis",
+      subject,
       message: [
         baseMessage,
         "",
@@ -271,6 +283,9 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
       ]
         .filter(Boolean)
         .join("\n"),
+      formType: inferFormTypeFromSubject(subject),
+      consent: true,
+      ...attribution,
     };
 
     setSending(true);
@@ -288,7 +303,7 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
       saveLead(payload);
       toast.success("Demande envoyée ; nous vous recontactons sous 24 h.");
       setSubmitted(true);
-      e.currentTarget.reset();
+      form.reset();
       setServices([]);
       setClientType("pro");
     } catch {
@@ -424,6 +439,14 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
         />
       </div>
 
+      <label className="cxf-consent">
+        <input type="checkbox" name="consent" value="1" required />
+        <span>
+          J’accepte que NECS traite mes données pour répondre à cette demande
+          de devis. *
+        </span>
+      </label>
+
       <button type="submit" className="cxf-btn cxf-btn--primary" disabled={sending}>
         <IconSend />
         {sending ? "Envoi…" : "Envoyer ma demande"}
@@ -433,8 +456,8 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
       </button>
       <p className="cxf-form__lock">
         <IconLock />
-        Vos informations restent confidentielles et ne sont utilisées que pour
-        votre demande.
+        Vos informations restent confidentielles ; consentement requis pour
+        l’envoi.
       </p>
     </form>
   );

@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { IconCheck, IconClose } from "@/components/admin/Icons";
-import {
-  leadKey,
-  loadLeads,
-  removeLead,
-  type Lead,
-} from "@/lib/content";
 import { toast } from "@/lib/toast";
+
+type LeadStatus = "nouveau" | "en_cours" | "traite";
+
+type Lead = {
+  id?: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  subject: string;
+  message: string;
+  status?: LeadStatus;
+  at: string;
+};
 
 function formatWhen(iso: string): string {
   try {
@@ -21,146 +30,215 @@ function formatWhen(iso: string): string {
   }
 }
 
-type RequestItem = {
-  key: string;
-  name: string;
-  kind: string;
-  when: string;
-  email?: string;
-  at?: string;
-  demo?: boolean;
-};
+function leadKey(lead: Lead): string {
+  return lead.id || `${lead.email}::${lead.at}`;
+}
 
-const FALLBACK: RequestItem[] = [
-  {
-    key: "demo-horizon",
-    name: "Société Horizon SA",
-    kind: "Demande de devis",
-    when: "Démo",
-    demo: true,
-  },
-  {
-    key: "demo-klaris",
-    name: "Boutique Klaris",
-    kind: "Lead Facebook",
-    when: "Démo",
-    demo: true,
-  },
-];
+function statusOf(lead: Lead): LeadStatus {
+  return lead.status === "en_cours" || lead.status === "traite"
+    ? lead.status
+    : "nouveau";
+}
 
 export function DashboardRequests() {
-  const [leads, setLeads] = useState<Lead[] | null>(null);
-  const [dismissedDemo, setDismissedDemo] = useState<string[]>([]);
+  const [leads, setLeads] = useState<Lead[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const busyLock = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      try {
-        const res = await fetch("/api/leads", { credentials: "same-origin" });
-        if (res.ok) {
-          const data = (await res.json()) as { leads: Lead[] };
-          if (!cancelled) setLeads(data.leads);
-          return;
-        }
-      } catch {
-        /* fallback local */
+  const refresh = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/leads", { credentials: "same-origin" });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(
+          data.error ||
+            (res.status === 503
+              ? "MongoDB non configuré sur ce serveur."
+              : "Impossible de charger les demandes."),
+        );
       }
-      if (!cancelled) setLeads(loadLeads());
-    })();
-    return () => {
-      cancelled = true;
-    };
+      const data = (await res.json()) as { leads: Lead[] };
+      const all = Array.isArray(data.leads) ? data.leads : [];
+      setLeads(
+        all
+          .filter((l) => statusOf(l) !== "traite")
+          .slice(0, 8),
+      );
+    } catch (err) {
+      setLeads([]);
+      setError(
+        err instanceof Error ? err.message : "Impossible de charger les demandes.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const realItems: RequestItem[] =
-    leads && leads.length > 0
-      ? leads.slice(0, 8).map((l) => ({
-          name: l.company || l.name,
-          kind: l.subject || "Demande de contact",
-          when: formatWhen(l.at),
-          key: leadKey(l),
-          email: l.email,
-          at: l.at,
-        }))
-      : [];
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
 
-  const items =
-    realItems.length > 0
-      ? realItems
-      : FALLBACK.filter((r) => !dismissedDemo.includes(r.key));
-
-  const count = leads?.length ?? 0;
-
-  function handleAction(item: RequestItem, action: "accept" | "refuse") {
-    if (item.demo) {
-      setDismissedDemo((prev) => [...prev, item.key]);
-      toast.info(
-        action === "accept"
-          ? `${item.name} · accepté (démo)`
-          : `${item.name} · refusé (démo)`,
-      );
-      return;
+  async function markDone(lead: Lead) {
+    const key = leadKey(lead);
+    if (busyKey || busyLock.current) return;
+    busyLock.current = true;
+    setBusyKey(key);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: lead.email,
+          at: lead.at,
+          status: "traite",
+        }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        toast.error(data.error || "Action impossible.");
+        return;
+      }
+      setLeads((prev) => prev.filter((l) => leadKey(l) !== key));
+      toast.success(`${lead.company || lead.name} · traité`);
+    } catch {
+      toast.error("Action impossible.");
+    } finally {
+      busyLock.current = false;
+      setBusyKey(null);
     }
-    if (!item.email || !item.at) return;
-    removeLead(item.email, item.at);
-    setLeads(loadLeads());
-    toast.info(
-      action === "accept"
-        ? `${item.name} · accepté (retiré de la file)`
-        : `${item.name} · refusé`,
-    );
+  }
+
+  async function remove(lead: Lead) {
+    const key = leadKey(lead);
+    if (busyKey || busyLock.current) return;
+    busyLock.current = true;
+    setBusyKey(key);
+    try {
+      const res = await fetch("/api/leads", {
+        method: "DELETE",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: lead.email, at: lead.at }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        toast.error(data.error || "Action impossible.");
+        return;
+      }
+      setLeads((prev) => prev.filter((l) => leadKey(l) !== key));
+      toast.info(`${lead.company || lead.name} · retiré`);
+    } catch {
+      toast.error("Action impossible.");
+    } finally {
+      busyLock.current = false;
+      setBusyKey(null);
+    }
   }
 
   return (
     <aside className="symp-panel symp-panel--requests">
       <header className="symp-panel__head">
         <div>
-          <h2>Demandes</h2>
+          <h2>Demandes site</h2>
           <p>
-            {count > 0
-              ? `${count} lead${count > 1 ? "s" : ""} depuis le site`
-              : items.length > 0
-                ? "Aucune demande site ; affichage démo"
-                : "File vide"}
+            {loading
+              ? "Chargement…"
+              : error
+                ? "Erreur de chargement"
+                : leads.length > 0
+                  ? `${leads.length} à traiter`
+                  : "Aucune demande ouverte"}
           </p>
         </div>
+        <div className="symp-panel__head-actions">
+          <Link href="/admin/demandes" className="symp-link-more">
+            Voir tout
+          </Link>
+          <button
+            type="button"
+            className="symp-round ghost"
+            aria-label="Actualiser les demandes"
+            title="Actualiser"
+            onClick={() => void refresh()}
+            disabled={loading}
+          >
+            ↻
+          </button>
+        </div>
       </header>
-      {items.length === 0 ? (
-        <p className="symp-empty symp-empty--tight">Aucune demande en attente.</p>
+
+      {error ? (
+        <p className="symp-empty symp-empty--tight" role="alert">
+          {error}
+        </p>
+      ) : loading ? (
+        <p className="symp-empty symp-empty--tight">Chargement des demandes…</p>
+      ) : leads.length === 0 ? (
+        <p className="symp-empty symp-empty--tight">
+          Les devis et contacts envoyés depuis le site public apparaîtront ici.
+        </p>
       ) : (
         <ul className="symp-requests">
-          {items.map((r) => (
-            <li key={r.key}>
-              <div className="symp-person">
-                <span className="dash-avatar sm">{r.name.slice(0, 1)}</span>
-                <div>
-                  <strong>{r.name}</strong>
-                  <span>{r.kind}</span>
-                  <small>{r.when}</small>
+          {leads.map((lead) => {
+            const key = leadKey(lead);
+            const title = lead.company || lead.name;
+            const st = statusOf(lead);
+            return (
+              <li key={key}>
+                <div className="symp-person">
+                  <span className="dash-avatar sm">{title.slice(0, 1)}</span>
+                  <div>
+                    <strong>{title}</strong>
+                    <span>
+                      {lead.subject || "Demande de contact"}
+                      {" · "}
+                      {st === "nouveau" ? "Nouveau" : "En cours"}
+                    </span>
+                    <small>
+                      {lead.name}
+                      {lead.email ? ` · ${lead.email}` : ""}
+                      {lead.phone ? ` · ${lead.phone}` : ""}
+                    </small>
+                    <small>{formatWhen(lead.at)}</small>
+                    {lead.message ? (
+                      <small className="symp-requests__msg">
+                        {lead.message.length > 140
+                          ? `${lead.message.slice(0, 140)}…`
+                          : lead.message}
+                      </small>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-              <div className="symp-req-actions">
-                <button
-                  type="button"
-                  className="symp-round ghost"
-                  aria-label={`Refuser ${r.name}`}
-                  title="Refuser"
-                  onClick={() => handleAction(r, "refuse")}
-                >
-                  <IconClose size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="symp-round"
-                  aria-label={`Accepter ${r.name}`}
-                  title="Accepter"
-                  onClick={() => handleAction(r, "accept")}
-                >
-                  <IconCheck size={14} />
-                </button>
-              </div>
-            </li>
-          ))}
+                <div className="symp-req-actions">
+                  <button
+                    type="button"
+                    className="symp-round ghost"
+                    aria-label={`Retirer ${title}`}
+                    title="Retirer"
+                    disabled={busyKey === key}
+                    onClick={() => void remove(lead)}
+                  >
+                    <IconClose size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    className="symp-round"
+                    aria-label={`Marquer ${title} comme traité`}
+                    title="Marquer traité"
+                    disabled={busyKey === key}
+                    onClick={() => void markDone(lead)}
+                  >
+                    <IconCheck size={14} />
+                  </button>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
     </aside>

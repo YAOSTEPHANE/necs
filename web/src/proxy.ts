@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { readAuthSecretRaw } from "@/lib/auth-secret";
 
 const SESSION_COOKIE = "necs_session";
 
 function getSecret(): Uint8Array | null {
-  const secret =
-    process.env.AUTH_SECRET?.trim() ||
-    process.env.NEXTAUTH_SECRET?.trim() ||
-    "";
+  const secret = readAuthSecretRaw();
   if (!secret || secret.length < 32) return null;
   return new TextEncoder().encode(secret);
 }
@@ -31,14 +29,23 @@ function withSecurityHeaders(res: NextResponse): NextResponse {
   res.headers.set("X-Frame-Options", "DENY");
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  // Pointage terrain : géoloc autorisée sur /admin ; caméra/micro toujours bloqués.
+  res.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(self)",
+  );
   return res;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith("/admin/login")) {
+  if (
+    pathname.startsWith("/admin/login") ||
+    pathname.startsWith("/admin/inscription") ||
+    pathname.startsWith("/admin/mot-de-passe-oublie") ||
+    pathname.startsWith("/admin/reinitialiser-mot-de-passe")
+  ) {
     return withSecurityHeaders(NextResponse.next());
   }
 

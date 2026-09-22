@@ -36,8 +36,8 @@ h1, h2, h3, h4 {
 
 /* ——— Header : barre toujours lisible (mobile + PC) ——— */
 .site-header {
-  backdrop-filter: blur(18px) saturate(1.35);
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
+  backdrop-filter: blur(18px) saturate(1.35);
   background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid rgba(207, 220, 232, 0.75);
   box-shadow: 0 6px 24px rgba(3, 26, 54, 0.06);
@@ -71,6 +71,12 @@ h1, h2, h3, h4 {
   border: 0;
   box-shadow: 0 10px 24px rgba(10, 58, 114, 0.2);
   color: #fff;
+}
+
+.site-header.is-transparent .nav-login {
+  color: var(--blue-950);
+  border-color: rgba(10, 58, 114, 0.2);
+  background: rgba(255, 255, 255, 0.92);
 }
 
 .site-header.is-transparent .nav-cta:hover {
@@ -296,7 +302,8 @@ h1, h2, h3, h4 {
   letter-spacing: 0.02em;
 }
 
-.nav-cta--desktop {
+.nav-cta--desktop,
+.nav-actions--desktop {
   display: inline-flex;
 }
 
@@ -384,7 +391,6 @@ h1, h2, h3, h4 {
 
 /* ——— Hero accueil : contenu visible dès le haut (PC + mobile) ——— */
 .hero {
-  min-height: auto;
   align-items: center;
 }
 
@@ -950,17 +956,31 @@ h1, h2, h3, h4 {
 /* Modal */
 .necs-overlay-backdrop {
   background: rgba(3, 18, 36, 0.68);
-  backdrop-filter: blur(14px) saturate(1.1);
   -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
 }
 
 .necs-modal-card {
   border-radius: 4px 28px 4px 28px;
-  padding: 2.5rem 2.15rem 2.15rem;
+  padding: 0;
   box-shadow:
     0 40px 80px rgba(3, 26, 54, 0.28),
     0 0 0 1px rgba(255, 255, 255, 0.08);
   max-width: 560px;
+  max-height: min(92dvh, 880px);
+}
+
+.necs-modal-card > .necs-modal-header,
+.necs-modal-card > .necs-modal-success {
+  padding: 2.5rem 2.15rem 0;
+}
+
+.necs-modal-card > .necs-modal-form {
+  padding: 1.5rem 2.15rem 2.15rem;
+}
+
+.necs-modal-card > .necs-modal-success {
+  padding: 2.5rem 2.15rem 2.15rem;
 }
 
 .necs-modal-close {
@@ -1076,7 +1096,6 @@ h1, h2, h3, h4 {
 
 @media (max-width: 1100px) {
   .hero {
-    min-height: auto;
     align-items: center;
   }
 
@@ -1122,7 +1141,6 @@ h1, h2, h3, h4 {
   }
 
   .hero {
-    min-height: auto;
     align-items: center;
   }
 

@@ -393,6 +393,38 @@ export function updatePunchNote(
   return { ...store, punches };
 }
 
+/** Correction manuelle des horaires (mode Manuel) + recalcul statut / anomalies. */
+export function correctPunch(
+  store: PointageStore,
+  punchId: string,
+  patch: {
+    actualIn?: string | null;
+    actualOut?: string | null;
+    mode?: PunchMode;
+    note?: string;
+    plannedIn?: string;
+    plannedOut?: string;
+  },
+): PointageStore {
+  const punches = store.punches.map((p) => {
+    if (p.id !== punchId) return p;
+    const next: PunchRecord = {
+      ...p,
+      actualIn:
+        patch.actualIn !== undefined ? patch.actualIn || null : p.actualIn,
+      actualOut:
+        patch.actualOut !== undefined ? patch.actualOut || null : p.actualOut,
+      mode: patch.mode ?? "Manuel",
+      note: patch.note !== undefined ? patch.note.trim() : p.note,
+      plannedIn: patch.plannedIn?.trim() || p.plannedIn,
+      plannedOut: patch.plannedOut?.trim() || p.plannedOut,
+      validatedBy: null,
+    };
+    return evaluatePunch(next);
+  });
+  return { ...store, punches };
+}
+
 export function upsertEmployee(
   store: PointageStore,
   employee: Employee,
@@ -402,6 +434,61 @@ export function upsertEmployee(
     ? store.employees.map((e) => (e.id === employee.id ? employee : e))
     : [employee, ...store.employees];
   return { ...store, employees };
+}
+
+/** Met à jour la fiche employé et synchronise les pointages non validés du jour. */
+export function updateEmployee(
+  store: PointageStore,
+  employeeId: string,
+  patch: Partial<Omit<Employee, "id">>,
+): PointageStore {
+  const employees = store.employees.map((e) => {
+    if (e.id !== employeeId) return e;
+    return {
+      ...e,
+      name: (patch.name ?? e.name).trim(),
+      role: (patch.role ?? e.role).trim(),
+      site: (patch.site ?? e.site).trim(),
+      shiftStart: patch.shiftStart ?? e.shiftStart,
+      shiftEnd: patch.shiftEnd ?? e.shiftEnd,
+      active: patch.active ?? e.active,
+    };
+  });
+  const emp = employees.find((e) => e.id === employeeId);
+  if (!emp) return { ...store, employees };
+
+  const punches = store.punches.map((p) => {
+    if (p.employeeId !== employeeId) return p;
+    if (p.status === "Validé") {
+      return {
+        ...p,
+        employeeName: emp.name,
+        site: emp.site,
+      };
+    }
+    return evaluatePunch({
+      ...p,
+      employeeName: emp.name,
+      site: emp.site,
+      plannedIn: emp.shiftStart,
+      plannedOut: emp.shiftEnd,
+    });
+  });
+  return { employees, punches };
+}
+
+export function listSites(store: PointageStore): string[] {
+  const set = new Set(
+    store.employees
+      .map((e) => e.site.trim())
+      .filter(Boolean)
+      .concat(store.punches.map((p) => p.site.trim()).filter(Boolean)),
+  );
+  return Array.from(set).sort((a, b) => a.localeCompare(b, "fr"));
+}
+
+export function isTodayPointage(isoDate: string): boolean {
+  return isoDate === todayIso();
 }
 
 export function workedHours(punch: PunchRecord): string {
@@ -415,5 +502,16 @@ export function pointageStats(punches: PunchRecord[]) {
   const open = punches.filter((p) => p.actualIn && !p.actualOut).length;
   const absent = punches.filter((p) => !p.actualIn).length;
   const validated = punches.filter((p) => p.status === "Validé").length;
-  return { present, late, open, absent, validated, total: punches.length };
+  const anomaly = punches.filter(
+    (p) => p.status === "Anomalie" || (p.anomaly && p.anomaly !== "Aucune"),
+  ).length;
+  return {
+    present,
+    late,
+    open,
+    absent,
+    validated,
+    anomaly,
+    total: punches.length,
+  };
 }
