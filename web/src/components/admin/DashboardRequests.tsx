@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IconCheck, IconClose } from "@/components/admin/Icons";
+import { emitLeadsChanged } from "@/lib/leads-events";
 import { toast } from "@/lib/toast";
 
+/** Demandes site sur le tableau de bord (pas de Mongo côté client). */
 type LeadStatus = "nouveau" | "en_cours" | "traite";
 
 type Lead = {
@@ -93,6 +95,7 @@ export function DashboardRequests() {
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: lead.id,
           email: lead.email,
           at: lead.at,
           status: "traite",
@@ -104,6 +107,7 @@ export function DashboardRequests() {
         return;
       }
       setLeads((prev) => prev.filter((l) => leadKey(l) !== key));
+      emitLeadsChanged();
       toast.success(`${lead.company || lead.name} · traité`);
     } catch {
       toast.error("Action impossible.");
@@ -123,7 +127,11 @@ export function DashboardRequests() {
         method: "DELETE",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: lead.email, at: lead.at }),
+        body: JSON.stringify({
+          id: lead.id,
+          email: lead.email,
+          at: lead.at,
+        }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -131,6 +139,7 @@ export function DashboardRequests() {
         return;
       }
       setLeads((prev) => prev.filter((l) => leadKey(l) !== key));
+      emitLeadsChanged();
       toast.info(`${lead.company || lead.name} · retiré`);
     } catch {
       toast.error("Action impossible.");

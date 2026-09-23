@@ -20,6 +20,8 @@ export type DigitalRequestStatus =
 export type DigitalPriority = "basse" | "normale" | "haute" | "critique";
 
 export type DigitalConvertKind =
+  | "prospect"
+  | "client"
   | "lead"
   | "tache"
   | "opportunite"
@@ -121,6 +123,8 @@ export const DIGITAL_PRIORITY_LABELS: Record<DigitalPriority, string> = {
 };
 
 export const DIGITAL_CONVERT_LABELS: Record<DigitalConvertKind, string> = {
+  prospect: "Prospect",
+  client: "Client",
   lead: "Lead CRM",
   tache: "Tâche",
   opportunite: "Opportunité",

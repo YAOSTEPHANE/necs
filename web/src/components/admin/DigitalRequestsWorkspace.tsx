@@ -632,6 +632,22 @@ export function DigitalRequestsWorkspace({
                             <Link href="/admin/demandes">Voir leads</Link>
                           </>
                         ) : null}
+                        {selected.conversion.kind === "prospect" ? (
+                          <>
+                            {" · "}
+                            <Link
+                              href={`/admin/prospects?id=${encodeURIComponent(selected.conversion.refId)}`}
+                            >
+                              Ouvrir prospect
+                            </Link>
+                          </>
+                        ) : null}
+                        {selected.conversion.kind === "client" ? (
+                          <>
+                            {" · "}
+                            <Link href="/admin/clients">Voir clients</Link>
+                          </>
+                        ) : null}
                       </p>
                     )}
 

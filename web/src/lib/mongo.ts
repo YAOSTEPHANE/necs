@@ -1,3 +1,5 @@
+import "server-only";
+
 import { MongoClient, type Db } from "mongodb";
 
 declare global {

@@ -29,6 +29,7 @@ import {
   logoutAdmin,
   refreshSessionFromServer,
 } from "@/lib/auth";
+import { NECS_LEADS_CHANGED } from "@/lib/leads-events";
 import { safeRouterReplace } from "@/lib/safe-navigate";
 import { getRoleSpace } from "@/lib/role-spaces";
 import {
@@ -337,9 +338,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     };
     void load();
     const id = window.setInterval(() => void load(), 60_000);
+    window.addEventListener(NECS_LEADS_CHANGED, load);
     return () => {
       cancelled = true;
       window.clearInterval(id);
+      window.removeEventListener(NECS_LEADS_CHANGED, load);
     };
   }, [canSeeLeads, pathname]);
 

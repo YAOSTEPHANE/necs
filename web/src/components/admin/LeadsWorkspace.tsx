@@ -26,6 +26,7 @@ import {
 } from "@/components/admin/form-wizard";
 import { IconMail, IconSearch } from "@/components/admin/Icons";
 import { downloadCsv } from "@/lib/download";
+import { emitLeadsChanged } from "@/lib/leads-events";
 import { toast } from "@/lib/toast";
 
 export type LeadStatus = "nouveau" | "en_cours" | "traite";
@@ -375,7 +376,12 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
         method: "PATCH",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: lead.email, at: lead.at, status }),
+        body: JSON.stringify({
+          id: lead.id,
+          email: lead.email,
+          at: lead.at,
+          status,
+        }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -385,6 +391,7 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
       setLeads((prev) =>
         prev.map((l) => (leadKey(l) === key ? { ...l, status } : l)),
       );
+      emitLeadsChanged();
       toast.success(`${lead.company || lead.name} · ${STATUS_LABEL[status]}`);
     } catch {
       toast.error("Mise à jour impossible.");
@@ -404,7 +411,11 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
         method: "DELETE",
         credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: lead.email, at: lead.at }),
+        body: JSON.stringify({
+          id: lead.id,
+          email: lead.email,
+          at: lead.at,
+        }),
       });
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as { error?: string };
@@ -412,9 +423,126 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
         return;
       }
       setLeads((prev) => prev.filter((l) => leadKey(l) !== key));
+      emitLeadsChanged();
       toast.info(`${lead.company || lead.name} · retiré`);
     } catch {
       toast.error("Suppression impossible.");
+    } finally {
+      busyLock.current = false;
+      setBusyKey(null);
+    }
+  }
+
+  async function saveAsProspect(lead: SiteLead) {
+    const key = leadKey(lead);
+    if (busyKey || busyLock.current) return;
+    if (!lead.email?.includes("@")) {
+      toast.error("E-mail requis pour créer un prospect.");
+      return;
+    }
+    busyLock.current = true;
+    setBusyKey(key);
+    try {
+      const res = await fetch("/api/prospects", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "import-lead",
+          email: lead.email,
+          name: lead.name,
+          company: lead.company || lead.name,
+          phone: lead.phone,
+          source: lead.source || "lead_site",
+          campaign: lead.campaign || "",
+          subject: lead.subject,
+          message: lead.message,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        created?: boolean;
+        duplicate?: boolean;
+        prospect?: { id?: string };
+      };
+      if (!res.ok) {
+        toast.error(data.error || "Création prospect impossible.");
+        return;
+      }
+      const id = data.prospect?.id;
+      toast.success(
+        data.created
+          ? `${lead.company || lead.name} · prospect créé`
+          : `${lead.company || lead.name} · prospect déjà existant`,
+      );
+      if (id) {
+        window.location.href = `/admin/prospects?id=${encodeURIComponent(id)}`;
+      }
+    } catch {
+      toast.error("Création prospect impossible.");
+    } finally {
+      busyLock.current = false;
+      setBusyKey(null);
+    }
+  }
+
+  async function saveAsClient(lead: SiteLead) {
+    const key = leadKey(lead);
+    if (busyKey || busyLock.current) return;
+    if (!lead.email?.includes("@")) {
+      toast.error("E-mail requis pour créer un client.");
+      return;
+    }
+    if (lead.consent === false) {
+      toast.error(
+        "Consentement manquant sur ce lead — impossible de créer le client.",
+      );
+      return;
+    }
+    busyLock.current = true;
+    setBusyKey(key);
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: lead.name || lead.company || lead.email,
+          company: lead.company || "",
+          email: lead.email,
+          phone: lead.phone || "",
+          city: "",
+          address: "",
+          siteType: "",
+          surface: "",
+          source: lead.source || "lead_site",
+          campaign: lead.campaign || "",
+          formType: lead.formType || "contact",
+          subject: lead.subject || "Lead site",
+          message: lead.message || lead.subject || "Import depuis demande digitale",
+          consent: true,
+          status: "actif",
+          submitRequest: false,
+        }),
+      });
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        created?: boolean;
+        clientId?: string;
+        id?: string;
+      };
+      if (!res.ok) {
+        toast.error(data.error || "Création client impossible.");
+        return;
+      }
+      toast.success(
+        data.created
+          ? `${lead.company || lead.name} · client créé`
+          : `${lead.company || lead.name} · client déjà existant`,
+      );
+      window.location.href = "/admin/clients";
+    } catch {
+      toast.error("Création client impossible.");
     } finally {
       busyLock.current = false;
       setBusyKey(null);
@@ -532,6 +660,7 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
       setComposerStep("contact");
       setComposerOpen(false);
       await refresh(true);
+      emitLeadsChanged();
       if (draft.email.trim()) {
         setQuery(draft.email.trim().toLowerCase());
       }
@@ -878,6 +1007,32 @@ export function LeadsWorkspace({ embedded = false }: { embedded?: boolean }) {
                       Rouvrir
                     </button>
                   )}
+                  <button
+                    type="button"
+                    className="btn-admin btn-admin--ghost"
+                    disabled={busyKey === leadKey(selected) || !selected.email}
+                    title={
+                      selected.email
+                        ? "Créer / lier un dossier prospect CRM"
+                        : "E-mail requis"
+                    }
+                    onClick={() => void saveAsProspect(selected)}
+                  >
+                    → Prospect
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-admin btn-admin--ghost"
+                    disabled={busyKey === leadKey(selected) || !selected.email}
+                    title={
+                      selected.email
+                        ? "Créer / lier une fiche client"
+                        : "E-mail requis"
+                    }
+                    onClick={() => void saveAsClient(selected)}
+                  >
+                    → Client
+                  </button>
                   <button
                     type="button"
                     className="btn-admin btn-admin--ghost"

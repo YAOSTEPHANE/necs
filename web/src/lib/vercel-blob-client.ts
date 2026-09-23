@@ -36,18 +36,18 @@ let blobAvailableCache: boolean | null = null;
 
 /** Vérifie si le store Blob Vercel est configuré côté serveur. */
 export async function isVercelBlobAvailable(): Promise<boolean> {
-  if (blobAvailableCache != null) return blobAvailableCache;
+  if (blobAvailableCache === true) return true;
   try {
     const res = await fetch("/api/blob/status", { cache: "no-store" });
     if (!res.ok) {
-      blobAvailableCache = false;
+      // Ne pas figer un faux négatif (ex. 401 avant session / erreur réseau).
       return false;
     }
     const data = (await res.json()) as { configured?: boolean };
-    blobAvailableCache = Boolean(data.configured);
-    return blobAvailableCache;
+    const ok = Boolean(data.configured);
+    if (ok) blobAvailableCache = true;
+    return ok;
   } catch {
-    blobAvailableCache = false;
     return false;
   }
 }

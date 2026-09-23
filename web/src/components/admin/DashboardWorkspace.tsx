@@ -26,338 +26,109 @@ type Mission = {
   type: string;
   status: string;
   day: number;
+  date: string;
   dateLabel: string;
   time: string;
   tone: MissionTone;
 };
 
-const ALL_MISSIONS: Mission[] = [
-  {
-    id: "m1",
-    site: "Immeuble Horizon",
-    type: "Entretien quotidien",
-    status: "Confirmé",
-    day: 14,
-    dateLabel: "14 sep.",
-    time: "06:00",
-    tone: "ok",
-  },
-  {
-    id: "m2",
-    site: "Usine Bassa",
-    type: "Nettoyage atelier",
-    status: "Confirmé",
-    day: 15,
-    dateLabel: "15 sep.",
-    time: "14:00",
-    tone: "ok",
-  },
-  {
-    id: "m3",
-    site: "Mall Riviera",
-    type: "Vitrerie + sols",
-    status: "Anomalie",
-    day: 18,
-    dateLabel: "18 sep.",
-    time: "22:00",
-    tone: "danger",
-  },
-  {
-    id: "m4",
-    site: "Banque Centrale",
-    type: "Contrôle qualité",
-    status: "Planifié",
-    day: 22,
-    dateLabel: "22 sep.",
-    time: "09:30",
-    tone: "info",
-  },
-  {
-    id: "m5",
-    site: "Clinique Palmiers",
-    type: "Désinfection zones",
-    status: "Confirmé",
-    day: 22,
-    dateLabel: "22 sep.",
-    time: "07:00",
-    tone: "ok",
-  },
-  {
-    id: "m6",
-    site: "Tour Akwa",
-    type: "Entretien bureaux",
-    status: "Planifié",
-    day: 24,
-    dateLabel: "24 sep.",
-    time: "08:00",
-    tone: "info",
-  },
-  {
-    id: "m7",
-    site: "Hôtel Palm Beach",
-    type: "Nettoyage chambres",
-    status: "Confirmé",
-    day: 27,
-    dateLabel: "27 sep.",
-    time: "10:00",
-    tone: "ok",
-  },
-  {
-    id: "m8",
-    site: "Centre médical Bonanjo",
-    type: "Désinfection",
-    status: "Confirmé",
-    day: 29,
-    dateLabel: "29 sep.",
-    time: "06:30",
-    tone: "ok",
-  },
-  {
-    id: "m9",
-    site: "Siège MTN Douala",
-    type: "Entretien bureaux",
-    status: "Confirmé",
-    day: 14,
-    dateLabel: "14 sep.",
-    time: "07:30",
-    tone: "ok",
-  },
-  {
-    id: "m10",
-    site: "Port autonome",
-    type: "Nettoyage industriel",
-    status: "Planifié",
-    day: 15,
-    dateLabel: "15 sep.",
-    time: "05:30",
-    tone: "info",
-  },
-  {
-    id: "m11",
-    site: "Carrefour Market Akwa",
-    type: "Sols + sanitaires",
-    status: "Confirmé",
-    day: 16,
-    dateLabel: "16 sep.",
-    time: "21:00",
-    tone: "ok",
-  },
-  {
-    id: "m12",
-    site: "Clinique de la Côte",
-    type: "Bio-désinfection",
-    status: "Confirmé",
-    day: 16,
-    dateLabel: "16 sep.",
-    time: "06:00",
-    tone: "ok",
-  },
-  {
-    id: "m13",
-    site: "Immeuble Sawa",
-    type: "Entretien quotidien",
-    status: "Anomalie",
-    day: 17,
-    dateLabel: "17 sep.",
-    time: "06:15",
-    tone: "danger",
-  },
-  {
-    id: "m14",
-    site: "Atelier Sodéco",
-    type: "Nettoyage atelier",
-    status: "Confirmé",
-    day: 17,
-    dateLabel: "17 sep.",
-    time: "13:00",
-    tone: "ok",
-  },
-  {
-    id: "m15",
-    site: "Banque Atlantique",
-    type: "Contrôle qualité",
-    status: "Confirmé",
-    day: 18,
-    dateLabel: "18 sep.",
-    time: "08:00",
-    tone: "ok",
-  },
-  {
-    id: "m16",
-    site: "Hôtel Onomo",
-    type: "Nettoyage chambres",
-    status: "Planifié",
-    day: 19,
-    dateLabel: "19 sep.",
-    time: "09:00",
-    tone: "info",
-  },
-  {
-    id: "m17",
-    site: "Tour Tradex",
-    type: "Vitrerie façade",
-    status: "Confirmé",
-    day: 20,
-    dateLabel: "20 sep.",
-    time: "07:00",
-    tone: "ok",
-  },
-  {
-    id: "m18",
-    site: "Usine Cimencam",
-    type: "Nettoyage industriel",
-    status: "Confirmé",
-    day: 20,
-    dateLabel: "20 sep.",
-    time: "15:00",
-    tone: "ok",
-  },
-  {
-    id: "m19",
-    site: "Mall Douala Grand Mall",
-    type: "Vitrerie + sols",
-    status: "Planifié",
-    day: 21,
-    dateLabel: "21 sep.",
-    time: "22:30",
-    tone: "info",
-  },
-  {
-    id: "m20",
-    site: "Immeuble Pacifique",
-    type: "Entretien bureaux",
-    status: "Confirmé",
-    day: 21,
-    dateLabel: "21 sep.",
-    time: "06:45",
-    tone: "ok",
-  },
-  {
-    id: "m21",
-    site: "Clinique Fouda",
-    type: "Désinfection zones",
-    status: "Anomalie",
-    day: 23,
-    dateLabel: "23 sep.",
-    time: "05:45",
-    tone: "danger",
-  },
-  {
-    id: "m22",
-    site: "Siège Orange CM",
-    type: "Entretien quotidien",
-    status: "Confirmé",
-    day: 23,
-    dateLabel: "23 sep.",
-    time: "07:15",
-    tone: "ok",
-  },
-  {
-    id: "m23",
-    site: "Commerce Bonapriso",
-    type: "Sols + sanitaires",
-    status: "Confirmé",
-    day: 24,
-    dateLabel: "24 sep.",
-    time: "20:00",
-    tone: "ok",
-  },
-  {
-    id: "m24",
-    site: "Banque BICEC",
-    type: "Contrôle qualité",
-    status: "Planifié",
-    day: 25,
-    dateLabel: "25 sep.",
-    time: "09:00",
-    tone: "info",
-  },
-  {
-    id: "m25",
-    site: "Atelier Metalcam",
-    type: "Nettoyage atelier",
-    status: "Confirmé",
-    day: 25,
-    dateLabel: "25 sep.",
-    time: "14:30",
-    tone: "ok",
-  },
-  {
-    id: "m26",
-    site: "Hôtel Pullman",
-    type: "Nettoyage chambres",
-    status: "Confirmé",
-    day: 26,
-    dateLabel: "26 sep.",
-    time: "10:30",
-    tone: "ok",
-  },
-  {
-    id: "m27",
-    site: "Centre médical Deido",
-    type: "Bio-désinfection",
-    status: "Planifié",
-    day: 27,
-    dateLabel: "27 sep.",
-    time: "06:00",
-    tone: "info",
-  },
-  {
-    id: "m28",
-    site: "Immeuble Plateau",
-    type: "Entretien bureaux",
-    status: "Confirmé",
-    day: 28,
-    dateLabel: "28 sep.",
-    time: "07:00",
-    tone: "ok",
-  },
-  {
-    id: "m29",
-    site: "Usine Alucam",
-    type: "Nettoyage industriel",
-    status: "Anomalie",
-    day: 28,
-    dateLabel: "28 sep.",
-    time: "16:00",
-    tone: "danger",
-  },
-  {
-    id: "m30",
-    site: "Mall City Center",
-    type: "Vitrerie + sols",
-    status: "Confirmé",
-    day: 29,
-    dateLabel: "29 sep.",
-    time: "21:30",
-    tone: "ok",
-  },
-  {
-    id: "m31",
-    site: "Tour Century",
-    type: "Entretien quotidien",
-    status: "Planifié",
-    day: 30,
-    dateLabel: "30 sep.",
-    time: "06:30",
-    tone: "info",
-  },
-  {
-    id: "m32",
-    site: "Clinique Laquintinie",
-    type: "Désinfection zones",
-    status: "Confirmé",
-    day: 30,
-    dateLabel: "30 sep.",
-    time: "05:30",
-    tone: "ok",
-  },
-];
-
-const DATES = [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
-const OFF_DAYS = new Set<number>([]);
-
 type Period = "mensuel" | "hebdo";
+
+type EffectifKpi = {
+  agents: number;
+  chefs: number;
+  recrut: number;
+};
+
+type PlanningSlotApi = {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime?: string;
+  siteName?: string;
+  clientName?: string;
+  prestationLabel?: string;
+  requiredStaff?: number;
+  assignments?: Array<{ status?: string }>;
+  alerts?: string[];
+};
+
+type FieldAgentApi = {
+  id: string;
+  role?: string;
+};
+
+function isoDate(d: Date): string {
+  return d.toISOString().slice(0, 10);
+}
+
+function periodRange(period: Period): { from: string; to: string } {
+  const now = new Date();
+  if (period === "hebdo") {
+    const day = now.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return { from: isoDate(monday), to: isoDate(sunday) };
+  }
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return { from: isoDate(from), to: isoDate(to) };
+}
+
+function daysInRange(from: string, to: string): number[] {
+  const start = new Date(`${from}T12:00:00`);
+  const end = new Date(`${to}T12:00:00`);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return [];
+  const days: number[] = [];
+  const cursor = new Date(start);
+  while (cursor <= end) {
+    days.push(cursor.getDate());
+    cursor.setDate(cursor.getDate() + 1);
+  }
+  return days;
+}
+
+function slotToMission(slot: PlanningSlotApi): Mission {
+  const d = new Date(`${slot.date}T12:00:00`);
+  const day = Number.isNaN(d.getTime()) ? 0 : d.getDate();
+  const dateLabel = Number.isNaN(d.getTime())
+    ? slot.date
+    : d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  const alerts = Array.isArray(slot.alerts) ? slot.alerts : [];
+  const required = Number(slot.requiredStaff) || 0;
+  const assigned = (slot.assignments ?? []).filter(
+    (a) => a.status !== "absent",
+  ).length;
+  const hasAlert = alerts.length > 0;
+  const tone: MissionTone = hasAlert
+    ? "danger"
+    : required > 0 && assigned >= required
+      ? "ok"
+      : "info";
+  let status = "Planifié";
+  if (hasAlert) {
+    if (alerts.includes("absence")) status = "Absence";
+    else if (alerts.includes("sous_effectif")) status = "Sous-effectif";
+    else if (alerts.includes("conflit")) status = "Conflit";
+    else status = "Alerte";
+  } else if (required > 0 && assigned >= required) {
+    status = "Confirmé";
+  }
+  return {
+    id: slot.id,
+    site: slot.siteName || slot.clientName || "Site",
+    type: slot.prestationLabel || "Prestation",
+    status,
+    day,
+    date: slot.date,
+    dateLabel,
+    time: slot.startTime || "—",
+    tone,
+  };
+}
 
 function exportMissionsCsv(missions: Mission[], period: Period) {
   const rows: string[][] = [
@@ -373,10 +144,15 @@ function exportMissionsCsv(missions: Mission[], period: Period) {
 export function DashboardWorkspace() {
   const [period, setPeriod] = useState<Period>("mensuel");
   const [query, setQuery] = useState("");
-  const [selectedDay, setSelectedDay] = useState<number | null>(22);
-  const [showAll, setShowAll] = useState(false);
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(true);
   const [openMissionId, setOpenMissionId] = useState<string | null>(null);
   const [menuMissionId, setMenuMissionId] = useState<string | null>(null);
+  const [missions, setMissions] = useState<Mission[]>([]);
+  const [missionsLoading, setMissionsLoading] = useState(true);
+  const [missionsError, setMissionsError] = useState<string | null>(null);
+  const [calendarDays, setCalendarDays] = useState<number[]>([]);
+  const [effectif, setEffectif] = useState<EffectifKpi | null>(null);
   const [pipelineKpi, setPipelineKpi] = useState<{
     openCount: number;
     weightedValue: number;
@@ -391,11 +167,24 @@ export function DashboardWorkspace() {
 
   useEffect(() => {
     let cancelled = false;
+    const { from, to } = periodRange(period);
+    setCalendarDays(daysInRange(from, to));
+    setMissionsLoading(true);
+    setMissionsError(null);
+
     void (async () => {
       try {
-        const [pipeRes, satRes] = await Promise.all([
+        const [pipeRes, satRes, planRes, recrutRes] = await Promise.all([
           fetch("/api/pipeline", { cache: "no-store" }),
           fetch("/api/satisfaction?view=dashboard", { cache: "no-store" }),
+          fetch(`/api/ops-planning?from=${from}&to=${to}`, {
+            cache: "no-store",
+            credentials: "same-origin",
+          }),
+          fetch("/api/recrutement?meta=1", {
+            cache: "no-store",
+            credentials: "same-origin",
+          }),
         ]);
 
         if (pipeRes.ok) {
@@ -433,14 +222,62 @@ export function DashboardWorkspace() {
             });
           }
         }
+
+        let agents = 0;
+        let chefs = 0;
+        if (planRes.ok) {
+          const data = (await planRes.json()) as {
+            slots?: PlanningSlotApi[];
+            agents?: FieldAgentApi[];
+            error?: string;
+          };
+          const mapped = (data.slots ?? []).map(slotToMission);
+          if (!cancelled) {
+            setMissions(mapped);
+            setMissionsLoading(false);
+          }
+          const field = data.agents ?? [];
+          agents = field.filter((a) => a.role === "nettoyeur").length;
+          chefs = field.filter((a) => a.role === "ops").length;
+        } else if (!cancelled) {
+          setMissions([]);
+          setMissionsLoading(false);
+          if (planRes.status === 403) {
+            setMissionsError("Planning réservé aux rôles opérations / RH.");
+          } else if (planRes.status === 503) {
+            setMissionsError("Base de données indisponible.");
+          } else {
+            setMissionsError("Impossible de charger le planning.");
+          }
+        }
+
+        let recrut = 0;
+        if (recrutRes.ok) {
+          const data = (await recrutRes.json()) as {
+            counts?: Record<string, number>;
+          };
+          recrut = Object.values(data.counts ?? {}).reduce(
+            (sum, n) => sum + (Number(n) || 0),
+            0,
+          );
+        }
+
+        if (!cancelled && (planRes.ok || recrutRes.ok)) {
+          setEffectif({ agents, chefs, recrut });
+        }
       } catch {
-        /* dashboard optionnel */
+        if (!cancelled) {
+          setMissions([]);
+          setMissionsLoading(false);
+          setMissionsError("Impossible de charger le tableau de bord.");
+        }
       }
     })();
+
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [period]);
 
   useEffect(() => {
     if (!openMissionId) return;
@@ -457,14 +294,11 @@ export function DashboardWorkspace() {
   }, [openMissionId]);
 
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    let list = ALL_MISSIONS;
-    if (period === "hebdo") {
-      list = list.filter((m) => m.day >= 14 && m.day <= 20);
-    }
-    if (selectedDay != null && !showAll) {
+    let list = missions;
+    if (!showAll && selectedDay != null) {
       list = list.filter((m) => m.day === selectedDay);
     }
+    const q = query.trim().toLowerCase();
     if (q) {
       list = list.filter(
         (m) =>
@@ -474,37 +308,36 @@ export function DashboardWorkspace() {
       );
     }
     return list;
-  }, [period, query, selectedDay, showAll]);
+  }, [missions, period, query, selectedDay, showAll]);
 
-  const demoPipelineKpi = {
-    openCount: 28,
-    weightedValue: 74_400_000,
-    totalValue: 186_000_000,
-    overdueCount: 4,
+  const pipeKpi = pipelineKpi ?? {
+    openCount: 0,
+    weightedValue: 0,
+    totalValue: 0,
+    overdueCount: 0,
   };
-  const demoSatisfactionKpi = {
-    rate: 92,
-    delta: 2.4,
-    plansOpen: 6,
+  const satKpi = satisfactionKpi ?? {
+    rate: null as number | null,
+    delta: null as number | null,
+    plansOpen: 0,
   };
-  const pipeKpi = pipelineKpi ?? demoPipelineKpi;
-  const satKpi = satisfactionKpi ?? demoSatisfactionKpi;
-  const openMission = ALL_MISSIONS.find((m) => m.id === openMissionId) ?? null;
+  const pipelineReady = pipelineKpi != null;
+  const openMission = missions.find((m) => m.id === openMissionId) ?? null;
+  const dangerMissions = missions.filter((m) => m.tone === "danger");
+  const effectifTotal = effectif
+    ? effectif.agents + effectif.chefs
+    : null;
 
   function onExport() {
-    exportMissionsCsv(filtered.length ? filtered : ALL_MISSIONS, period);
+    exportMissionsCsv(filtered.length ? filtered : missions, period);
     toast.success(
-      `Export CSV · ${filtered.length || ALL_MISSIONS.length} mission${
-        (filtered.length || ALL_MISSIONS.length) > 1 ? "s" : ""
+      `Export CSV · ${filtered.length || missions.length} mission${
+        (filtered.length || missions.length) > 1 ? "s" : ""
       }`,
     );
   }
 
   function onPickDay(day: number) {
-    if (OFF_DAYS.has(day)) {
-      toast.warning(`Le ${day} sep. est indisponible`);
-      return;
-    }
     setSelectedDay(day);
     setShowAll(false);
     setMenuMissionId(null);
@@ -543,14 +376,19 @@ export function DashboardWorkspace() {
                 aria-label="Rechercher un site ou une prestation"
               />
             </label>
-            <div className="module-header__btns dash-period" role="group" aria-label="Période">
+            <div
+              className="module-header__btns dash-period"
+              role="group"
+              aria-label="Période"
+            >
               <button
                 type="button"
                 className={`btn-admin${period === "mensuel" ? " btn-admin--primary" : " btn-admin--ghost"}`}
                 aria-pressed={period === "mensuel"}
                 onClick={() => {
                   setPeriod("mensuel");
-                  setShowAll(false);
+                  setShowAll(true);
+                  setSelectedDay(null);
                 }}
               >
                 Mensuel
@@ -609,8 +447,7 @@ export function DashboardWorkspace() {
         </Link>
       </nav>
 
-      {(pipelineKpi?.overdueCount ||
-        ALL_MISSIONS.some((m) => m.tone === "danger")) && (
+      {((pipelineKpi?.overdueCount ?? 0) > 0 || dangerMissions.length > 0) && (
         <div className="dash-attention" role="status">
           <strong>À traiter</strong>
           <ul>
@@ -623,7 +460,7 @@ export function DashboardWorkspace() {
                 </Link>
               </li>
             ) : null}
-            {ALL_MISSIONS.filter((m) => m.tone === "danger").map((m) => (
+            {dangerMissions.slice(0, 5).map((m) => (
               <li key={m.id}>
                 <button
                   type="button"
@@ -634,7 +471,7 @@ export function DashboardWorkspace() {
                     setOpenMissionId(m.id);
                   }}
                 >
-                  Anomalie · {m.site} ({m.dateLabel})
+                  {m.status} · {m.site} ({m.dateLabel})
                 </button>
               </li>
             ))}
@@ -656,21 +493,30 @@ export function DashboardWorkspace() {
           <h3>Pipeline pondéré</h3>
           <div className="symp-kpi__value">
             <strong>
-              {(pipeKpi.weightedValue / 1_000_000).toLocaleString("fr-FR", {
-                maximumFractionDigits: 1,
-              })}{" "}
-              M
+              {pipelineReady
+                ? `${(pipeKpi.weightedValue / 1_000_000).toLocaleString("fr-FR", {
+                    maximumFractionDigits: 1,
+                  })} M`
+                : "—"}
             </strong>
             <em className={pipeKpi.overdueCount ? "down" : "up"}>
-              {pipeKpi.openCount} opp.
+              {pipelineReady ? `${pipeKpi.openCount} opp.` : "…"}
             </em>
           </div>
           <p className="dash-kpi__foot">
-            Brut{" "}
-            {(pipeKpi.totalValue / 1_000_000).toLocaleString("fr-FR", {
-              maximumFractionDigits: 1,
-            })}{" "}
-            M · <Link href="/admin/pipeline">Ouvrir</Link>
+            {pipelineReady ? (
+              <>
+                Brut{" "}
+                {(pipeKpi.totalValue / 1_000_000).toLocaleString("fr-FR", {
+                  maximumFractionDigits: 1,
+                })}{" "}
+                M · <Link href="/admin/pipeline">Ouvrir</Link>
+              </>
+            ) : (
+              <>
+                Chargement… · <Link href="/admin/pipeline">Ouvrir</Link>
+              </>
+            )}
           </p>
         </article>
 
@@ -688,29 +534,19 @@ export function DashboardWorkspace() {
           </div>
           <h3>Missions</h3>
           <div className="symp-kpi__value">
-            <strong>
-              {period === "mensuel"
-                ? String(ALL_MISSIONS.length)
-                : String(
-                    ALL_MISSIONS.filter((m) => m.day >= 14 && m.day <= 20)
-                      .length,
-                  )}
-            </strong>
-            {ALL_MISSIONS.some((m) => m.tone === "danger") ? (
+            <strong>{missionsLoading ? "…" : String(missions.length)}</strong>
+            {dangerMissions.length > 0 ? (
               <em className="down">
-                {ALL_MISSIONS.filter((m) => m.tone === "danger").length}{" "}
-                anomalie
-                {ALL_MISSIONS.filter((m) => m.tone === "danger").length > 1
-                  ? "s"
-                  : ""}
+                {dangerMissions.length} alerte
+                {dangerMissions.length > 1 ? "s" : ""}
               </em>
             ) : (
-              <em className="up">OK</em>
+              <em className="up">{missionsLoading ? "…" : "OK"}</em>
             )}
           </div>
           <p className="dash-kpi__foot">
-            {ALL_MISSIONS.filter((m) => m.tone === "ok").length} confirmées ·{" "}
-            {ALL_MISSIONS.filter((m) => m.tone === "info").length} planifiées
+            {missions.filter((m) => m.tone === "ok").length} confirmées ·{" "}
+            {missions.filter((m) => m.tone === "info").length} planifiées
           </p>
         </article>
 
@@ -744,9 +580,7 @@ export function DashboardWorkspace() {
             )}
           </div>
           <p className="dash-kpi__foot">
-            <Link href="/admin/operations?tab=qualite&feature=satisfaction">
-              Voir le détail →
-            </Link>
+            <Link href="/admin/qualite">Ouvrir qualité</Link>
           </p>
         </article>
 
@@ -762,26 +596,43 @@ export function DashboardWorkspace() {
           </div>
           <h3>Effectif terrain</h3>
           <div className="symp-kpi__value">
-            <strong>214</strong>
-            <em className="up">+12</em>
+            <strong>
+              {effectifTotal == null ? "—" : String(effectifTotal)}
+            </strong>
+            {effectif && effectif.recrut > 0 ? (
+              <em className="up">+{effectif.recrut} recrut.</em>
+            ) : (
+              <em className="muted">n/d</em>
+            )}
           </div>
-          <div className="symp-stackbar dash-kpi__stack" aria-hidden>
-            <span style={{ flex: 148 }} title="Agents" />
-            <span style={{ flex: 42 }} title="Chefs" />
-            <span style={{ flex: 24 }} title="Recrutement" />
-          </div>
-          <p className="dash-kpi__foot">148 agents · 42 chefs · 24 recrut.</p>
+          {effectif ? (
+            <>
+              <div className="symp-stackbar dash-kpi__stack" aria-hidden>
+                <span
+                  style={{ flex: Math.max(effectif.agents, 1) }}
+                  title="Agents"
+                />
+                <span
+                  style={{ flex: Math.max(effectif.chefs, 1) }}
+                  title="Chefs"
+                />
+                <span
+                  style={{ flex: Math.max(effectif.recrut, 1) }}
+                  title="Recrutement"
+                />
+              </div>
+              <p className="dash-kpi__foot">
+                {effectif.agents} agents · {effectif.chefs} chefs ·{" "}
+                {effectif.recrut} recrut.
+              </p>
+            </>
+          ) : (
+            <p className="dash-kpi__foot">Chargement effectif…</p>
+          )}
         </article>
       </section>
 
-      <DashboardCharts
-        period={period}
-        missions={
-          period === "hebdo"
-            ? ALL_MISSIONS.filter((m) => m.day >= 14 && m.day <= 20)
-            : ALL_MISSIONS
-        }
-      />
+      <DashboardCharts period={period} missions={missions} />
 
       <div className="symp-grid">
         <section className="symp-panel symp-panel--missions">
@@ -789,9 +640,13 @@ export function DashboardWorkspace() {
             <div>
               <h2>Missions à venir</h2>
               <p>
-                {showAll || selectedDay == null
-                  ? `Planning terrain · ${filtered.length} mission${filtered.length > 1 ? "s" : ""}`
-                  : `Jour ${selectedDay} sep. · ${filtered.length} mission${filtered.length > 1 ? "s" : ""}`}
+                {missionsLoading
+                  ? "Chargement du planning…"
+                  : missionsError
+                    ? missionsError
+                    : showAll || selectedDay == null
+                      ? `Planning terrain · ${filtered.length} mission${filtered.length > 1 ? "s" : ""}`
+                      : `Jour ${selectedDay} · ${filtered.length} mission${filtered.length > 1 ? "s" : ""}`}
               </p>
             </div>
             <button
@@ -800,7 +655,8 @@ export function DashboardWorkspace() {
               onClick={() => {
                 setShowAll((v) => !v);
                 if (!showAll) setSelectedDay(null);
-                else setSelectedDay(22);
+                else if (calendarDays.length)
+                  setSelectedDay(calendarDays[0] ?? null);
                 setMenuMissionId(null);
               }}
             >
@@ -818,19 +674,14 @@ export function DashboardWorkspace() {
                 <i className="dot d1" />
                 Sélectionné
               </span>
-              <span>
-                <i className="dot d4" />
-                Indisponible
-              </span>
             </div>
             <div className="symp-dates__row">
-              {DATES.map((d) => (
+              {calendarDays.map((d) => (
                 <button
                   key={d}
                   type="button"
-                  className={`symp-date${selectedDay === d && !showAll ? " is-selected" : ""}${OFF_DAYS.has(d) ? " is-off" : ""}`}
+                  className={`symp-date${selectedDay === d && !showAll ? " is-selected" : ""}`}
                   aria-pressed={selectedDay === d && !showAll}
-                  disabled={OFF_DAYS.has(d)}
                   onClick={() => onPickDay(d)}
                 >
                   {d}
@@ -840,9 +691,11 @@ export function DashboardWorkspace() {
           </div>
 
           <div className="symp-table-wrap">
-            {filtered.length === 0 ? (
+            {missionsLoading ? (
+              <p className="symp-empty">Chargement des missions…</p>
+            ) : filtered.length === 0 ? (
               <p className="symp-empty">
-                Aucune mission pour ce filtre.
+                {missionsError || "Aucune mission pour ce filtre."}
                 {query ? " Essayez une autre recherche." : null}
               </p>
             ) : (
@@ -918,11 +771,11 @@ export function DashboardWorkspace() {
                                     Détail mission
                                   </button>
                                   <Link
-                                    href="/admin/operations?tab=terrain"
+                                    href="/admin/operations?tab=planification"
                                     role="menuitem"
                                     onClick={() => setMenuMissionId(null)}
                                   >
-                                    Photos terrain
+                                    Ouvrir le planning
                                   </Link>
                                   <Link
                                     href="/admin/operations?tab=pointage"
@@ -943,10 +796,7 @@ export function DashboardWorkspace() {
 
                 <div className="symp-missions-mobile" aria-label="Missions">
                   {filtered.map((m) => (
-                    <article
-                      key={`m-${m.id}`}
-                      className="symp-mission-card"
-                    >
+                    <article key={`m-${m.id}`} className="symp-mission-card">
                       <div className="symp-mission-card__top">
                         <div className="symp-person">
                           <span className="dash-avatar sm">
@@ -1035,11 +885,11 @@ export function DashboardWorkspace() {
             </div>
             <footer className="symp-modal__foot">
               <Link
-                href="/admin/operations?tab=terrain"
+                href="/admin/operations?tab=planification"
                 className="symp-btn symp-btn--ghost"
                 onClick={() => setOpenMissionId(null)}
               >
-                Photos terrain
+                Planning
               </Link>
               <Link
                 href="/admin/operations?tab=pointage"

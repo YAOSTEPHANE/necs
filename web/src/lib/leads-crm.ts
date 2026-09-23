@@ -1,8 +1,29 @@
-import type { ObjectId } from "mongodb";
+import "server-only";
+
+import { ObjectId } from "mongodb";
 import { getDb } from "@/lib/mongo";
 import { sendAppMail } from "@/lib/mail";
 import { listUsers } from "@/lib/users-repo";
 import { syncConsentPreferenceFromLead } from "@/lib/consent-preferences-crm";
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function parseLeadObjectId(id?: string): ObjectId | null {
+  const raw = (id || "").trim();
+  if (!raw || !ObjectId.isValid(raw)) return null;
+  try {
+    return new ObjectId(raw);
+  } catch {
+    return null;
+  }
+}
 
 export type LeadStatus = "nouveau" | "en_cours" | "traite";
 
@@ -210,8 +231,13 @@ export async function upsertLeadFromWeb(
   }
 
   const submissions = [...(existing.submissions ?? []), submission].slice(-20);
+  // Ne jamais réouvrir un lead déjà traité / en cours : le badge « nouveau »
+  // et les demandes du tableau de bord resteraient sinon à chaque retouch
+  // (re-soumission formulaire, saisie client admin, sync Facebook e-mail).
   const nextStatus: LeadStatus =
-    existing.status === "traite" ? "nouveau" : existing.status;
+    existing.status === "en_cours" || existing.status === "traite"
+      ? existing.status
+      : existing.status || "nouveau";
 
   const patch: Partial<DbLead> = {
     name: input.name || existing.name,
@@ -250,7 +276,12 @@ export async function upsertLeadFromWeb(
   if (facebookAdId) patch.facebookAdId = facebookAdId;
   if (facebookFormName) patch.facebookFormName = facebookFormName;
 
-  await col.updateOne({ email }, { $set: patch });
+  // Toujours cibler le document trouvé (évite de patcher un doublon legacy).
+  if (existing._id) {
+    await col.updateOne({ _id: existing._id }, { $set: patch });
+  } else {
+    await col.updateOne({ email }, { $set: patch });
+  }
   const lead = { ...existing, ...patch } as DbLead;
   return {
     id: String(existing._id),
@@ -281,31 +312,61 @@ export async function updateLeadStatus(
   email: string,
   at: string,
   status: LeadStatus,
+  id?: string,
 ): Promise<boolean> {
   const col = await leadsCollection();
-  // Match by email (+ optional last `at` for backward compat).
-  const result = await col.updateOne(
-    {
-      email: email.trim().toLowerCase(),
-      $or: [{ at }, { at: { $exists: true } }],
-    },
-    { $set: { status, updatedAt: Date.now() } },
-  );
-  if (result.matchedCount > 0) return true;
-  const fallback = await col.updateOne(
-    { email: email.trim().toLowerCase() },
-    { $set: { status, updatedAt: Date.now() } },
-  );
+  const patch = { $set: { status, updatedAt: Date.now() } };
+
+  const oid = parseLeadObjectId(id);
+  if (oid) {
+    const byId = await col.updateOne({ _id: oid }, patch);
+    if (byId.matchedCount > 0) return true;
+  }
+
+  const normalized = email.trim().toLowerCase();
+  if (at) {
+    const byAt = await col.updateOne({ email: normalized, at }, patch);
+    if (byAt.matchedCount > 0) return true;
+  }
+
+  // Doublons legacy / `at` réécrit par upsert : cibler le plus récent seulement.
+  const latest = await col
+    .find({ email: normalized })
+    .sort({ updatedAt: -1, createdAt: -1 })
+    .limit(1)
+    .next();
+  if (!latest?._id) return false;
+  const fallback = await col.updateOne({ _id: latest._id }, patch);
   return fallback.matchedCount > 0;
 }
 
-export async function deleteLead(email: string, at: string): Promise<boolean> {
+export async function deleteLead(
+  email: string,
+  at: string,
+  id?: string,
+): Promise<boolean> {
   const col = await leadsCollection();
+  const oid = parseLeadObjectId(id);
+  if (oid) {
+    const byId = await col.deleteOne({ _id: oid });
+    if (byId.deletedCount > 0) return true;
+  }
+
   const normalized = email.trim().toLowerCase();
-  const byAt = await col.deleteOne({ email: normalized, at });
-  if (byAt.deletedCount > 0) return true;
-  const byEmail = await col.deleteOne({ email: normalized });
-  return byEmail.deletedCount > 0;
+  if (at) {
+    const byAt = await col.deleteOne({ email: normalized, at });
+    if (byAt.deletedCount > 0) return true;
+  }
+
+  // Évite de supprimer un document arbitraire : uniquement le plus récent.
+  const latest = await col
+    .find({ email: normalized })
+    .sort({ updatedAt: -1, createdAt: -1 })
+    .limit(1)
+    .next();
+  if (!latest?._id) return false;
+  const byLatest = await col.deleteOne({ _id: latest._id });
+  return byLatest.deletedCount > 0;
 }
 
 /** Notifie le commercial (env + comptes rôle commercial actifs). */
@@ -337,6 +398,10 @@ export async function notifyCommercialNewLead(input: {
   }
 
   const { lead, created } = input;
+  // Pas d’e-mail si retouch d’un lead déjà traité / en cours (statut conservé).
+  if (!created && lead.status !== "nouveau") {
+    return;
+  }
   const title = created ? "Nouveau prospect site web" : "Prospect mis à jour (nouvelle demande)";
   const app = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "") || "";
   const inbox = app ? `${app}/admin/demandes` : "/admin/demandes";
@@ -360,21 +425,34 @@ export async function notifyCommercialNewLead(input: {
     `Ouvrir l’inbox : ${inbox}`,
   ].join("\n");
 
+  const safe = {
+    title: escapeHtml(title),
+    name: escapeHtml(lead.name || ""),
+    company: escapeHtml(lead.company || "—"),
+    email: escapeHtml(lead.email || ""),
+    phone: escapeHtml(lead.phone || "—"),
+    formType: escapeHtml(lead.formType || ""),
+    source: escapeHtml(
+      `${lead.lastSource || lead.source} · ${lead.lastCampaign || lead.campaign || "—"}`,
+    ),
+    message: escapeHtml(lead.message || ""),
+    inbox: escapeHtml(inbox),
+  };
   const html = `
     <div style="font-family:Segoe UI,Arial,sans-serif;line-height:1.5;color:#0f172a">
-      <h2 style="margin:0 0 8px;color:#0A3A72">${title}</h2>
+      <h2 style="margin:0 0 8px;color:#0A3A72">${safe.title}</h2>
       <p style="margin:0 0 12px;color:#475569">Capture automatique CRM · NECS</p>
       <table style="border-collapse:collapse;width:100%;max-width:560px">
-        <tr><td style="padding:6px 0;color:#64748b">Nom</td><td style="padding:6px 0;font-weight:700">${lead.name}</td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">Entreprise</td><td style="padding:6px 0">${lead.company || "—"}</td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">E-mail</td><td style="padding:6px 0"><a href="mailto:${lead.email}">${lead.email}</a></td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">Téléphone</td><td style="padding:6px 0">${lead.phone || "—"}</td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">Type</td><td style="padding:6px 0">${lead.formType}</td></tr>
-        <tr><td style="padding:6px 0;color:#64748b">Source / campagne</td><td style="padding:6px 0">${lead.lastSource || lead.source} · ${lead.lastCampaign || lead.campaign || "—"}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Nom</td><td style="padding:6px 0;font-weight:700">${safe.name}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Entreprise</td><td style="padding:6px 0">${safe.company}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">E-mail</td><td style="padding:6px 0"><a href="mailto:${safe.email}">${safe.email}</a></td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Téléphone</td><td style="padding:6px 0">${safe.phone}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Type</td><td style="padding:6px 0">${safe.formType}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Source / campagne</td><td style="padding:6px 0">${safe.source}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b">Consentement</td><td style="padding:6px 0">${lead.consent ? "Oui" : "Non"}</td></tr>
       </table>
-      <p style="margin:16px 0;white-space:pre-wrap">${lead.message || ""}</p>
-      <p><a href="${inbox}" style="display:inline-block;padding:10px 16px;background:#0A3A72;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">Ouvrir les demandes</a></p>
+      <p style="margin:16px 0;white-space:pre-wrap">${safe.message}</p>
+      <p><a href="${safe.inbox}" style="display:inline-block;padding:10px 16px;background:#0A3A72;color:#fff;text-decoration:none;border-radius:10px;font-weight:700">Ouvrir les demandes</a></p>
     </div>
   `;
 

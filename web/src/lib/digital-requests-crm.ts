@@ -1,9 +1,11 @@
 import { randomUUID } from "crypto";
 import { getDb } from "@/lib/mongo";
+import { upsertClientAndSubmit } from "@/lib/clients-crm";
 import {
   notifyCommercialNewLead,
   upsertLeadFromWeb,
 } from "@/lib/leads-crm";
+import { importProspectFromLead } from "@/lib/prospects-crm";
 import type { UserRole } from "@/lib/settings";
 import {
   DIGITAL_CONVERT_LABELS,
@@ -391,6 +393,80 @@ async function createLeadArtifact(
   };
 }
 
+async function createProspectArtifact(
+  req: DigitalRequest,
+  actor: Actor,
+): Promise<DigitalConversion> {
+  const email = clean(req.contactEmail, 180).toLowerCase();
+  if (!email.includes("@")) {
+    throw new Error("E-mail contact requis pour créer un prospect.");
+  }
+  const result = await importProspectFromLead(
+    {
+      email,
+      name: req.contactName,
+      company: req.company || req.contactName || email,
+      phone: req.contactPhone,
+      source: req.channel === "site_web" ? "site_web" : req.channel,
+      campaign: "digital_request",
+      subject: req.subject,
+      message: `[${req.id}] ${req.message}`,
+    },
+    actor,
+  );
+  return {
+    kind: "prospect",
+    refId: result.prospect.id,
+    label: result.created
+      ? `Prospect ${result.prospect.id}`
+      : `Prospect existant ${result.prospect.id}`,
+    at: nowIso(),
+    by: actor.userId,
+    byName: actor.name,
+  };
+}
+
+async function createClientArtifact(
+  req: DigitalRequest,
+  actor: Actor,
+): Promise<DigitalConversion> {
+  const email = clean(req.contactEmail, 180).toLowerCase();
+  if (!email.includes("@")) {
+    throw new Error("E-mail contact requis pour créer un client.");
+  }
+  const result = await upsertClientAndSubmit({
+    name: req.contactName || req.company || email,
+    company: req.company || req.contactName || "",
+    email,
+    phone: req.contactPhone || "",
+    city: "",
+    address: "",
+    siteType: "",
+    surface: "",
+    source: req.channel === "site_web" ? "site_web" : req.channel,
+    campaign: "digital_request",
+    formType: "contact",
+    subject: req.subject || "Demande digitale",
+    message: `[${req.id}] ${req.message}`,
+    consent: true,
+    status: "actif",
+    createdBy: actor.email,
+    createdByRole: actor.role,
+    // Évite un second lead : la demande digitale est déjà tracée.
+    submitRequest: false,
+  });
+  return {
+    kind: "client",
+    refId: result.clientId,
+    label: result.created
+      ? `Client ${result.clientId}`
+      : `Client existant ${result.clientId}`,
+    at: nowIso(),
+    by: actor.userId,
+    byName: actor.name,
+  };
+}
+
 export async function convertDigitalRequest(
   id: string,
   kind: DigitalConvertKind,
@@ -412,6 +488,12 @@ export async function convertDigitalRequest(
 
   let conversion: DigitalConversion;
   switch (kind) {
+    case "prospect":
+      conversion = await createProspectArtifact(existing, actor);
+      break;
+    case "client":
+      conversion = await createClientArtifact(existing, actor);
+      break;
     case "lead":
       conversion = await createLeadArtifact(existing, actor);
       break;

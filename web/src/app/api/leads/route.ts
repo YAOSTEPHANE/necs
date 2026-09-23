@@ -273,17 +273,19 @@ export async function PATCH(request: Request) {
     if (auth.error) return auth.error;
 
     const body = (await request.json()) as {
+      id?: string;
       email?: string;
       at?: string;
       status?: string;
     };
+    const id = clampText(String(body.id || ""), 40);
     const email = clampText(String(body.email || "").toLowerCase(), 180);
     const at = clampText(String(body.at || ""), 40);
     const status = normalizeStatus(body.status);
 
-    if (!email || !at) {
+    if ((!email || !at) && !id) {
       return NextResponse.json(
-        { error: "Email et horodatage requis." },
+        { error: "Identifiant ou email + horodatage requis." },
         { status: 400 },
       );
     }
@@ -291,7 +293,7 @@ export async function PATCH(request: Request) {
       return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
     }
 
-    const ok = await updateLeadStatus(email, at, status);
+    const ok = await updateLeadStatus(email, at, status, id || undefined);
     if (!ok) {
       return NextResponse.json({ error: "Demande introuvable." }, { status: 404 });
     }
@@ -318,17 +320,22 @@ export async function DELETE(request: Request) {
     const auth = await requireLeadReader();
     if (auth.error) return auth.error;
 
-    const body = (await request.json()) as { email?: string; at?: string };
+    const body = (await request.json()) as {
+      id?: string;
+      email?: string;
+      at?: string;
+    };
+    const id = clampText(String(body.id || ""), 40);
     const email = clampText(String(body.email || "").toLowerCase(), 180);
     const at = clampText(String(body.at || ""), 40);
-    if (!email || !at) {
+    if ((!email || !at) && !id) {
       return NextResponse.json(
-        { error: "Email et horodatage requis." },
+        { error: "Identifiant ou email + horodatage requis." },
         { status: 400 },
       );
     }
 
-    const removed = await deleteLead(email, at);
+    const removed = await deleteLead(email, at, id || undefined);
     if (!removed) {
       return NextResponse.json({ error: "Demande introuvable." }, { status: 404 });
     }

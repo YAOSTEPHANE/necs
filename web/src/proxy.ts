@@ -44,7 +44,8 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/admin/login") ||
     pathname.startsWith("/admin/inscription") ||
     pathname.startsWith("/admin/mot-de-passe-oublie") ||
-    pathname.startsWith("/admin/reinitialiser-mot-de-passe")
+    pathname.startsWith("/admin/reinitialiser-mot-de-passe") ||
+    pathname === "/api/blob/status"
   ) {
     return withSecurityHeaders(NextResponse.next());
   }
@@ -63,7 +64,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (
-    pathname.startsWith("/api/blob/") ||
+    (pathname.startsWith("/api/blob/") && pathname !== "/api/blob/status") ||
     pathname.startsWith("/api/users")
   ) {
     const ok = await hasValidSession(request);

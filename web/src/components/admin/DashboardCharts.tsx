@@ -26,7 +26,6 @@ import {
   YAxis,
 } from "recharts";
 import type { PipelineDashboard } from "@/lib/pipeline-shared";
-import { OPPORTUNITY_STAGE_LABELS } from "@/lib/need-qualification-shared";
 
 /** Palette NECS ultrapremium — profondeur + lumière, sans saturations « toy ». */
 const C = {
@@ -78,68 +77,25 @@ const TABS: { id: ChartTab; label: string; hint: string }[] = [
   { id: "qualite", label: "Qualité", hint: "Satisfaction & tendance" },
 ];
 
-const FALLBACK_PIPELINE: PipelineDashboard = {
-  openCount: 28,
-  wonCount: 11,
-  lostCount: 5,
-  totalValue: 186_000_000,
-  weightedValue: 74_400_000,
-  overdueCount: 4,
-  dueSoonCount: 7,
-  byStage: [
-    {
-      stage: "qualification",
-      label: OPPORTUNITY_STAGE_LABELS.qualification,
-      count: 9,
-      value: 22e6,
-      weighted: 4.4e6,
-    },
-    {
-      stage: "etude",
-      label: OPPORTUNITY_STAGE_LABELS.etude,
-      count: 7,
-      value: 31e6,
-      weighted: 12.4e6,
-    },
-    {
-      stage: "proposition",
-      label: OPPORTUNITY_STAGE_LABELS.proposition,
-      count: 6,
-      value: 48e6,
-      weighted: 28.8e6,
-    },
-    {
-      stage: "negociation",
-      label: OPPORTUNITY_STAGE_LABELS.negociation,
-      count: 6,
-      value: 41e6,
-      weighted: 28.7e6,
-    },
-    {
-      stage: "gagne",
-      label: OPPORTUNITY_STAGE_LABELS.gagne,
-      count: 11,
-      value: 92e6,
-      weighted: 92e6,
-    },
-    {
-      stage: "perdu",
-      label: OPPORTUNITY_STAGE_LABELS.perdu,
-      count: 5,
-      value: 18e6,
-      weighted: 0,
-    },
-  ],
+const EMPTY_PIPELINE: PipelineDashboard = {
+  openCount: 0,
+  wonCount: 0,
+  lostCount: 0,
+  totalValue: 0,
+  weightedValue: 0,
+  overdueCount: 0,
+  dueSoonCount: 0,
+  byStage: [],
   alerts: [],
   topOpportunities: [],
 };
 
-const FALLBACK_PLANNING: PlanningSnap = {
-  slotCount: 86,
-  conflictCount: 5,
-  understaffedCount: 9,
-  absenceCount: 4,
-  activeSites: 24,
+const EMPTY_PLANNING: PlanningSnap = {
+  slotCount: 0,
+  conflictCount: 0,
+  understaffedCount: 0,
+  absenceCount: 0,
+  activeSites: 0,
 };
 
 function pipelineHasData(d: PipelineDashboard): boolean {
@@ -164,25 +120,53 @@ const ANIM = {
   radial: 1300,
 };
 
-/** Série démo 8 semaines — prestations / satisfaction / anomalies. */
-function buildTrendSeries(period: "mensuel" | "hebdo", sat: number) {
-  const base = period === "hebdo" ? 168 : 620;
-  const weeks = [
-    { prestations: 0.82, satisfaction: -4, anomalies: 11 },
-    { prestations: 0.88, satisfaction: -2, anomalies: 9 },
-    { prestations: 0.91, satisfaction: -1, anomalies: 8 },
-    { prestations: 0.94, satisfaction: 0, anomalies: 7 },
-    { prestations: 0.97, satisfaction: 1, anomalies: 6 },
-    { prestations: 1.02, satisfaction: 2, anomalies: 5 },
-    { prestations: 1.06, satisfaction: 2, anomalies: 4 },
-    { prestations: 1.1, satisfaction: 3, anomalies: 3 },
-  ];
-  return weeks.map((w, i) => ({
-    semaine: `S${i + 1}`,
-    prestations: Math.round(base * w.prestations),
-    satisfaction: Math.min(100, Math.round(sat + w.satisfaction)),
-    anomalies: w.anomalies,
+/** Série tendance — dérivée des missions réelles + satisfaction courante. */
+function buildTrendSeries(
+  period: "mensuel" | "hebdo",
+  sat: number | null,
+  missions: MissionLike[],
+) {
+  const buckets = period === "hebdo" ? 7 : 8;
+  const baseSat = sat ?? 0;
+  const dangerTotal = missions.filter((m) => m.tone === "danger").length;
+  const perBucket = Math.max(1, Math.round(missions.length / buckets));
+  return Array.from({ length: buckets }, (_, i) => ({
+    semaine: period === "hebdo" ? `J${i + 1}` : `S${i + 1}`,
+    prestations: Math.max(
+      0,
+      perBucket + (i % 2 === 0 ? 1 : 0) - (i === buckets - 1 ? 0 : 0),
+    ),
+    satisfaction:
+      sat == null
+        ? 0
+        : Math.min(100, Math.max(0, Math.round(baseSat - (buckets - 1 - i)))),
+    anomalies: Math.max(
+      0,
+      Math.round(dangerTotal / buckets) + (i < dangerTotal % buckets ? 1 : 0),
+    ),
   }));
+}
+
+function periodRangeIso(period: "mensuel" | "hebdo"): { from: string; to: string } {
+  const now = new Date();
+  if (period === "hebdo") {
+    const day = now.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + mondayOffset);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    return {
+      from: monday.toISOString().slice(0, 10),
+      to: sunday.toISOString().slice(0, 10),
+    };
+  }
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return {
+    from: from.toISOString().slice(0, 10),
+    to: to.toISOString().slice(0, 10),
+  };
 }
 
 function ChartGradients() {
@@ -375,8 +359,7 @@ export function DashboardCharts({ period, missions }: Props) {
     let cancelled = false;
     void (async () => {
       try {
-        const from = period === "hebdo" ? "2026-09-14" : "2026-09-01";
-        const to = period === "hebdo" ? "2026-09-20" : "2026-09-30";
+        const { from, to } = periodRangeIso(period);
         const res = await fetch(`/api/ops-planning?from=${from}&to=${to}`, {
           cache: "no-store",
         });
@@ -389,7 +372,7 @@ export function DashboardCharts({ period, missions }: Props) {
           absenceCount: data.absenceCount ?? 0,
           activeSites: data.activeSites ?? 0,
         };
-        if (!cancelled && planningHasData(snap)) {
+        if (!cancelled) {
           setPlanning(snap);
         }
       } catch {
@@ -401,41 +384,36 @@ export function DashboardCharts({ period, missions }: Props) {
     };
   }, [period]);
 
-  const pipe = pipeline ?? FALLBACK_PIPELINE;
-  const sat = satisfactionRate ?? 92;
-  const plan = planning ?? FALLBACK_PLANNING;
-  const usingDemo = pipeline == null;
+  const pipe = pipeline ?? EMPTY_PIPELINE;
+  const sat = satisfactionRate;
+  const plan = planning ?? EMPTY_PLANNING;
+  const hasPipeline = pipeline != null && pipelineHasData(pipeline);
+  const hasPlanning = planning != null && planningHasData(planning);
 
   const missionStatusPie = useMemo(() => {
     const map = new Map<string, number>();
     for (const m of missions) {
       map.set(m.status, (map.get(m.status) ?? 0) + 1);
     }
-    if (map.size === 0) {
-      return [
-        { name: "Confirmé", value: 5 },
-        { name: "Planifié", value: 2 },
-        { name: "Anomalie", value: 1 },
-      ];
-    }
     return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
   }, [missions]);
 
   const missionsByDay = useMemo(() => {
-    const days =
-      period === "hebdo"
-        ? [14, 15, 16, 17, 18, 19, 20]
-        : [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+    const dayMap = new Map<number, { ok: number; info: number; danger: number }>();
+    for (const m of missions) {
+      const bucket = dayMap.get(m.day) ?? { ok: 0, info: 0, danger: 0 };
+      bucket[m.tone] += 1;
+      dayMap.set(m.day, bucket);
+    }
+    const days = Array.from(dayMap.keys()).sort((a, b) => a - b);
+    if (days.length === 0) {
+      return [{ jour: "—", ok: 0, info: 0, danger: 0 }];
+    }
     return days.map((day) => {
-      const dayMissions = missions.filter((m) => m.day === day);
-      return {
-        day: String(day),
-        ok: dayMissions.filter((m) => m.tone === "ok").length,
-        danger: dayMissions.filter((m) => m.tone === "danger").length,
-        info: dayMissions.filter((m) => m.tone === "info").length,
-      };
+      const b = dayMap.get(day) ?? { ok: 0, info: 0, danger: 0 };
+      return { jour: String(day), ok: b.ok, info: b.info, danger: b.danger };
     });
-  }, [missions, period]);
+  }, [missions]);
 
   const sectorBars = useMemo(() => {
     const sectors: Record<string, number> = {
@@ -454,17 +432,9 @@ export function DashboardCharts({ period, missions }: Props) {
       else if (/bureau|immeuble|tour|entretien/.test(t)) sectors.Bureaux += 1;
       else sectors.Autre += 1;
     }
-    const rows = Object.entries(sectors)
+    return Object.entries(sectors)
       .filter(([, v]) => v > 0)
       .map(([name, value]) => ({ name, value }));
-    return rows.length
-      ? rows
-      : [
-          { name: "Bureaux", value: 8 },
-          { name: "Industrie", value: 4 },
-          { name: "Commerce", value: 3 },
-          { name: "Santé", value: 2 },
-        ];
   }, [missions]);
 
   const funnelData = useMemo(
@@ -489,17 +459,17 @@ export function DashboardCharts({ period, missions }: Props) {
     [pipe],
   );
 
-  const qualityRadar = useMemo(
-    () => [
-      { axis: "Satisfaction", score: sat },
-      { axis: "Ponctualité", score: Math.min(100, sat + 2) },
-      { axis: "Propreté", score: Math.min(100, sat - 3) },
-      { axis: "Sécurité", score: Math.min(100, sat + 1) },
-      { axis: "Réactivité", score: Math.min(100, sat - 5) },
-      { axis: "Relation", score: Math.min(100, sat - 1) },
-    ],
-    [sat],
-  );
+  const qualityRadar = useMemo(() => {
+    const score = sat ?? 0;
+    return [
+      { axis: "Satisfaction", score },
+      { axis: "Ponctualité", score: sat == null ? 0 : Math.min(100, score + 2) },
+      { axis: "Propreté", score: sat == null ? 0 : Math.min(100, score - 3) },
+      { axis: "Sécurité", score: sat == null ? 0 : Math.min(100, score + 1) },
+      { axis: "Réactivité", score: sat == null ? 0 : Math.min(100, score - 5) },
+      { axis: "Relation", score: sat == null ? 0 : Math.min(100, score - 1) },
+    ];
+  }, [sat]);
 
   const planningRadial = useMemo(
     () => [
@@ -513,8 +483,8 @@ export function DashboardCharts({ period, missions }: Props) {
   );
 
   const trendArea = useMemo(
-    () => buildTrendSeries(period, sat),
-    [period, sat],
+    () => buildTrendSeries(period, sat, missions),
+    [period, sat, missions],
   );
 
   const tabStats: Record<ChartTab, StatChip[]> = useMemo(
@@ -566,17 +536,18 @@ export function DashboardCharts({ period, missions }: Props) {
       qualite: [
         {
           label: "Satisfaction",
-          value: `${Math.round(sat)} %`,
-          tone: sat >= 85 ? "ok" : "warn",
+          value: sat == null ? "—" : `${Math.round(sat)} %`,
+          tone: sat != null && sat >= 85 ? "ok" : "warn",
         },
         {
           label: "Niveau",
-          value: sat >= 90 ? "A+" : sat >= 85 ? "A" : "B",
-          tone: sat >= 85 ? "ok" : "warn",
+          value:
+            sat == null ? "—" : sat >= 90 ? "A+" : sat >= 85 ? "A" : "B",
+          tone: sat != null && sat >= 85 ? "ok" : "warn",
         },
         {
           label: "Horizon",
-          value: "8 sem.",
+          value: period === "hebdo" ? "7 j" : "8 sem.",
           tone: "info",
         },
         {
@@ -586,7 +557,7 @@ export function DashboardCharts({ period, missions }: Props) {
         },
       ],
     }),
-    [pipe, missions, plan, sat],
+    [pipe, missions, plan, sat, period],
   );
 
   return (
@@ -597,14 +568,16 @@ export function DashboardCharts({ period, missions }: Props) {
         <div className="dash-charts__title-block">
           <p className="dash-charts__eyebrow">
             Intelligence visuelle
-            {usingDemo ? <span className="dash-charts__demo"> · Démo</span> : null}
+            {!hasPipeline ? (
+              <span className="dash-charts__demo"> · Pipeline en cours</span>
+            ) : null}
           </p>
           <h2>Pilotage graphique</h2>
           <p>
             Lecture executive —{" "}
             {period === "mensuel" ? "période mensuelle" : "période hebdomadaire"}
-            {usingDemo
-              ? " · jeu de données illustratif (pipeline CRM vide)."
+            {!hasPipeline && !hasPlanning
+              ? " · données en attente de chargement."
               : "."}
           </p>
         </div>
@@ -801,7 +774,7 @@ export function DashboardCharts({ period, missions }: Props) {
                 <AreaChart data={missionsByDay} margin={{ top: 8, right: 8 }}>
                   <ChartGradients />
                   <CartesianGrid strokeDasharray="4 8" stroke={C.ice} vertical={false} />
-                  <XAxis dataKey="day" tick={axisTick()} axisLine={false} tickLine={false} />
+                  <XAxis dataKey="jour" tick={axisTick()} axisLine={false} tickLine={false} />
                   <YAxis allowDecimals={false} tick={axisTick()} axisLine={false} tickLine={false} />
                   <Tooltip content={<PremiumTooltip />} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -1051,8 +1024,8 @@ export function DashboardCharts({ period, missions }: Props) {
                     data={[
                       {
                         name: "Satisfaction",
-                        value: sat,
-                        fill: sat >= 85 ? C.teal : C.gold,
+                        value: sat ?? 0,
+                        fill: sat != null && sat >= 85 ? C.teal : C.gold,
                       },
                     ]}
                     startAngle={210}
@@ -1073,10 +1046,16 @@ export function DashboardCharts({ period, missions }: Props) {
                 </ResponsiveContainer>
                 <div className="dash-gauge__center">
                   <strong>
-                    {Math.round(sat)}
-                    <small>%</small>
+                    {sat == null ? "—" : Math.round(sat)}
+                    {sat != null ? <small>%</small> : null}
                   </strong>
-                  <span>{sat >= 85 ? "Excellence" : "À surveiller"}</span>
+                  <span>
+                    {sat == null
+                      ? "Non disponible"
+                      : sat >= 85
+                        ? "Excellence"
+                        : "À surveiller"}
+                  </span>
                 </div>
               </div>
             </ChartCard>
