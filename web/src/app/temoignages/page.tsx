@@ -1,12 +1,36 @@
 import type { Metadata } from "next";
 import { TemoignagesPage } from "@/components/site/pages/MenuPages";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildPageMetadata,
+  webPageJsonLd,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Ils nous font confiance ; NECS SARL",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Ils nous font confiance",
   description:
-    "Notre engagement : équipes encadrées, qualité contrôlée, service traçable et solutions adaptées.",
-};
+    "Témoignages clients NECS : engagement qualité, reporting et confiance durable sur vos sites.",
+  path: "/temoignages",
+});
 
 export default function Page() {
-  return <TemoignagesPage />;
+  return (
+    <>
+      <JsonLd
+        data={[
+          webPageJsonLd({
+            path: "/temoignages",
+            name: "Ils nous font confiance — NECS",
+            description: "Témoignages clients et engagement qualité NECS.",
+          }),
+          breadcrumbJsonLd([
+            { name: "Accueil", path: "/" },
+            { name: "Témoignages", path: "/temoignages" },
+          ]),
+        ]}
+      />
+      <TemoignagesPage />
+    </>
+  );
 }

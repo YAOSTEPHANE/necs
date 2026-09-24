@@ -3,6 +3,14 @@ import { Caveat, Figtree, Outfit } from "next/font/google";
 import { AppProviders } from "@/components/AppProviders";
 import { BrandFavicon } from "@/components/BrandAssets";
 import { PwaRegister } from "@/components/PwaRegister";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  SITE,
+  SITE_KEYWORDS,
+  browserEngineMeta,
+  getSiteUrl,
+  siteGraphJsonLd,
+} from "@/lib/seo";
 import "./globals.css";
 import "./site-premium.css";
 import "./identity-flyer.css";
@@ -11,11 +19,6 @@ import "./activity-services.css";
 import "./contact-premium.css";
 import "./confiance-premium.css";
 import "./site-flyer.css";
-
-const APP_NAME = "NECS";
-const APP_TITLE = "NECS SARL ; Propreté, Rigueur, Confiance";
-const APP_DESCRIPTION =
-  "NECLEANING & SERVICES SARL ; Site public et back-office de digitalisation au Cameroun.";
 
 const figtree = Figtree({
   variable: "--font-sans",
@@ -35,21 +38,57 @@ const caveat = Caveat({
   weight: ["500", "600", "700"],
 });
 
+const siteUrl = getSiteUrl();
+
+const verification: Metadata["verification"] = {
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION?.trim()
+    ? { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION.trim() }
+    : {}),
+  ...(process.env.NEXT_PUBLIC_YANDEX_VERIFICATION?.trim()
+    ? { yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION.trim() }
+    : {}),
+  ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION?.trim()
+    ? {
+        other: {
+          "msvalidate.01":
+            process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION.trim(),
+        },
+      }
+    : {}),
+};
+
 export const metadata: Metadata = {
-  applicationName: APP_NAME,
+  metadataBase: new URL(siteUrl),
+  applicationName: SITE.name,
   title: {
-    default: APP_TITLE,
+    default: `${SITE.shortName} — ${SITE.tagline}`,
     template: "%s · NECS",
   },
-  description: APP_DESCRIPTION,
+  description: SITE.description,
+  keywords: [...SITE_KEYWORDS],
+  authors: [{ name: SITE.legalName, url: siteUrl }],
+  creator: SITE.legalName,
+  publisher: SITE.legalName,
+  category: "business",
+  referrer: "strict-origin-when-cross-origin",
   manifest: "/manifest.webmanifest",
+  alternates: {
+    canonical: siteUrl,
+    languages: {
+      "fr-CM": siteUrl,
+      fr: siteUrl,
+      "x-default": siteUrl,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: APP_NAME,
+    title: SITE.name,
   },
   formatDetection: {
     telephone: false,
+    email: false,
+    address: false,
   },
   icons: {
     icon: [
@@ -61,10 +100,45 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    siteName: APP_NAME,
-    title: APP_TITLE,
-    description: APP_DESCRIPTION,
+    locale: SITE.locale,
+    alternateLocale: ["fr_FR"],
+    url: siteUrl,
+    siteName: SITE.name,
+    title: `${SITE.shortName} — ${SITE.tagline}`,
+    description: SITE.description,
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: `${SITE.shortName} — ${SITE.tagline}`,
+        type: "image/png",
+      },
+    ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE.shortName} — ${SITE.tagline}`,
+    description: SITE.description,
+    images: ["/twitter-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  other: {
+    ...browserEngineMeta(),
+    classification: "Business / Facility Services / Cleaning",
+  },
+  ...(Object.keys(verification).length ? { verification } : {}),
 };
 
 export const viewport: Viewport = {
@@ -73,6 +147,9 @@ export const viewport: Viewport = {
     { media: "(prefers-color-scheme: dark)", color: "#0a3a72" },
   ],
   colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({
@@ -80,11 +157,16 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
-      lang="fr"
+      lang="fr-CM"
       data-scroll-behavior="smooth"
       className={`${figtree.variable} ${outfit.variable} ${caveat.variable}`}
     >
+      <head>
+        <link rel="dns-prefetch" href="https://servicesnecs.vercel.app" />
+        <link rel="preconnect" href={siteUrl} />
+      </head>
       <body>
+        <JsonLd data={siteGraphJsonLd()} />
         <a className="skip-link" href="#contenu">
           Aller au contenu
         </a>

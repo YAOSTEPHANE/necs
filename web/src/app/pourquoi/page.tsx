@@ -1,12 +1,37 @@
 import type { Metadata } from "next";
 import { PourquoiPage } from "@/components/site/pages/MenuPages";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  breadcrumbJsonLd,
+  buildPageMetadata,
+  webPageJsonLd,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Pourquoi nous ; NECS SARL",
+export const metadata: Metadata = buildPageMetadata({
+  title: "Pourquoi NECS",
   description:
-    "Rigueur opérationnelle, standard premium et digital de bout en bout : la différence NECS.",
-};
+    "La différence NECS : équipes formées, encadrement de proximité et reporting digital pour une propreté mesurable au Cameroun.",
+  path: "/pourquoi",
+});
 
 export default function Page() {
-  return <PourquoiPage />;
+  return (
+    <>
+      <JsonLd
+        data={[
+          webPageJsonLd({
+            path: "/pourquoi",
+            name: "Pourquoi NECS",
+            description:
+              "Équipes formées, encadrement de proximité et reporting digital.",
+          }),
+          breadcrumbJsonLd([
+            { name: "Accueil", path: "/" },
+            { name: "Pourquoi NECS", path: "/pourquoi" },
+          ]),
+        ]}
+      />
+      <PourquoiPage />
+    </>
+  );
 }

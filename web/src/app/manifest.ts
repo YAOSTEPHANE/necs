@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "NECS SARL ; Propreté & Services",
     short_name: "NECS",
     description:
-      "NECLEANING & SERVICES SARL ; site public et back-office de digitalisation au Cameroun.",
+      "NECLEANING & SERVICES SARL — nettoyage professionnel et facility services à Yaoundé, Douala et au Cameroun. Propreté, Rigueur, Confiance.",
     start_url: "/",
     scope: "/",
     display: "standalone",

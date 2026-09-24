@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
-import { BLOG_POSTS } from "@/lib/blog";
+import { notFound } from "next/navigation";
+import { BLOG_POSTS, getBlogPost } from "@/lib/blog";
 import { BlogArticlePage } from "@/components/site/pages/BlogContactPages";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  articleJsonLd,
+  breadcrumbJsonLd,
+  buildPageMetadata,
+} from "@/lib/seo";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -10,14 +17,45 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const post = BLOG_POSTS.find((p) => p.slug === slug);
-  return {
-    title: post ? `${post.title} ; NECS Blog` : "Article ; NECS Blog",
-    description: post?.excerpt,
-  };
+  const post = getBlogPost(slug);
+  if (!post) {
+    return buildPageMetadata({
+      title: "Article introuvable",
+      description: "Cet article n’existe pas ou a été déplacé.",
+      path: `/blog/${slug}`,
+      noIndex: true,
+    });
+  }
+  return buildPageMetadata({
+    title: post.title,
+    description: post.excerpt,
+    path: `/blog/${post.slug}`,
+    type: "article",
+  });
 }
 
 export default async function Page({ params }: Props) {
   const { slug } = await params;
-  return <BlogArticlePage slug={slug} />;
+  const post = getBlogPost(slug);
+  if (!post) notFound();
+
+  return (
+    <>
+      <JsonLd
+        data={[
+          articleJsonLd({
+            title: post.title,
+            description: post.excerpt,
+            path: `/blog/${post.slug}`,
+          }),
+          breadcrumbJsonLd([
+            { name: "Accueil", path: "/" },
+            { name: "Blog", path: "/blog" },
+            { name: post.title, path: `/blog/${post.slug}` },
+          ]),
+        ]}
+      />
+      <BlogArticlePage slug={slug} />
+    </>
+  );
 }
