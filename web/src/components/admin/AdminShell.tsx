@@ -443,6 +443,22 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [pathname]);
 
   useEffect(() => {
+    const root = sideNavRef.current;
+    if (!root) return;
+    const active = root.querySelector<HTMLElement>(".dash-side__link.is-active");
+    if (!active) return;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.requestAnimationFrame(() => {
+      active.scrollIntoView({
+        block: "nearest",
+        behavior: reduce ? "auto" : "smooth",
+      });
+    });
+  }, [pathname, search, sideCollapsed, navQuery]);
+
+  useEffect(() => {
     if (!navOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setNavOpen(false);

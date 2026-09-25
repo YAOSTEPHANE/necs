@@ -1494,13 +1494,26 @@ p { margin: 0 0 1rem; color: var(--muted); }
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.85rem 0.85rem;
+    padding: 0.9rem 0.95rem;
+    min-height: 48px;
     border-radius: 14px;
     color: var(--blue-950);
     background: transparent;
+    transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
   }
   .nav.is-open .nav-links a::after {
     display: none;
+  }
+  .nav.is-open .nav-links a:hover,
+  .nav.is-open .nav-links a.is-active {
+    background: rgba(18, 96, 168, 0.08);
+  }
+  .nav.is-open .nav-links a.is-active {
+    box-shadow: inset 3px 0 0 var(--blue-700);
+    font-weight: 700;
+  }
+  .nav.is-open .nav-links a:active {
+    transform: scale(0.985);
   }
   .nav.is-open .nav-links a svg {
     color: var(--muted);

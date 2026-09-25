@@ -152,11 +152,29 @@ function ConfidentialiteInner() {
 
       <h2>Cookies</h2>
       <p>
-        Le site utilise des cookies et technologies techniques nécessaires au
-        fonctionnement (session, sécurité, performance). Aucun cookie
-        publicitaire tiers n’est déployé à des fins de ciblage commercial sans
-        information préalable. Vous pouvez paramétrer votre navigateur pour
-        limiter les cookies non essentiels.
+        Le site utilise des cookies et technologies similaires, organisés en
+        catégories&nbsp;:
+      </p>
+      <ul>
+        <li>
+          <strong>Nécessaires</strong> — sécurité, fonctionnement et
+          mémorisation de vos choix cookies (toujours actifs).
+        </li>
+        <li>
+          <strong>Mesure &amp; attribution</strong> — source / campagne de
+          visite pour le suivi des demandes de devis (uniquement avec votre
+          accord).
+        </li>
+        <li>
+          <strong>Préférences</strong> — choix d’affichage éventuels pour
+          faciliter vos prochaines visites (uniquement avec votre accord).
+        </li>
+      </ul>
+      <p>
+        Aucun cookie publicitaire tiers n’est déployé à des fins de ciblage
+        commercial sans information préalable. Vous pouvez accepter, refuser
+        ou personnaliser ces choix via le bandeau cookies, ou à tout moment
+        depuis le lien «&nbsp;Gérer les cookies&nbsp;» en pied de page.
       </p>
 
       <h2>Vos droits</h2>

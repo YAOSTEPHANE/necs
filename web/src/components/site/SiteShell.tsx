@@ -21,7 +21,14 @@ import {
   persistLeadAttributionFromUrl,
 } from "@/lib/lead-attribution";
 import { ContactModal } from "@/components/site/ContactForm";
+import { CookieConsent } from "@/components/site/CookieConsent";
+import { SiteChatbot } from "@/components/site/SiteChatbot";
 import { BrandLogo, SocialLinks } from "@/components/BrandAssets";
+import {
+  COOKIE_CONSENT_EVENT,
+  hasCookieConsent,
+  openCookieSettings,
+} from "@/lib/cookie-consent";
 
 export const SITE_NAV = [
   { href: "/pourquoi", label: "Pourquoi nous", primary: true, primaryLabel: "Pourquoi" },
@@ -261,16 +268,23 @@ export function SiteShell({
     };
   }, []);
 
-  /** DIG-04 : figer source / campagne / medium dès la landing (first-touch). */
+  /** DIG-04 : attribution first-touch uniquement si cookies analytics acceptés. */
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    const run = async () => {
+      if (!hasCookieConsent("analytics")) return;
       const params = await loadTrackingParams();
       if (cancelled) return;
       persistLeadAttributionFromUrl(params);
-    })();
+    };
+    void run();
+    const onConsent = () => {
+      void run();
+    };
+    window.addEventListener(COOKIE_CONSENT_EVENT, onConsent);
     return () => {
       cancelled = true;
+      window.removeEventListener(COOKIE_CONSENT_EVENT, onConsent);
     };
   }, [pathname]);
 
@@ -626,6 +640,15 @@ export function SiteShell({
                 <li>
                   <Link href="/confidentialite">Confidentialité</Link>
                 </li>
+                <li>
+                  <button
+                    type="button"
+                    className="cookie-manage"
+                    onClick={() => openCookieSettings()}
+                  >
+                    Gérer les cookies
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
@@ -637,10 +660,20 @@ export function SiteShell({
               <Link href="/mentions-legales">Mentions légales</Link>
               {" · "}
               <Link href="/confidentialite">Confidentialité</Link>
+              {" · "}
+              <button
+                type="button"
+                className="cookie-manage"
+                onClick={() => openCookieSettings()}
+              >
+                Cookies
+              </button>
             </span>
           </div>
         </div>
       </footer>
+      <CookieConsent />
+      <SiteChatbot onQuoteRequest={openQuoteModal} />
     </QuoteModalContext.Provider>
   );
 }
