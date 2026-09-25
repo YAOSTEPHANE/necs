@@ -28,9 +28,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
   return buildPageMetadata({
     title: post.title,
-    description: post.excerpt,
+    description: `${post.excerpt} — Conseils NECS pour sites au Cameroun (Yaoundé, Douala).`,
     path: `/blog/${post.slug}`,
     type: "article",
+    keywords: [
+      "nettoyage Cameroun",
+      "propreté Yaoundé",
+      "facility Douala",
+      "blog NECS Cameroun",
+    ],
   });
 }
 

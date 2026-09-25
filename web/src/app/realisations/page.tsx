@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Réalisations",
   description:
-    "Sites, résultats et indicateurs qualité : découvrez les réalisations NECS en nettoyage professionnel au Cameroun.",
+    "Réalisations NECS au Cameroun : sites à Yaoundé et Douala, indicateurs qualité et résultats de nettoyage professionnel mesurables.",
   path: "/realisations",
 });
 

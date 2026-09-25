@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Confidentialité",
   description:
-    "Politique de confidentialité NECS : traitement des données des formulaires, cookies et droits des personnes.",
+    "Politique de confidentialité NECS (Cameroun) : traitement des données des formulaires, cookies et droits des personnes.",
   path: "/confidentialite",
 });
 

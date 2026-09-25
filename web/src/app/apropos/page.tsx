@@ -11,7 +11,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "À propos",
   description:
-    "NECLEANING & SERVICES SARL accompagne entreprises, industries, commerces et particuliers avec des espaces propres et un service rigoureux.",
+    "NECLEANING & SERVICES SARL (NECS) — société camerounaise de nettoyage et facility services. Nous accompagnons entreprises, industries, commerces et particuliers à Yaoundé, Douala et au Cameroun.",
   path: "/apropos",
 });
 

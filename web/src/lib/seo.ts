@@ -11,51 +11,129 @@ export function getSiteUrl(): string {
   return "https://servicesnecs.vercel.app";
 }
 
+/** Villes & zones Cameroun — signaux locaux pour Google / Bing Maps. */
+export const CAMEROON_CITIES = [
+  {
+    name: "Yaoundé",
+    region: "Centre",
+    latitude: 3.848,
+    longitude: 11.5021,
+  },
+  {
+    name: "Douala",
+    region: "Littoral",
+    latitude: 4.0511,
+    longitude: 9.7679,
+  },
+] as const;
+
 export const SITE = {
   name: "NECS",
   legalName: "NECLEANING & SERVICES SARL",
   shortName: "NECS SARL",
   tagline: "Propreté, Rigueur, Confiance",
+  /** Accroche SEO principale — entreprise camerounaise. */
   description:
-    "NECS (NECLEANING & SERVICES SARL) — nettoyage professionnel et facility services au Cameroun. Prestations mesurables pour entreprises, industries, commerces et particuliers à Yaoundé, Douala et environs.",
+    "NECS (NECLEANING & SERVICES SARL) est une entreprise camerounaise de nettoyage professionnel et de facility services à Yaoundé et Douala. Prestations mesurables pour entreprises, industries, commerces, établissements et particuliers au Cameroun.",
   locale: "fr_CM",
-  language: "fr",
+  language: "fr-CM",
   email: "contact@necs-cm.com",
   phone: "+237641335553",
   phoneDisplay: "+237 641 33 55 53",
-  areaServed: ["Yaoundé", "Douala", "Cameroun"] as const,
+  country: "Cameroun",
+  countryCode: "CM",
+  currency: "XAF",
+  timezone: "Africa/Douala",
+  areaServed: [
+    "Yaoundé",
+    "Douala",
+    "Région du Centre",
+    "Région du Littoral",
+    "Cameroun",
+  ] as const,
   sameAs: [] as string[],
   geo: {
-    region: "CM",
-    placename: "Yaoundé",
-    /** Approx. centre Yaoundé — pour moteurs / cartes. */
+    /** ISO 3166-2 : Cameroun — Centre (siège Yaoundé). */
+    region: "CM-CE",
+    country: "CM",
+    placename: "Yaoundé, Cameroun",
     position: "3.8480;11.5021",
     icbm: "3.8480, 11.5021",
+  },
+  geoDouala: {
+    region: "CM-LT",
+    placename: "Douala, Cameroun",
+    position: "4.0511;9.7679",
+    icbm: "4.0511, 9.7679",
   },
   openingHours: ["Mo-Fr 08:00-17:30"] as const,
   priceRange: "$$",
 } as const;
 
-/** Intentions de recherche locales & métier (Google, Bing, Yahoo, DuckDuckGo…). */
+/**
+ * Intentions de recherche locales Cameroun (Google CM, Bing, Yahoo, DuckDuckGo).
+ * Priorité : marque + ville + métier + longue traîne devis / secteur.
+ */
 export const SITE_KEYWORDS = [
+  // Marque
   "NECS",
-  "NECLEANING & SERVICES",
   "NECS SARL",
+  "NECLEANING & SERVICES",
+  "NECLEANING & SERVICES SARL",
+  "NECS Cameroun",
+  "NECS Yaoundé",
+  "NECS Douala",
+  // Nation / marché
+  "entreprise de nettoyage Cameroun",
+  "société de nettoyage Cameroun",
   "nettoyage professionnel Cameroun",
-  "entreprise de nettoyage Yaoundé",
-  "société de nettoyage Douala",
   "facility services Cameroun",
-  "entretien de bureaux Yaoundé",
-  "nettoyage industriel Cameroun",
-  "nettoyage commerces Douala",
+  "facility management Cameroun",
+  "prestataire nettoyage Cameroun",
   "propreté entreprise Cameroun",
-  "devis nettoyage professionnel",
-  "contrôle qualité digital nettoyage",
-  "hygiène établissements de santé Cameroun",
+  "hygiène professionnelle Cameroun",
+  "entretien locaux Cameroun",
+  "SARL nettoyage Cameroun",
+  // Yaoundé
+  "entreprise de nettoyage Yaoundé",
+  "société de nettoyage Yaoundé",
+  "nettoyage professionnel Yaoundé",
+  "entretien de bureaux Yaoundé",
+  "nettoyage bureaux Yaoundé",
+  "nettoyage industriel Yaoundé",
+  "nettoyage commerces Yaoundé",
   "nettoyage hôtels Yaoundé",
-  "nettoyage écoles Cameroun",
   "nettoyage particuliers Yaoundé",
-  "prestataire facility management Cameroun",
+  "devis nettoyage Yaoundé",
+  "facility services Yaoundé",
+  // Douala
+  "entreprise de nettoyage Douala",
+  "société de nettoyage Douala",
+  "nettoyage professionnel Douala",
+  "entretien de bureaux Douala",
+  "nettoyage bureaux Douala",
+  "nettoyage industriel Douala",
+  "nettoyage commerces Douala",
+  "nettoyage hôtels Douala",
+  "nettoyage particuliers Douala",
+  "devis nettoyage Douala",
+  "facility services Douala",
+  // Secteurs
+  "nettoyage industriel Cameroun",
+  "nettoyage commerces Cameroun",
+  "hygiène établissements de santé Cameroun",
+  "nettoyage cliniques Yaoundé",
+  "nettoyage cliniques Douala",
+  "nettoyage écoles Cameroun",
+  "nettoyage universités Cameroun",
+  "contrôles qualité digital nettoyage Cameroun",
+  "pointage agents nettoyage Cameroun",
+  // Conversion
+  "devis nettoyage professionnel Cameroun",
+  "devis facility services Cameroun",
+  "visite technique nettoyage Yaoundé",
+  "visite technique nettoyage Douala",
+  "Mobile Money nettoyage Cameroun",
 ] as const;
 
 export const PUBLIC_ROUTES: Array<{
@@ -74,7 +152,7 @@ export const PUBLIC_ROUTES: Array<{
 }> = [
   {
     path: "/",
-    title: "NECS SARL — Propreté, Rigueur, Confiance",
+    title: "NECS SARL — Nettoyage professionnel au Cameroun",
     description: SITE.description,
     changeFrequency: "weekly",
     priority: 1,
@@ -83,7 +161,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/pourquoi",
     title: "Pourquoi NECS",
     description:
-      "La différence NECS : équipes formées, encadrement de proximité et reporting digital pour une propreté mesurable au Cameroun.",
+      "Pourquoi choisir NECS au Cameroun : équipes formées à Yaoundé et Douala, encadrement de proximité et reporting digital pour une propreté mesurable.",
     changeFrequency: "monthly",
     priority: 0.8,
   },
@@ -91,7 +169,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/apropos",
     title: "À propos",
     description:
-      "NECLEANING & SERVICES SARL accompagne entreprises, industries, commerces et particuliers avec des espaces propres et un service rigoureux.",
+      "NECLEANING & SERVICES SARL (NECS) — société camerounaise de nettoyage et facility services. Nous accompagnons entreprises, industries, commerces et particuliers à Yaoundé, Douala et au Cameroun.",
     changeFrequency: "monthly",
     priority: 0.8,
   },
@@ -99,7 +177,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/realisations",
     title: "Réalisations",
     description:
-      "Sites, résultats et indicateurs qualité : découvrez les réalisations NECS en nettoyage professionnel au Cameroun.",
+      "Réalisations NECS au Cameroun : sites à Yaoundé et Douala, indicateurs qualité et résultats de nettoyage professionnel mesurables.",
     changeFrequency: "monthly",
     priority: 0.7,
   },
@@ -107,7 +185,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/objectif",
     title: "Objectif",
     description:
-      "Devenir la référence digitale du nettoyage et des facility services au Cameroun, avec des prestations transparentes et mesurables.",
+      "Objectif NECS : devenir la référence digitale du nettoyage et des facility services au Cameroun, avec des prestations transparentes et mesurables.",
     changeFrequency: "monthly",
     priority: 0.6,
   },
@@ -115,7 +193,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/activites",
     title: "Activités & prestations",
     description:
-      "Bureaux, industrie, commerces, santé, hôtels, écoles et particuliers : protocoles de nettoyage sur mesure par NECS.",
+      "Prestations de nettoyage au Cameroun — bureaux, industrie, commerces, santé, hôtels, écoles et particuliers à Yaoundé, Douala et environs.",
     changeFrequency: "monthly",
     priority: 0.8,
   },
@@ -123,7 +201,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/temoignages",
     title: "Ils nous font confiance",
     description:
-      "Témoignages clients NECS : engagement qualité, reporting et confiance durable sur vos sites.",
+      "Témoignages clients NECS au Cameroun : engagement qualité, reporting et confiance durable sur vos sites à Yaoundé et Douala.",
     changeFrequency: "monthly",
     priority: 0.7,
   },
@@ -131,7 +209,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/blog",
     title: "Blog",
     description:
-      "Conseils propreté, contrôle qualité digital et pilotage terrain — le blog NECS pour dirigeants et responsables de site.",
+      "Blog NECS Cameroun : conseils propreté, contrôle qualité digital et pilotage terrain pour dirigeants et responsables de site à Yaoundé et Douala.",
     changeFrequency: "weekly",
     priority: 0.7,
   },
@@ -139,7 +217,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/contact",
     title: "Contact & devis",
     description:
-      "Demandez un devis ou une visite technique. Un conseiller NECS vous répond sous 24 heures ouvrées.",
+      "Devis nettoyage professionnel au Cameroun — contactez NECS à Yaoundé ou Douala. Réponse sous 24 heures ouvrées (fuseau Africa/Douala).",
     changeFrequency: "monthly",
     priority: 0.9,
   },
@@ -147,7 +225,7 @@ export const PUBLIC_ROUTES: Array<{
     path: "/mentions-legales",
     title: "Mentions légales",
     description:
-      "Mentions légales de NECLEANING & SERVICES SARL (NECS) — éditeur et hébergeur du site.",
+      "Mentions légales de NECLEANING & SERVICES SARL (NECS), entreprise basée au Cameroun — éditeur et hébergeur du site.",
     changeFrequency: "yearly",
     priority: 0.2,
   },
@@ -155,90 +233,95 @@ export const PUBLIC_ROUTES: Array<{
     path: "/confidentialite",
     title: "Confidentialité",
     description:
-      "Politique de confidentialité NECS : traitement des données des formulaires, cookies et droits des personnes.",
+      "Politique de confidentialité NECS (Cameroun) : traitement des données des formulaires, cookies et droits des personnes.",
     changeFrequency: "yearly",
     priority: 0.2,
   },
 ];
 
-/** Prestations indexables (schema.org Service / OfferCatalog). */
+/** Prestations indexables — ancrage Cameroun / Yaoundé / Douala. */
 export const SERVICE_OFFERINGS = [
   {
-    name: "Entretien de bureaux",
+    name: "Entretien de bureaux au Cameroun",
     description:
-      "Sols, postes, sanitaires et vitrerie intérieure pour sièges et espaces tertiaires.",
+      "Sols, postes, sanitaires et vitrerie pour sièges et espaces tertiaires à Yaoundé, Douala et environs.",
     path: "/activites",
   },
   {
-    name: "Nettoyage industriel",
+    name: "Nettoyage industriel au Cameroun",
     description:
-      "Zones techniques, entrepôts et flux opérationnels avec consignes sécurité renforcées.",
+      "Zones techniques, entrepôts et flux opérationnels avec consignes sécurité renforcées sur sites industriels camerounais.",
     path: "/activites",
   },
   {
     name: "Commerces & espaces publics",
     description:
-      "Mall, retail et accueil client : propreté continue et expérience visiteur premium.",
+      "Mall, retail et accueil client à Douala et Yaoundé : propreté continue et expérience visiteur premium.",
     path: "/activites",
   },
   {
     name: "Nettoyage pour particuliers",
     description:
-      "Entretien domicile avec équipes discrètes et protocoles adaptés à la vie de famille.",
+      "Entretien domicile à Yaoundé et Douala avec équipes discrètes et protocoles adaptés à la vie de famille.",
     path: "/activites",
   },
   {
     name: "Établissements de santé",
     description:
-      "Protocoles d’hygiène renforcés pour cliniques, cabinets et laboratoires.",
+      "Protocoles d’hygiène renforcés pour cliniques, cabinets et laboratoires au Cameroun.",
     path: "/activites",
   },
   {
     name: "Hôtels & résidences",
     description:
-      "Chambres, parties communes et back-office pour une expérience client impeccable.",
+      "Chambres, parties communes et back-office pour hôtels et résidences à Yaoundé et Douala.",
     path: "/activites",
   },
   {
     name: "Écoles & universités",
     description:
-      "Salles, sanitaires et espaces collectifs entretenus hors temps scolaire.",
+      "Salles, sanitaires et espaces collectifs entretenus hors temps scolaire dans les établissements camerounais.",
     path: "/activites",
   },
   {
     name: "Salles & espaces publics",
     description:
-      "Interventions planifiées selon les flux et les événements.",
+      "Interventions planifiées selon les flux et événements à Yaoundé, Douala et au Cameroun.",
     path: "/activites",
   },
 ] as const;
 
-/** FAQ pour rich results (accueil / contact). */
+/** FAQ rich results — contexte Cameroun. */
 export const FAQ_ITEMS = [
   {
-    question: "Dans quelles villes NECS intervient-elle ?",
+    question: "NECS est-elle une entreprise camerounaise ?",
     answer:
-      "NECS intervient principalement à Yaoundé, Douala et environs, pour entreprises, industries, commerces, établissements et particuliers.",
+      "Oui. NECLEANING & SERVICES SARL (NECS) est une société de nettoyage professionnel et de facility services basée au Cameroun, avec interventions principalement à Yaoundé, Douala et environs.",
   },
   {
-    question: "Comment obtenir un devis de nettoyage professionnel ?",
+    question: "Dans quelles villes du Cameroun NECS intervient-elle ?",
     answer:
-      "Remplissez le formulaire sur la page Contact ou écrivez à contact@necs-cm.com. Un conseiller NECS vous répond sous 24 heures ouvrées.",
+      "NECS intervient principalement à Yaoundé (Région du Centre) et Douala (Région du Littoral), ainsi que dans les environs, pour entreprises, industries, commerces, établissements et particuliers.",
   },
   {
-    question: "Quels types de sites NECS entretient-elle ?",
+    question: "Comment obtenir un devis de nettoyage à Yaoundé ou Douala ?",
     answer:
-      "Bureaux, sites industriels, commerces, établissements de santé, hôtels, écoles, salles publiques et domiciles particuliers, avec des protocoles adaptés à chaque environnement.",
+      "Remplissez le formulaire sur la page Contact, appelez le +237 641 33 55 53 ou écrivez à contact@necs-cm.com. Un conseiller NECS vous répond sous 24 heures ouvrées (fuseau Africa/Douala).",
+  },
+  {
+    question: "Quels types de sites NECS entretient-elle au Cameroun ?",
+    answer:
+      "Bureaux, sites industriels, commerces, établissements de santé, hôtels, écoles, salles publiques et domiciles particuliers, avec des protocoles adaptés à chaque environnement camerounais.",
+  },
+  {
+    question: "Quels moyens de paiement accepte NECS ?",
+    answer:
+      "NECS facture en francs CFA (XAF) et accepte notamment le virement bancaire, le cash et le Mobile Money, selon les modalités du contrat.",
   },
   {
     question: "Le reporting qualité est-il digital ?",
     answer:
-      "Oui. NECS s’appuie sur le pointage, des checklists et un contrôle qualité digital pour rendre chaque prestation mesurable et traçable.",
-  },
-  {
-    question: "Quels sont les horaires de contact ?",
-    answer:
-      "Du lundi au vendredi, de 08h00 à 17h30. Pour les urgences sites sous contrat, votre interlocuteur NECS reste joignable selon les modalités définies.",
+      "Oui. NECS s’appuie sur le pointage, des checklists et un contrôle qualité digital pour rendre chaque prestation mesurable et traçable sur vos sites au Cameroun.",
   },
 ] as const;
 
@@ -246,7 +329,6 @@ type BuildOpts = {
   title: string;
   description: string;
   path?: string;
-  /** Si true, n’applique pas le template `%s · NECS`. */
   absoluteTitle?: boolean;
   noIndex?: boolean;
   type?: "website" | "article";
@@ -262,7 +344,7 @@ export function buildPageMetadata(opts: BuildOpts): Metadata {
   const url = path === "/" ? site : `${site}${path.startsWith("/") ? path : `/${path}`}`;
   const image = opts.image ?? "/opengraph-image";
   const title = opts.absoluteTitle ? { absolute: opts.title } : opts.title;
-  const ogTitle = opts.absoluteTitle ? opts.title : `${opts.title} · NECS`;
+  const ogTitle = opts.absoluteTitle ? opts.title : `${opts.title} · NECS Cameroun`;
   const keywords = opts.keywords
     ? [...SITE_KEYWORDS, ...opts.keywords]
     : [...SITE_KEYWORDS];
@@ -306,7 +388,7 @@ export function buildPageMetadata(opts: BuildOpts): Metadata {
       locale: SITE.locale,
       alternateLocale: ["fr_FR"],
       url,
-      siteName: SITE.name,
+      siteName: `${SITE.name} · Cameroun`,
       title: ogTitle,
       description: opts.description,
       images: [
@@ -314,7 +396,7 @@ export function buildPageMetadata(opts: BuildOpts): Metadata {
           url: image,
           width: 1200,
           height: 630,
-          alt: `${SITE.shortName} — ${SITE.tagline}`,
+          alt: `${SITE.shortName} — Nettoyage professionnel au Cameroun (Yaoundé · Douala)`,
           type: "image/png",
         },
       ],
@@ -332,38 +414,86 @@ export function buildPageMetadata(opts: BuildOpts): Metadata {
       "geo.placename": SITE.geo.placename,
       "geo.position": SITE.geo.position,
       ICBM: SITE.geo.icbm,
+      "geo.country": SITE.countryCode,
       "og:locale:alternate": "fr_FR",
+      "og:country-name": SITE.country,
+      "content-language": SITE.language,
     },
   };
 }
 
-/** Metas navigateur / moteur à fusionner dans le layout racine. */
+/** Metas navigateur / moteur — ciblage Cameroun. */
 export function browserEngineMeta(): NonNullable<Metadata["other"]> {
   return {
     "geo.region": SITE.geo.region,
     "geo.placename": SITE.geo.placename,
     "geo.position": SITE.geo.position,
     ICBM: SITE.geo.icbm,
+    "geo.country": SITE.countryCode,
+    "og:country-name": SITE.country,
+    "content-language": SITE.language,
     "msapplication-TileColor": "#0a3a72",
     "msapplication-config": "none",
-    "apple-mobile-web-app-title": SITE.name,
+    "apple-mobile-web-app-title": `${SITE.name} Cameroun`,
     "mobile-web-app-capable": "yes",
     "format-detection": "telephone=no, address=no, email=no",
     rating: "general",
     distribution: "global",
-    "revisit-after": "7 days",
+    coverage: "Cameroun",
+    target: "Cameroun",
+    audience: "Cameroun, Yaoundé, Douala",
+    "revisit-after": "3 days",
   };
+}
+
+function areaServedSchema() {
+  return [
+    {
+      "@type": "Country",
+      name: "Cameroun",
+      alternateName: "Cameroon",
+      sameAs: "https://www.wikidata.org/wiki/Q1009",
+    },
+    ...CAMEROON_CITIES.map((city) => ({
+      "@type": "City",
+      name: city.name,
+      containedInPlace: {
+        "@type": "AdministrativeArea",
+        name: city.region,
+        containedInPlace: {
+          "@type": "Country",
+          name: "Cameroun",
+        },
+      },
+      geo: {
+        "@type": "GeoCoordinates",
+        latitude: city.latitude,
+        longitude: city.longitude,
+      },
+    })),
+    {
+      "@type": "AdministrativeArea",
+      name: "Région du Centre",
+      containedInPlace: { "@type": "Country", name: "Cameroun" },
+    },
+    {
+      "@type": "AdministrativeArea",
+      name: "Région du Littoral",
+      containedInPlace: { "@type": "Country", name: "Cameroun" },
+    },
+  ];
 }
 
 export function organizationJsonLd() {
   const site = getSiteUrl();
   return {
     "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness", "ProfessionalService"],
+    "@type": ["Organization", "LocalBusiness", "ProfessionalService", "HomeAndConstructionBusiness"],
     "@id": `${site}/#organization`,
     name: SITE.legalName,
-    alternateName: [SITE.name, SITE.shortName],
+    alternateName: [SITE.name, SITE.shortName, "NECS Cameroun"],
     legalName: SITE.legalName,
+    slogan: SITE.tagline,
     url: site,
     logo: {
       "@type": "ImageObject",
@@ -376,36 +506,48 @@ export function organizationJsonLd() {
     email: SITE.email,
     telephone: SITE.phoneDisplay,
     priceRange: SITE.priceRange,
-    currenciesAccepted: "XAF",
-    paymentAccepted: "Cash, Bank Transfer, Mobile Money",
-    openingHoursSpecification: [
-      {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-        opens: "08:00",
-        closes: "17:30",
-      },
-    ],
-    areaServed: SITE.areaServed.map((name) => ({
+    currenciesAccepted: SITE.currency,
+    paymentAccepted: "Cash, Bank Transfer, Mobile Money, Orange Money, MTN MoMo",
+    foundingLocation: {
       "@type": "Place",
-      name,
-    })),
+      name: "Cameroun",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "CM",
+      },
+    },
     address: {
       "@type": "PostalAddress",
+      streetAddress: "Yaoundé",
       addressLocality: "Yaoundé",
       addressRegion: "Centre",
       addressCountry: "CM",
     },
     geo: {
       "@type": "GeoCoordinates",
-      latitude: 3.848,
-      longitude: 11.5021,
+      latitude: CAMEROON_CITIES[0].latitude,
+      longitude: CAMEROON_CITIES[0].longitude,
     },
+    hasMap: "https://www.google.com/maps/search/?api=1&query=Yaound%C3%A9%2C+Cameroun",
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "08:00",
+        closes: "17:30",
+        timeZone: SITE.timezone,
+      },
+    ],
+    areaServed: areaServedSchema(),
+    serviceArea: areaServedSchema(),
     knowsAbout: [
-      "Nettoyage professionnel",
-      "Facility services",
+      "Nettoyage professionnel au Cameroun",
+      "Facility services Yaoundé",
+      "Facility services Douala",
       "Contrôle qualité digital",
       "Hygiène des établissements",
+      "Entretien de bureaux",
+      "Nettoyage industriel",
     ],
     contactPoint: [
       {
@@ -414,18 +556,50 @@ export function organizationJsonLd() {
         email: SITE.email,
         contactType: "customer service",
         areaServed: "CM",
-        availableLanguage: ["French", "fr"],
+        availableLanguage: ["French", "fr", "fr-CM"],
       },
       {
         "@type": "ContactPoint",
         telephone: SITE.phoneDisplay,
         email: SITE.email,
         contactType: "sales",
-        areaServed: "CM",
-        availableLanguage: ["French"],
+        areaServed: ["CM", "Yaoundé", "Douala"],
+        availableLanguage: ["French", "fr-CM"],
       },
     ],
     ...(SITE.sameAs.length ? { sameAs: [...SITE.sameAs] } : {}),
+  };
+}
+
+/** Entité séparée Douala — renforce le local pack multi-villes. */
+export function doualaBranchJsonLd() {
+  const site = getSiteUrl();
+  return {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "@id": `${site}/#location-douala`,
+    name: `${SITE.shortName} — Douala`,
+    parentOrganization: { "@id": `${site}/#organization` },
+    url: `${site}/contact`,
+    telephone: SITE.phoneDisplay,
+    email: SITE.email,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Douala",
+      addressRegion: "Littoral",
+      addressCountry: "CM",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: CAMEROON_CITIES[1].latitude,
+      longitude: CAMEROON_CITIES[1].longitude,
+    },
+    areaServed: {
+      "@type": "City",
+      name: "Douala",
+    },
+    currenciesAccepted: SITE.currency,
+    priceRange: SITE.priceRange,
   };
 }
 
@@ -437,11 +611,15 @@ export function websiteJsonLd() {
     "@id": `${site}/#website`,
     url: site,
     name: SITE.shortName,
-    alternateName: SITE.legalName,
+    alternateName: [`${SITE.legalName}`, "NECS Cameroun"],
     description: SITE.description,
     publisher: { "@id": `${site}/#organization` },
     inLanguage: SITE.language,
     copyrightHolder: { "@id": `${site}/#organization` },
+    about: {
+      "@type": "Thing",
+      name: "Nettoyage professionnel et facility services au Cameroun",
+    },
   };
 }
 
@@ -497,6 +675,10 @@ export function articleJsonLd(input: {
     },
     inLanguage: SITE.language,
     isAccessibleForFree: true,
+    contentLocation: {
+      "@type": "Country",
+      name: "Cameroun",
+    },
     ...(input.datePublished ? { datePublished: input.datePublished } : {}),
     ...(input.dateModified
       ? { dateModified: input.dateModified }
@@ -527,21 +709,23 @@ export function servicesJsonLd() {
     "@context": "https://schema.org",
     "@type": "OfferCatalog",
     "@id": `${site}/#services`,
-    name: "Prestations NECS",
+    name: "Prestations NECS au Cameroun",
     description:
-      "Catalogue des prestations de nettoyage professionnel et facility services NECS au Cameroun.",
+      "Catalogue des prestations de nettoyage professionnel et facility services NECS à Yaoundé, Douala et au Cameroun.",
     itemListElement: SERVICE_OFFERINGS.map((svc, i) => ({
       "@type": "Offer",
       position: i + 1,
+      priceCurrency: SITE.currency,
+      availability: "https://schema.org/InStock",
+      areaServed: areaServedSchema(),
       itemOffered: {
         "@type": "Service",
         name: svc.name,
         description: svc.description,
         provider: { "@id": `${site}/#organization` },
-        areaServed: SITE.areaServed.map((name) => ({
-          "@type": "Place",
-          name,
-        })),
+        areaServed: areaServedSchema(),
+        serviceType: "Nettoyage professionnel",
+        category: "Facility services",
         url: `${site}${svc.path}`,
       },
     })),
@@ -555,12 +739,16 @@ export function contactPageJsonLd() {
     "@type": "ContactPage",
     "@id": `${site}/contact#webpage`,
     url: `${site}/contact`,
-    name: "Contact & devis — NECS",
+    name: "Contact & devis — NECS Cameroun",
     description:
-      "Demandez un devis ou une visite technique. Un conseiller NECS vous répond sous 24 heures ouvrées.",
+      "Demandez un devis de nettoyage professionnel à Yaoundé ou Douala. Un conseiller NECS vous répond sous 24 heures ouvrées.",
     isPartOf: { "@id": `${site}/#website` },
     about: { "@id": `${site}/#organization` },
     inLanguage: SITE.language,
+    contentLocation: {
+      "@type": "Country",
+      name: "Cameroun",
+    },
     mainEntity: {
       "@type": "Organization",
       "@id": `${site}/#organization`,
@@ -575,7 +763,9 @@ export function webPageJsonLd(input: {
 }) {
   const site = getSiteUrl();
   const url =
-    input.path === "/" ? site : `${site}${input.path.startsWith("/") ? input.path : `/${input.path}`}`;
+    input.path === "/"
+      ? site
+      : `${site}${input.path.startsWith("/") ? input.path : `/${input.path}`}`;
   return {
     "@context": "https://schema.org",
     "@type": "WebPage",
@@ -586,10 +776,19 @@ export function webPageJsonLd(input: {
     isPartOf: { "@id": `${site}/#website` },
     about: { "@id": `${site}/#organization` },
     inLanguage: SITE.language,
+    contentLocation: {
+      "@type": "Country",
+      name: "Cameroun",
+    },
   };
 }
 
-/** Graph JSON-LD global (toutes pages publiques). */
+/** Graph JSON-LD global — ancrage Cameroun multi-villes. */
 export function siteGraphJsonLd() {
-  return [organizationJsonLd(), websiteJsonLd(), servicesJsonLd()];
+  return [
+    organizationJsonLd(),
+    doualaBranchJsonLd(),
+    websiteJsonLd(),
+    servicesJsonLd(),
+  ];
 }

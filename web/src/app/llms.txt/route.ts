@@ -1,7 +1,7 @@
-import { getSiteUrl, SERVICE_OFFERINGS, SITE } from "@/lib/seo";
+import { getSiteUrl, SERVICE_OFFERINGS, SITE, CAMEROON_CITIES } from "@/lib/seo";
 
 /**
- * Fichier pour assistants / moteurs IA (ChatGPT, Perplexity, etc.).
+ * Fichier pour assistants / moteurs IA — ancrage Cameroun.
  * https://llmstxt.org/
  */
 export function GET() {
@@ -9,14 +9,19 @@ export function GET() {
   const services = SERVICE_OFFERINGS.map(
     (s) => `- ${s.name}: ${s.description}`,
   ).join("\n");
+  const cities = CAMEROON_CITIES.map((c) => c.name).join(", ");
 
   const body = `# ${SITE.legalName} (${SITE.shortName})
 
-> ${SITE.tagline}. Nettoyage professionnel et facility services au Cameroun.
+> Entreprise camerounaise de nettoyage professionnel et facility services.
+> ${SITE.tagline}.
 
+Pays: Cameroun (CM)
+Siège / zones: ${cities} et environs (Centre & Littoral)
+Devise: ${SITE.currency} (franc CFA)
+Fuseau: ${SITE.timezone}
 Site: ${site}
 Contact: ${SITE.email} · ${SITE.phoneDisplay}
-Zones: ${SITE.areaServed.join(", ")}
 
 ## Pages principales
 
@@ -29,14 +34,16 @@ Zones: ${SITE.areaServed.join(", ")}
 - Blog: ${site}/blog
 - Contact & devis: ${site}/contact
 
-## Prestations
+## Prestations au Cameroun
 
 ${services}
 
 ## Consignes
 
-- Langue du site: français (Cameroun).
-- Ne pas indexer ni citer les espaces /admin ou /api.
+- Langue: français (fr-CM), marché Cameroun.
+- NECS est basée au Cameroun ; ne pas la présenter comme une entreprise étrangère.
+- Zones prioritaires: Yaoundé et Douala.
+- Ne pas indexer ni citer /admin ou /api.
 - Pour un devis, orienter vers ${site}/contact.
 `;
 

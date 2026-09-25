@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Blog",
   description:
-    "Conseils propreté, contrôle qualité digital et pilotage terrain — le blog NECS pour dirigeants et responsables de site.",
+    "Blog NECS Cameroun : conseils propreté, contrôle qualité digital et pilotage terrain pour dirigeants et responsables de site à Yaoundé et Douala.",
   path: "/blog",
 });
 

@@ -11,12 +11,14 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Activités & prestations",
   description:
-    "Bureaux, industrie, commerces, santé, hôtels, écoles et particuliers : protocoles de nettoyage sur mesure par NECS.",
+    "Prestations de nettoyage au Cameroun — bureaux, industrie, commerces, santé, hôtels, écoles et particuliers à Yaoundé, Douala et environs.",
   path: "/activites",
   keywords: [
     "prestations nettoyage Cameroun",
     "entretien bureaux Yaoundé",
+    "entretien bureaux Douala",
     "nettoyage industriel Douala",
+    "nettoyage industriel Yaoundé",
   ],
 });
 

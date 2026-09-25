@@ -11,12 +11,14 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Contact & devis",
   description:
-    "Demandez un devis ou une visite technique. Un conseiller NECS vous répond sous 24 heures ouvrées.",
+    "Devis nettoyage professionnel au Cameroun — contactez NECS à Yaoundé ou Douala. Réponse sous 24 heures ouvrées (fuseau Africa/Douala).",
   path: "/contact",
   keywords: [
     "devis nettoyage Yaoundé",
-    "contact entreprise nettoyage Douala",
-    "visite technique nettoyage Cameroun",
+    "devis nettoyage Douala",
+    "contact entreprise nettoyage Cameroun",
+    "visite technique nettoyage Yaoundé",
+    "visite technique nettoyage Douala",
   ],
 });
 

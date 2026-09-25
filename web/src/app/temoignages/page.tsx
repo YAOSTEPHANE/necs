@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Ils nous font confiance",
   description:
-    "Témoignages clients NECS : engagement qualité, reporting et confiance durable sur vos sites.",
+    "Témoignages clients NECS au Cameroun : engagement qualité, reporting et confiance durable sur vos sites à Yaoundé et Douala.",
   path: "/temoignages",
 });
 

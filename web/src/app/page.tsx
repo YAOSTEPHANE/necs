@@ -9,9 +9,9 @@ import {
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "NECS SARL — Propreté, Rigueur, Confiance",
+  title: "NECS SARL — Nettoyage professionnel au Cameroun | Yaoundé & Douala",
   description:
-    "NECS (NECLEANING & SERVICES SARL) — nettoyage professionnel et facility services au Cameroun. Prestations mesurables pour entreprises, industries, commerces et particuliers à Yaoundé, Douala et environs.",
+    "NECS (NECLEANING & SERVICES SARL) est une entreprise camerounaise de nettoyage professionnel et de facility services à Yaoundé et Douala. Prestations mesurables pour entreprises, industries, commerces et particuliers au Cameroun.",
   path: "/",
   absoluteTitle: true,
 });
@@ -23,9 +23,9 @@ export default function Page() {
         data={[
           webPageJsonLd({
             path: "/",
-            name: "NECS SARL — Propreté, Rigueur, Confiance",
+            name: "NECS SARL — Nettoyage professionnel au Cameroun",
             description:
-              "Nettoyage professionnel et facility services au Cameroun.",
+              "Entreprise camerounaise de nettoyage et facility services à Yaoundé et Douala.",
           }),
           faqJsonLd(),
           breadcrumbJsonLd([{ name: "Accueil", path: "/" }]),

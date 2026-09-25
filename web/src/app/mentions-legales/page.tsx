@@ -5,7 +5,7 @@ import { buildPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildPageMetadata({
   title: "Mentions légales",
   description:
-    "Mentions légales de NECLEANING & SERVICES SARL (NECS) — éditeur et hébergeur du site.",
+    "Mentions légales de NECLEANING & SERVICES SARL (NECS), entreprise basée au Cameroun — éditeur et hébergeur du site.",
   path: "/mentions-legales",
 });
 

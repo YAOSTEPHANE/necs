@@ -10,7 +10,7 @@ import {
 export const metadata: Metadata = buildPageMetadata({
   title: "Pourquoi NECS",
   description:
-    "La différence NECS : équipes formées, encadrement de proximité et reporting digital pour une propreté mesurable au Cameroun.",
+    "Pourquoi choisir NECS au Cameroun : équipes formées à Yaoundé et Douala, encadrement de proximité et reporting digital pour une propreté mesurable.",
   path: "/pourquoi",
 });
 

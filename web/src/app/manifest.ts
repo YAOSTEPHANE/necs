@@ -3,10 +3,10 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "NECS SARL ; Propreté & Services",
+    name: "NECS SARL — Nettoyage Cameroun",
     short_name: "NECS",
     description:
-      "NECLEANING & SERVICES SARL — nettoyage professionnel et facility services à Yaoundé, Douala et au Cameroun. Propreté, Rigueur, Confiance.",
+      "Entreprise camerounaise de nettoyage professionnel et facility services à Yaoundé et Douala. Propreté, Rigueur, Confiance.",
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait-primary",
     background_color: "#0a3a72",
     theme_color: "#0a3a72",
-    lang: "fr",
+    lang: "fr-CM",
     dir: "ltr",
     categories: ["business", "productivity"],
     icons: [

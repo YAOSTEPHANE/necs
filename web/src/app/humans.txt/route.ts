@@ -1,16 +1,20 @@
 import { SITE, getSiteUrl } from "@/lib/seo";
 
-/** humans.txt — crédibilité éditeur (navigateurs / outils SEO). */
+/** humans.txt — entreprise camerounaise. */
 export function GET() {
   const site = getSiteUrl();
   const body = `/* TEAM */
 Organization: ${SITE.legalName}
+Country: Cameroun
+Locations: Yaoundé (Centre), Douala (Littoral)
 Site: ${site}
 Contact: ${SITE.email}
-Location: Yaoundé, Douala — Cameroun
+Phone: ${SITE.phoneDisplay}
+Timezone: ${SITE.timezone}
+Currency: ${SITE.currency}
 
 /* SITE */
-Standards: HTML5, CSS3, JSON-LD (schema.org)
+Standards: HTML5, CSS3, JSON-LD (schema.org LocalBusiness Cameroun)
 Language: fr-CM
 Doctype: HTML5
 Softwares: Next.js, Vercel
