@@ -612,19 +612,25 @@ export function SiteShell({
               <h4>Services</h4>
               <ul>
                 <li>
-                  <Link href="/activites#bureaux">Bureaux</Link>
+                  <Link href="/services/entretien-bureaux">Bureaux</Link>
                 </li>
                 <li>
-                  <Link href="/activites#industrie">Industrie</Link>
+                  <Link href="/services/nettoyage-industriel">Industrie</Link>
                 </li>
                 <li>
-                  <Link href="/activites#sante">Santé</Link>
+                  <Link href="/services/hygiene-sante">Santé</Link>
                 </li>
                 <li>
-                  <Link href="/activites#hotels">Hôtels</Link>
+                  <Link href="/services/hotels-residences">Hôtels</Link>
                 </li>
                 <li>
-                  <Link href="/activites#ecoles">Écoles</Link>
+                  <Link href="/services/ecoles-universites">Écoles</Link>
+                </li>
+                <li>
+                  <Link href="/nettoyage-yaounde">Yaoundé</Link>
+                </li>
+                <li>
+                  <Link href="/nettoyage-douala">Douala</Link>
                 </li>
                 <li>
                   <Link href="/contact">Nous contacter</Link>

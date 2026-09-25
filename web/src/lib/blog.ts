@@ -67,6 +67,48 @@ export const BLOG_POSTS = [
       "Faire de la propreté un signal de confiance, c’est investir dans la première impression… et dans toutes celles qui suivent. Parlons de vos zones vitrines : NECS construit avec vous un plan d’entretien qui protège votre image, jour après jour.",
     ],
   },
+  {
+    slug: "devis-nettoyage-yaounde",
+    meta: "Local · 4 min",
+    title: "Devis nettoyage à Yaoundé : ce qu’il faut préparer",
+    excerpt:
+      "Surfaces, fréquences, accès site : les infos qui accélèrent un devis NECS à Yaoundé.",
+    imageKey: "blog1" as const,
+    sections: [
+      { title: "Avant le devis", bodyIndex: 0 },
+      { title: "Visite technique", bodyIndex: 2 },
+      { title: "Délais & suite", bodyIndex: 4 },
+    ],
+    body: [
+      "À Yaoundé, un devis de nettoyage professionnel est fiable lorsqu’il s’appuie sur des faits : surface approximative, type de locaux (bureaux, commerce, clinique), fréquence souhaitée et contraintes d’accès. Plus ces éléments sont clairs, plus NECS peut chiffrer juste — sans sur-promettre ni sous-dimensionner les équipes.",
+      "Indiquez aussi vos horaires d’ouverture et les zones vitrines (accueil, sanitaires, salles de réunion). Ces détails orientent le niveau de service et le rythme des passages dans la capitale.",
+      "Une visite technique sur site à Yaoundé permet de valider les surfaces, les produits adaptés et les créneaux d’intervention. Elle n’est pas toujours obligatoire pour un premier ordre de grandeur, mais elle sécurise le contrat dès que le site est complexe ou sensible.",
+      "NECS organise ces visites sur rendez-vous, avec un interlocuteur unique. Vous repartez avec un périmètre écrit : missions, fréquences, indicateurs de suivi.",
+      "Comptez une réponse sous 24 heures ouvrées après réception d’un dossier complet (formulaire, WhatsApp ou e-mail). La proposition précise le montant en francs CFA et les modalités (virement, cash, Mobile Money selon contrat).",
+      "Pour démarrer, utilisez la page Contact ou la landing Nettoyage Yaoundé : un conseiller NECS vous oriente vers le bon format — entretien de bureaux, industrie légère ou prestation particulière.",
+    ],
+  },
+  {
+    slug: "nettoyage-industriel-douala",
+    meta: "Industrie · 4 min",
+    title: "Nettoyage industriel à Douala : sécurité et rythme de production",
+    excerpt:
+      "Comment NECS aligne propreté, EPI et plannings sur les sites industriels du Littoral.",
+    imageKey: "blog2" as const,
+    sections: [
+      { title: "Contraintes Douala", bodyIndex: 0 },
+      { title: "Méthode NECS", bodyIndex: 2 },
+      { title: "Passer à l’action", bodyIndex: 4 },
+    ],
+    body: [
+      "Douala concentre entrepôts, zones techniques et flux logistiques intenses. Sur ces sites, le nettoyage ne peut pas freiner la production : il doit s’insérer dans les fenêtres HSE, respecter les EPI et documenter ce qui a été fait.",
+      "Les écarts (sols gras, quais négligés, sanitaires saturés) dégradent à la fois la sécurité et l’image employeur. Un prestataire local qui comprend le rythme du Littoral fait la différence.",
+      "NECS démarre par une visite technique : cartographie des zones, consignes d’accès, horaires possibles (jour, nuit, week-end). Ensuite, un planning et des checklists industrielles cadrent chaque vacation.",
+      "Le reporting digital — pointage, photos, actions correctives — donne à votre responsable maintenance ou HSE une preuve exploitable, utile pour audits et comités de suivi.",
+      "Que vous soyez à Bonabéri, la zone portuaire ou un entrepôt périurbain, nous calibrons effectifs et fréquences après chiffrage. Demandez un devis nettoyage industriel Douala via le formulaire NECS.",
+      "Voir aussi la page Nettoyage Douala et la prestation Nettoyage industriel pour le détail des protocoles.",
+    ],
+  },
 ] as const;
 
 export type BlogSlug = (typeof BLOG_POSTS)[number]["slug"];

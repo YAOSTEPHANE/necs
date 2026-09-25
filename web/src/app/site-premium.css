@@ -3397,3 +3397,138 @@ body:has(.cookie-panel) .site-chat,
     transition: none;
   }
 }
+
+/* ——— SEO landing pages (villes & services) ——— */
+.seo-land {
+  background:
+    radial-gradient(90% 60% at 10% 0%, rgba(18, 96, 168, 0.08), transparent 50%),
+    linear-gradient(180deg, #f4f8fb 0%, #fff 28%, #fff 100%);
+}
+
+.seo-land__hero {
+  padding: clamp(3.5rem, 8vw, 5.5rem) 0 2.25rem;
+  border-bottom: 1px solid rgba(207, 220, 232, 0.85);
+}
+
+.seo-land__kicker {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0369a1;
+}
+
+.seo-land__hero h1 {
+  margin: 0 0 0.85rem;
+  max-width: 18ch;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.85rem, 4.2vw, 2.75rem);
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.12;
+  color: var(--blue-950);
+}
+
+.seo-land__lead {
+  margin: 0 0 1.35rem;
+  max-width: 58ch;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.seo-land__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.seo-land__body {
+  padding: 2.25rem 0 4rem;
+  display: grid;
+  gap: 1.75rem;
+}
+
+.seo-land__bullets {
+  margin: 0;
+  padding: 1rem 1.15rem 1rem 1.85rem;
+  border-radius: 4px 16px 4px 16px;
+  background: #f0f7fc;
+  border: 1px solid rgba(18, 96, 168, 0.12);
+  color: var(--blue-950);
+  line-height: 1.5;
+}
+
+.seo-land__bullets li + li {
+  margin-top: 0.35rem;
+}
+
+.seo-land__section h2,
+.seo-land__faq h2,
+.seo-land__related h2 {
+  margin: 0 0 0.65rem;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  color: var(--blue-950);
+}
+
+.seo-land__section p {
+  margin: 0;
+  max-width: 68ch;
+  line-height: 1.65;
+  color: var(--muted);
+}
+
+.seo-land__faq-list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.seo-land__faq-item {
+  border: 1px solid rgba(207, 220, 232, 0.95);
+  border-radius: 10px;
+  background: #fff;
+  padding: 0.75rem 1rem;
+}
+
+.seo-land__faq-item summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--blue-950);
+}
+
+.seo-land__faq-item p {
+  margin: 0.55rem 0 0;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.seo-land__related ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1rem;
+}
+
+.seo-land__related a {
+  color: var(--blue-700, #1260a8);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+@media (max-width: 720px) {
+  .seo-land__hero {
+    padding-top: 3rem;
+  }
+
+  .seo-land__hero h1 {
+    max-width: none;
+  }
+}

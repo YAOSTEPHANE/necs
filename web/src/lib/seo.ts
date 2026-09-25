@@ -134,6 +134,12 @@ export const SITE_KEYWORDS = [
   "visite technique nettoyage Yaoundé",
   "visite technique nettoyage Douala",
   "Mobile Money nettoyage Cameroun",
+  "nettoyage Bastos Yaoundé",
+  "nettoyage Nlongkak Yaoundé",
+  "nettoyage Bonanjo Douala",
+  "nettoyage Akwa Douala",
+  "entreprise facility management Yaoundé",
+  "entreprise facility management Douala",
 ] as const;
 
 export const PUBLIC_ROUTES: Array<{
@@ -237,6 +243,78 @@ export const PUBLIC_ROUTES: Array<{
     changeFrequency: "yearly",
     priority: 0.2,
   },
+  {
+    path: "/nettoyage-yaounde",
+    title: "Nettoyage professionnel à Yaoundé",
+    description:
+      "Entreprise de nettoyage à Yaoundé : bureaux, industries, commerces et particuliers. Devis NECS sous 24 h ouvrées.",
+    changeFrequency: "monthly",
+    priority: 0.95,
+  },
+  {
+    path: "/nettoyage-douala",
+    title: "Nettoyage professionnel à Douala",
+    description:
+      "Entreprise de nettoyage à Douala : bureaux, industries, commerces et particuliers. Devis NECS sous 24 h ouvrées.",
+    changeFrequency: "monthly",
+    priority: 0.95,
+  },
+  {
+    path: "/services/entretien-bureaux",
+    title: "Entretien de bureaux",
+    description:
+      "Entretien de bureaux à Yaoundé et Douala — NECS Cameroun.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/services/nettoyage-industriel",
+    title: "Nettoyage industriel",
+    description:
+      "Nettoyage industriel à Yaoundé et Douala — NECS Cameroun.",
+    changeFrequency: "monthly",
+    priority: 0.85,
+  },
+  {
+    path: "/services/nettoyage-commerces",
+    title: "Nettoyage commerces",
+    description:
+      "Nettoyage de commerces et espaces publics à Yaoundé et Douala — NECS.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+  },
+  {
+    path: "/services/hygiene-sante",
+    title: "Hygiène santé",
+    description:
+      "Hygiène des établissements de santé à Yaoundé et Douala — NECS.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+  },
+  {
+    path: "/services/hotels-residences",
+    title: "Hôtels & résidences",
+    description:
+      "Nettoyage hôtels et résidences à Yaoundé et Douala — NECS.",
+    changeFrequency: "monthly",
+    priority: 0.8,
+  },
+  {
+    path: "/services/ecoles-universites",
+    title: "Écoles & universités",
+    description:
+      "Nettoyage écoles et universités au Cameroun — NECS Yaoundé & Douala.",
+    changeFrequency: "monthly",
+    priority: 0.75,
+  },
+  {
+    path: "/services/nettoyage-particuliers",
+    title: "Nettoyage particuliers",
+    description:
+      "Nettoyage domicile à Yaoundé et Douala — NECS Cameroun.",
+    changeFrequency: "monthly",
+    priority: 0.75,
+  },
 ];
 
 /** Prestations indexables — ancrage Cameroun / Yaoundé / Douala. */
@@ -245,43 +323,43 @@ export const SERVICE_OFFERINGS = [
     name: "Entretien de bureaux au Cameroun",
     description:
       "Sols, postes, sanitaires et vitrerie pour sièges et espaces tertiaires à Yaoundé, Douala et environs.",
-    path: "/activites",
+    path: "/services/entretien-bureaux",
   },
   {
     name: "Nettoyage industriel au Cameroun",
     description:
       "Zones techniques, entrepôts et flux opérationnels avec consignes sécurité renforcées sur sites industriels camerounais.",
-    path: "/activites",
+    path: "/services/nettoyage-industriel",
   },
   {
     name: "Commerces & espaces publics",
     description:
       "Mall, retail et accueil client à Douala et Yaoundé : propreté continue et expérience visiteur premium.",
-    path: "/activites",
+    path: "/services/nettoyage-commerces",
   },
   {
     name: "Nettoyage pour particuliers",
     description:
       "Entretien domicile à Yaoundé et Douala avec équipes discrètes et protocoles adaptés à la vie de famille.",
-    path: "/activites",
+    path: "/services/nettoyage-particuliers",
   },
   {
     name: "Établissements de santé",
     description:
       "Protocoles d’hygiène renforcés pour cliniques, cabinets et laboratoires au Cameroun.",
-    path: "/activites",
+    path: "/services/hygiene-sante",
   },
   {
     name: "Hôtels & résidences",
     description:
       "Chambres, parties communes et back-office pour hôtels et résidences à Yaoundé et Douala.",
-    path: "/activites",
+    path: "/services/hotels-residences",
   },
   {
     name: "Écoles & universités",
     description:
       "Salles, sanitaires et espaces collectifs entretenus hors temps scolaire dans les établissements camerounais.",
-    path: "/activites",
+    path: "/services/ecoles-universites",
   },
   {
     name: "Salles & espaces publics",
@@ -322,6 +400,16 @@ export const FAQ_ITEMS = [
     question: "Le reporting qualité est-il digital ?",
     answer:
       "Oui. NECS s’appuie sur le pointage, des checklists et un contrôle qualité digital pour rendre chaque prestation mesurable et traçable sur vos sites au Cameroun.",
+  },
+  {
+    question: "Quelle est la différence entre NECS Yaoundé et NECS Douala ?",
+    answer:
+      "Il s’agit de la même société camerounaise (NECLEANING & SERVICES SARL). Les équipes et plannings sont organisés pour couvrir Yaoundé (Centre) et Douala (Littoral) avec le même standard de qualité et de reporting.",
+  },
+  {
+    question: "Proposez-vous l’entretien de bureaux et le nettoyage industriel ?",
+    answer:
+      "Oui. NECS couvre l’entretien de bureaux, le nettoyage industriel, les commerces, la santé, l’hôtellerie, les écoles et les particuliers. Voir les pages Services et Activités pour le détail.",
   },
 ] as const;
 
@@ -620,6 +708,11 @@ export function websiteJsonLd() {
       "@type": "Thing",
       name: "Nettoyage professionnel et facility services au Cameroun",
     },
+    potentialAction: {
+      "@type": "CommunicateAction",
+      name: "Demander un devis",
+      target: `${site}/contact`,
+    },
   };
 }
 
@@ -688,7 +781,9 @@ export function articleJsonLd(input: {
   };
 }
 
-export function faqJsonLd(items: typeof FAQ_ITEMS = FAQ_ITEMS) {
+export function faqJsonLd(
+  items: readonly { question: string; answer: string }[] = FAQ_ITEMS,
+) {
   return {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -791,4 +886,88 @@ export function siteGraphJsonLd() {
     websiteJsonLd(),
     servicesJsonLd(),
   ];
+}
+
+/** LocalBusiness ciblé ville — pages /nettoyage-yaounde|douala. */
+export function cityLandingJsonLd(input: {
+  path: string;
+  city: string;
+  region: string;
+  latitude: number;
+  longitude: number;
+  description: string;
+}) {
+  const site = getSiteUrl();
+  const url = `${site}${input.path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": ["LocalBusiness", "ProfessionalService"],
+    "@id": `${url}#localbusiness`,
+    name: `${SITE.shortName} — ${input.city}`,
+    legalName: SITE.legalName,
+    url,
+    description: input.description,
+    telephone: SITE.phoneDisplay,
+    email: SITE.email,
+    image: `${site}/opengraph-image`,
+    priceRange: SITE.priceRange,
+    currenciesAccepted: SITE.currency,
+    parentOrganization: { "@id": `${site}/#organization` },
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: input.city,
+      addressRegion: input.region,
+      addressCountry: "CM",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: input.latitude,
+      longitude: input.longitude,
+    },
+    areaServed: {
+      "@type": "City",
+      name: input.city,
+      containedInPlace: {
+        "@type": "Country",
+        name: "Cameroun",
+      },
+    },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "08:00",
+        closes: "17:30",
+      },
+    ],
+  };
+}
+
+/** Service detail — pages /services/[slug]. */
+export function serviceLandingJsonLd(input: {
+  path: string;
+  name: string;
+  description: string;
+  serviceType: string;
+}) {
+  const site = getSiteUrl();
+  const url = `${site}${input.path}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${url}#service`,
+    name: input.name,
+    description: input.description,
+    serviceType: input.serviceType,
+    provider: { "@id": `${site}/#organization` },
+    url,
+    areaServed: areaServedSchema(),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: SITE.currency,
+      availability: "https://schema.org/InStock",
+      url: `${site}/contact`,
+      description: `Devis ${input.name} — Yaoundé & Douala`,
+    },
+  };
 }

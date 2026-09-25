@@ -30,7 +30,31 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "LinkedInBot", ...allowPublic },
       {
         userAgent: "GPTBot",
-        allow: ["/", "/blog/", "/activites", "/contact", "/apropos"],
+        allow: [
+          "/",
+          "/blog/",
+          "/activites",
+          "/contact",
+          "/apropos",
+          "/nettoyage-yaounde",
+          "/nettoyage-douala",
+          "/services/",
+        ],
+        disallow: disallowPrivate,
+      },
+      {
+        userAgent: "ChatGPT-User",
+        allow: "/",
+        disallow: disallowPrivate,
+      },
+      {
+        userAgent: "ClaudeBot",
+        allow: "/",
+        disallow: disallowPrivate,
+      },
+      {
+        userAgent: "PerplexityBot",
+        allow: "/",
         disallow: disallowPrivate,
       },
     ],
