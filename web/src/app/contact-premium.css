@@ -222,6 +222,39 @@
   color: var(--cxf-navy-deep);
 }
 
+.cxf-form__badge {
+  display: inline-flex;
+  margin: 0 0 0.55rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.cxf-form .necs-devis-section {
+  margin-bottom: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid rgba(215, 227, 238, 0.85);
+}
+
+.cxf-form .necs-devis-section:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.cxf-form .necs-devis-section__title {
+  color: var(--cxf-navy-deep);
+  margin-bottom: 0.15rem;
+}
+
+.cxf-form .cxf-fieldset {
+  margin-bottom: 0.65rem;
+}
+
 .cxf-form__head p,
 .cxf-direct__lead {
   margin: 0 0 1.15rem;
@@ -737,4 +770,8 @@ a.cxf-direct__card:hover {
   .cxf-benefits li {
     width: 100%;
   }
+}
+
+.cxf-form .slot-cal {
+  margin-top: 0.35rem;
 }

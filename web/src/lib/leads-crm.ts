@@ -43,6 +43,9 @@ export type LeadInput = {
   utmSource?: string;
   pagePath?: string;
   consent?: boolean;
+  /** Créneau souhaité (visite / rappel), ISO UTC. */
+  preferredSlotAt?: string;
+  preferredSlotLabel?: string;
   /** Identifiant leadgen Facebook (dédup externe). */
   facebookLeadId?: string;
   facebookFormId?: string;
@@ -68,6 +71,8 @@ export type DbLead = {
   pagePath: string;
   consent: boolean;
   consentAt: string | null;
+  preferredSlotAt?: string;
+  preferredSlotLabel?: string;
   /** Première attribution (conservée). */
   firstSource: string;
   firstCampaign: string;
@@ -92,6 +97,8 @@ export type DbLead = {
     campaign: string;
     pagePath: string;
     facebookLeadId?: string;
+    preferredSlotAt?: string;
+    preferredSlotLabel?: string;
   }>;
 };
 
@@ -153,6 +160,8 @@ export async function upsertLeadFromWeb(
   const facebookPageId = (input.facebookPageId || "").trim().slice(0, 80);
   const facebookAdId = (input.facebookAdId || "").trim().slice(0, 80);
   const facebookFormName = (input.facebookFormName || "").trim().slice(0, 160);
+  const preferredSlotAt = (input.preferredSlotAt || "").trim().slice(0, 40);
+  const preferredSlotLabel = (input.preferredSlotLabel || "").trim().slice(0, 120);
 
   void syncConsentPreferenceFromLead({
     email,
@@ -186,6 +195,8 @@ export async function upsertLeadFromWeb(
     campaign,
     pagePath,
     ...(facebookLeadId ? { facebookLeadId } : {}),
+    ...(preferredSlotAt ? { preferredSlotAt } : {}),
+    ...(preferredSlotLabel ? { preferredSlotLabel } : {}),
   };
 
   if (!existing) {
@@ -215,6 +226,8 @@ export async function upsertLeadFromWeb(
       createdAt: now,
       updatedAt: now,
       submissions: [submission],
+      ...(preferredSlotAt ? { preferredSlotAt } : {}),
+      ...(preferredSlotLabel ? { preferredSlotLabel } : {}),
       ...(facebookLeadId ? { facebookLeadId } : {}),
       ...(facebookFormId ? { facebookFormId } : {}),
       ...(facebookPageId ? { facebookPageId } : {}),
@@ -275,6 +288,10 @@ export async function upsertLeadFromWeb(
   if (facebookPageId) patch.facebookPageId = facebookPageId;
   if (facebookAdId) patch.facebookAdId = facebookAdId;
   if (facebookFormName) patch.facebookFormName = facebookFormName;
+  if (preferredSlotAt) {
+    patch.preferredSlotAt = preferredSlotAt;
+    patch.preferredSlotLabel = preferredSlotLabel || preferredSlotAt;
+  }
 
   // Toujours cibler le document trouvé (évite de patcher un doublon legacy).
   if (existing._id) {
@@ -414,6 +431,7 @@ export async function notifyCommercialNewLead(input: {
     `Téléphone : ${lead.phone || "—"}`,
     `Type : ${lead.formType}`,
     `Objet : ${lead.subject}`,
+    `Créneau souhaité : ${lead.preferredSlotLabel || lead.preferredSlotAt || "—"}`,
     `Source : ${lead.lastSource || lead.source}`,
     `Campagne : ${lead.lastCampaign || lead.campaign || "—"}`,
     `Page : ${lead.pagePath || "—"}`,
@@ -432,6 +450,7 @@ export async function notifyCommercialNewLead(input: {
     email: escapeHtml(lead.email || ""),
     phone: escapeHtml(lead.phone || "—"),
     formType: escapeHtml(lead.formType || ""),
+    slot: escapeHtml(lead.preferredSlotLabel || lead.preferredSlotAt || "—"),
     source: escapeHtml(
       `${lead.lastSource || lead.source} · ${lead.lastCampaign || lead.campaign || "—"}`,
     ),
@@ -448,6 +467,7 @@ export async function notifyCommercialNewLead(input: {
         <tr><td style="padding:6px 0;color:#64748b">E-mail</td><td style="padding:6px 0"><a href="mailto:${safe.email}">${safe.email}</a></td></tr>
         <tr><td style="padding:6px 0;color:#64748b">Téléphone</td><td style="padding:6px 0">${safe.phone}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b">Type</td><td style="padding:6px 0">${safe.formType}</td></tr>
+        <tr><td style="padding:6px 0;color:#64748b">Créneau</td><td style="padding:6px 0;font-weight:700">${safe.slot}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b">Source / campagne</td><td style="padding:6px 0">${safe.source}</td></tr>
         <tr><td style="padding:6px 0;color:#64748b">Consentement</td><td style="padding:6px 0">${lead.consent ? "Oui" : "Non"}</td></tr>
       </table>

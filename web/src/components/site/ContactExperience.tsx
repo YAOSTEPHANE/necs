@@ -3,6 +3,10 @@
 import Image from "next/image";
 import { FormEvent, useId, useState } from "react";
 import { useBrandAssets } from "@/components/BrandAssets";
+import {
+  SlotCalendar,
+  type SlotSelection,
+} from "@/components/site/SlotCalendar";
 import { saveLead, type NecsContent } from "@/lib/content";
 import {
   inferFormTypeFromSubject,
@@ -248,6 +252,7 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
   const [submitted, setSubmitted] = useState(false);
   const [clientType, setClientType] = useState<"pro" | "particulier">("pro");
   const [services, setServices] = useState<string[]>([]);
+  const [slot, setSlot] = useState<SlotSelection>(null);
 
   function toggleService(label: string) {
     setServices((prev) =>
@@ -266,6 +271,7 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
     }
     const baseMessage = String(fd.get("message") || "");
     const city = String(fd.get("city") || "");
+    const surface = String(fd.get("surface") || "").trim();
     const subject = "Demande de devis";
     const attribution = readLeadAttribution({ defaultSource: "site_web" });
     const payload = {
@@ -278,13 +284,16 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
         baseMessage,
         "",
         `Profil : ${clientType === "pro" ? "Professionnel" : "Particulier"}`,
-        city ? `Ville / localisation : ${city}` : "",
+        surface ? `Surface approximative : ${surface} m²` : "",
         services.length ? `Prestations : ${services.join(", ")}` : "",
       ]
         .filter(Boolean)
         .join("\n"),
       formType: inferFormTypeFromSubject(subject),
       consent: true,
+      preferredSlotAt: slot?.at,
+      preferredSlotLabel: slot?.label,
+      city,
       ...attribution,
     };
 
@@ -301,11 +310,16 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
         return;
       }
       saveLead(payload);
-      toast.success("Demande envoyée ; nous vous recontactons sous 24 h.");
+      toast.success(
+        slot
+          ? "Demande envoyée ; créneau bien noté."
+          : "Demande envoyée ; nous vous recontactons sous 24 h.",
+      );
       setSubmitted(true);
       form.reset();
       setServices([]);
       setClientType("pro");
+      setSlot(null);
     } catch {
       toast.error("Impossible d’envoyer la demande.");
     } finally {
@@ -322,12 +336,22 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
         <h3>Demande bien reçue</h3>
         <p>
           Merci. Un conseiller NECS vous répond sous{" "}
-          <strong>24 heures ouvrées</strong>.
+          <strong>24 heures ouvrées</strong>
+          {slot ? (
+            <>
+              {" "}
+              · créneau noté : <strong>{slot.label}</strong>
+            </>
+          ) : null}
+          .
         </p>
         <button
           type="button"
           className="cxf-btn cxf-btn--outline"
-          onClick={() => setSubmitted(false)}
+          onClick={() => {
+            setSubmitted(false);
+            setSlot(null);
+          }}
         >
           Nouvelle demande
         </button>
@@ -336,108 +360,156 @@ function ContactFlyerForm({ content }: { content: NecsContent }) {
   }
 
   return (
-    <form className="cxf-form" onSubmit={onSubmit}>
+    <form className="cxf-form necs-devis-form" onSubmit={onSubmit}>
       <header className="cxf-form__head">
-        <h2>Demandez votre devis</h2>
+        <p className="cxf-form__badge">Réponse sous 24 h</p>
+        <h2>Demande de devis</h2>
         <p>
-          Remplissez ce formulaire ; nous construisons une proposition nette,
-          adaptée à vos locaux.
+          Décrivez votre site et, si vous le souhaitez, réservez un créneau pour
+          une visite ou un rappel.
         </p>
       </header>
 
-      <div className="cxf-form__grid">
-        <div className="cxf-field">
-          <label htmlFor={`${formId}-name`}>Nom et prénom *</label>
-          <input id={`${formId}-name`} name="name" required autoComplete="name" />
-        </div>
-        <div className="cxf-field">
-          <label htmlFor={`${formId}-phone`}>Téléphone *</label>
-          <input
-            id={`${formId}-phone`}
-            name="phone"
-            type="tel"
-            required
-            autoComplete="tel"
-            placeholder="+237 6…"
-          />
-        </div>
-        <div className="cxf-field">
-          <label htmlFor={`${formId}-company`}>Entreprise (facultatif)</label>
-          <input id={`${formId}-company`} name="company" autoComplete="organization" />
-        </div>
-        <div className="cxf-field">
-          <label htmlFor={`${formId}-email`}>E-mail *</label>
-          <input
-            id={`${formId}-email`}
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder={content.contactEmail}
-          />
-        </div>
-      </div>
-
-      <fieldset className="cxf-fieldset">
-        <legend>Vous êtes :</legend>
-        <div className="cxf-radios">
-          <label className={clientType === "pro" ? "is-active" : ""}>
+      <section className="necs-devis-section" aria-labelledby={`${formId}-coords`}>
+        <h3 id={`${formId}-coords`} className="necs-devis-section__title">
+          Vos coordonnées
+        </h3>
+        <div className="cxf-form__grid">
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-name`}>Nom complet *</label>
             <input
-              type="radio"
-              name="clientType"
-              checked={clientType === "pro"}
-              onChange={() => setClientType("pro")}
+              id={`${formId}-name`}
+              name="name"
+              required
+              autoComplete="name"
+              placeholder="Ex. Jean Paul Talla"
             />
-            Professionnel
-          </label>
-          <label className={clientType === "particulier" ? "is-active" : ""}>
+          </div>
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-phone`}>Téléphone / WhatsApp *</label>
             <input
-              type="radio"
-              name="clientType"
-              checked={clientType === "particulier"}
-              onChange={() => setClientType("particulier")}
+              id={`${formId}-phone`}
+              name="phone"
+              type="tel"
+              required
+              autoComplete="tel"
+              placeholder="+237 6…"
             />
-            Particulier
-          </label>
+          </div>
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-company`}>Entreprise</label>
+            <input
+              id={`${formId}-company`}
+              name="company"
+              autoComplete="organization"
+              placeholder="Ex. Cabinet ABC"
+            />
+          </div>
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-email`}>E-mail *</label>
+            <input
+              id={`${formId}-email`}
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder={content.contactEmail}
+            />
+          </div>
         </div>
-      </fieldset>
+      </section>
 
-      <fieldset className="cxf-fieldset">
-        <legend>Type de prestation :</legend>
-        <div className="cxf-checks">
-          {SERVICE_OPTIONS.map((opt) => (
-            <label key={opt} className={services.includes(opt) ? "is-active" : ""}>
+      <section className="necs-devis-section" aria-labelledby={`${formId}-profile`}>
+        <h3 id={`${formId}-profile`} className="necs-devis-section__title">
+          Profil & prestations
+        </h3>
+        <fieldset className="cxf-fieldset">
+          <legend>Vous êtes :</legend>
+          <div className="cxf-radios">
+            <label className={clientType === "pro" ? "is-active" : ""}>
               <input
-                type="checkbox"
-                checked={services.includes(opt)}
-                onChange={() => toggleService(opt)}
+                type="radio"
+                name="clientType"
+                checked={clientType === "pro"}
+                onChange={() => setClientType("pro")}
               />
-              {opt}
+              Professionnel
             </label>
-          ))}
+            <label className={clientType === "particulier" ? "is-active" : ""}>
+              <input
+                type="radio"
+                name="clientType"
+                checked={clientType === "particulier"}
+                onChange={() => setClientType("particulier")}
+              />
+              Particulier
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="cxf-fieldset">
+          <legend>Type de prestation :</legend>
+          <div className="cxf-checks">
+            {SERVICE_OPTIONS.map((opt) => (
+              <label key={opt} className={services.includes(opt) ? "is-active" : ""}>
+                <input
+                  type="checkbox"
+                  checked={services.includes(opt)}
+                  onChange={() => toggleService(opt)}
+                />
+                {opt}
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      </section>
+
+      <section className="necs-devis-section" aria-labelledby={`${formId}-need`}>
+        <h3 id={`${formId}-need`} className="necs-devis-section__title">
+          Votre besoin
+        </h3>
+        <div className="cxf-form__grid">
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-city`}>Ville *</label>
+            <select id={`${formId}-city`} name="city" required defaultValue="">
+              <option value="" disabled>
+                Choisir…
+              </option>
+              <option value="Yaoundé">Yaoundé</option>
+              <option value="Douala">Douala</option>
+              <option value="Autre">Autre / environs</option>
+            </select>
+          </div>
+          <div className="cxf-field">
+            <label htmlFor={`${formId}-surface`}>Surface approx. (m²)</label>
+            <input
+              id={`${formId}-surface`}
+              name="surface"
+              type="text"
+              inputMode="numeric"
+              placeholder="Ex. 450"
+            />
+          </div>
         </div>
-      </fieldset>
+        <div className="cxf-field">
+          <label htmlFor={`${formId}-message`}>Décrivez votre besoin *</label>
+          <textarea
+            id={`${formId}-message`}
+            name="message"
+            rows={4}
+            required
+            placeholder="Fréquence, horaires, contraintes d’accès, adresse du site…"
+          />
+        </div>
+      </section>
 
-      <div className="cxf-field">
-        <label htmlFor={`${formId}-city`}>Ville / Localisation *</label>
-        <input
-          id={`${formId}-city`}
-          name="city"
-          required
-          placeholder="Douala, Yaoundé…"
+      <section className="necs-devis-section" aria-label="Créneau">
+        <SlotCalendar
+          value={slot}
+          onChange={setSlot}
+          idPrefix={`${formId}-slot`}
         />
-      </div>
-
-      <div className="cxf-field">
-        <label htmlFor={`${formId}-message`}>Décrivez votre besoin *</label>
-        <textarea
-          id={`${formId}-message`}
-          name="message"
-          rows={4}
-          required
-          placeholder="Surfaces, fréquence, horaires, contraintes d’accès…"
-        />
-      </div>
+      </section>
 
       <label className="cxf-consent">
         <input type="checkbox" name="consent" value="1" required />

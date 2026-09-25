@@ -92,6 +92,8 @@ function mapLead(l: Record<string, unknown>) {
     facebookLeadId: l.facebookLeadId ? String(l.facebookLeadId) : "",
     facebookFormId: l.facebookFormId ? String(l.facebookFormId) : "",
     facebookFormName: l.facebookFormName ? String(l.facebookFormName) : "",
+    preferredSlotAt: l.preferredSlotAt ? String(l.preferredSlotAt) : "",
+    preferredSlotLabel: l.preferredSlotLabel ? String(l.preferredSlotLabel) : "",
   };
 }
 
@@ -147,6 +149,9 @@ export async function POST(request: Request) {
       viaStaff?: boolean;
       siteAddress?: string;
       city?: string;
+      preferredSlotAt?: string;
+      preferredSlotLabel?: string;
+      preferredSlot?: { at?: string; label?: string };
     };
 
     const viaStaff = Boolean(body.viaStaff);
@@ -181,11 +186,32 @@ export async function POST(request: Request) {
     );
     const city = clampText(String(body.city || ""), 80);
     const siteAddress = clampText(String(body.siteAddress || ""), 200);
+    const preferredSlotAt = clampText(
+      String(body.preferredSlotAt || body.preferredSlot?.at || ""),
+      40,
+    );
+    const preferredSlotLabel = clampText(
+      String(body.preferredSlotLabel || body.preferredSlot?.label || ""),
+      120,
+    );
+    const slotOk =
+      !preferredSlotAt ||
+      (!Number.isNaN(Date.parse(preferredSlotAt)) &&
+        Date.parse(preferredSlotAt) > Date.now());
+    if (preferredSlotAt && !slotOk) {
+      return NextResponse.json(
+        { error: "Le créneau choisi n’est plus disponible." },
+        { status: 400 },
+      );
+    }
     const baseMessage = clampText(String(body.message || ""), 4000);
     const messageParts = [
       baseMessage,
       city ? `Ville / localisation : ${city}` : "",
       siteAddress ? `Adresse / locaux : ${siteAddress}` : "",
+      preferredSlotLabel || preferredSlotAt
+        ? `Créneau souhaité : ${preferredSlotLabel || preferredSlotAt}`
+        : "",
       viaStaff && staffSession
         ? `Saisi par : ${staffSession.name || staffSession.email} (${staffSession.role})`
         : "",
@@ -234,6 +260,8 @@ export async function POST(request: Request) {
         200,
       ),
       consent,
+      preferredSlotAt: preferredSlotAt || undefined,
+      preferredSlotLabel: preferredSlotLabel || undefined,
     });
 
     // Notification commercial (sauf si le saisisseur est déjà commercial — on notifie quand même l’équipe)

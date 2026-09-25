@@ -9,6 +9,10 @@ import {
 import { toast } from "@/lib/toast";
 import { BrandLogo, useBrandAssets } from "@/components/BrandAssets";
 import { ContactQuickActions } from "@/components/site/ContactQuickActions";
+import {
+  SlotCalendar,
+  type SlotSelection,
+} from "@/components/site/SlotCalendar";
 
 export interface ContactModalProps {
   isOpen: boolean;
@@ -26,6 +30,7 @@ export function ContactModal({
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [subject, setSubject] = useState(initialSubject);
+  const [slot, setSlot] = useState<SlotSelection>(null);
 
   useEffect(() => {
     if (initialSubject) {
@@ -37,6 +42,7 @@ export function ContactModal({
     if (!isOpen) {
       setSubmitted(false);
       setSending(false);
+      setSlot(null);
       return;
     }
 
@@ -67,6 +73,9 @@ export function ContactModal({
       return;
     }
     const subjectValue = String(fd.get("subject") || subject);
+    const city = String(fd.get("city") || "");
+    const surface = String(fd.get("surface") || "").trim();
+    const baseMessage = String(fd.get("message") || "");
     const attribution = readLeadAttribution({ defaultSource: "site_web" });
     const payload = {
       name: String(fd.get("name") || ""),
@@ -74,9 +83,17 @@ export function ContactModal({
       email: String(fd.get("email") || ""),
       phone: String(fd.get("phone") || ""),
       subject: subjectValue,
-      message: String(fd.get("message") || ""),
+      message: [
+        baseMessage,
+        surface ? `Surface approximative : ${surface} m²` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
       formType: inferFormTypeFromSubject(subjectValue),
       consent: true,
+      preferredSlotAt: slot?.at,
+      preferredSlotLabel: slot?.label,
+      city,
       ...attribution,
     };
     setSending(true);
@@ -93,7 +110,11 @@ export function ContactModal({
           return;
         }
         saveLead(payload);
-        toast.success("Demande envoyée ; nous vous recontactons sous 24 h.");
+        toast.success(
+          slot
+            ? "Demande envoyée ; créneau bien noté."
+            : "Demande envoyée ; nous vous recontactons sous 24 h.",
+        );
         setSubmitted(true);
       } catch {
         toast.error("Impossible d’envoyer la demande.");
@@ -131,13 +152,26 @@ export function ContactModal({
             <h3>Demande bien reçue !</h3>
             <p>
               Merci pour votre démarche. Notre équipe commerciale et technique
-              étudie vos besoins et vous recontactera sous <strong>24 heures ouvrées</strong>.
+              étudie vos besoins
+              {slot ? (
+                <>
+                  {" "}
+                  et a noté votre créneau : <strong>{slot.label}</strong>
+                </>
+              ) : (
+                <>
+                  {" "}
+                  et vous recontactera sous <strong>24 heures ouvrées</strong>
+                </>
+              )}
+              .
             </p>
             <button
               type="button"
               className="btn btn-primary"
               onClick={() => {
                 setSubmitted(false);
+                setSlot(null);
                 onClose();
               }}
             >
@@ -148,104 +182,160 @@ export function ContactModal({
           <>
             <div className="necs-modal-header">
               <div className="necs-modal-brand">
-                <BrandLogo alt="NECS" width={48} height={48} />
+                <BrandLogo alt="NECS" width={30} height={30} />
                 <div>
                   <span className="necs-modal-badge">Réponse sous 24h</span>
                 </div>
               </div>
               <h2 id="contact-modal-title">Demande de devis</h2>
               <p className="necs-modal-lead">
-                Décrivez votre site en quelques lignes ; un conseiller NECS vous
-                rappelle avec une proposition claire.
+                Décrivez votre besoin et réservez un créneau si besoin.
               </p>
             </div>
 
-            <form className="necs-modal-form" onSubmit={onContact}>
-              <div className="form-row">
-                <div className="field">
-                  <label htmlFor="modal-name">Nom complet *</label>
-                  <input
-                    id="modal-name"
-                    name="name"
-                    placeholder="Ex. Jean Paul Talla"
-                    required
-                    autoFocus
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="modal-company">Entreprise / Organisation *</label>
-                  <input
-                    id="modal-company"
-                    name="company"
-                    placeholder="Ex. Cabinet ABC, Douala"
-                    required
-                  />
-                </div>
-              </div>
+            <form className="necs-modal-form necs-devis-form" onSubmit={onContact}>
+              <div className="necs-modal-form__scroll">
+                <section className="necs-devis-section" aria-labelledby="devis-coords">
+                  <h3 id="devis-coords" className="necs-devis-section__title">
+                    Vos coordonnées
+                  </h3>
+                  <div className="necs-devis-grid">
+                    <div className="field">
+                      <label htmlFor="modal-name">Nom complet *</label>
+                      <input
+                        id="modal-name"
+                        name="name"
+                        placeholder="Ex. Jean Paul Talla"
+                        required
+                        autoComplete="name"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="modal-company">Entreprise / Organisation *</label>
+                      <input
+                        id="modal-company"
+                        name="company"
+                        placeholder="Ex. Cabinet ABC, Douala"
+                        required
+                        autoComplete="organization"
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="modal-email">Email professionnel *</label>
+                      <input
+                        id="modal-email"
+                        name="email"
+                        type="email"
+                        placeholder="contact@entreprise.cm"
+                        required
+                        autoComplete="email"
+                      />
+                    </div>
+                    <div className="field">
+                      <label htmlFor="modal-phone">Téléphone / WhatsApp *</label>
+                      <input
+                        id="modal-phone"
+                        name="phone"
+                        type="tel"
+                        placeholder="+237 6…"
+                        required
+                        autoComplete="tel"
+                      />
+                    </div>
+                  </div>
+                </section>
 
-              <div className="form-row">
-                <div className="field">
-                  <label htmlFor="modal-email">Email professionnel *</label>
-                  <input
-                    id="modal-email"
-                    name="email"
-                    type="email"
-                    placeholder="contact@entreprise.cm"
-                    required
-                  />
-                </div>
-                <div className="field">
-                  <label htmlFor="modal-phone">Téléphone / WhatsApp *</label>
-                  <input
-                    id="modal-phone"
-                    name="phone"
-                    placeholder="+237 6..."
-                    required
-                  />
-                </div>
-              </div>
+                <section className="necs-devis-section" aria-labelledby="devis-need">
+                  <h3 id="devis-need" className="necs-devis-section__title">
+                    Votre besoin
+                  </h3>
+                  <div className="field">
+                    <label htmlFor="modal-subject">Objet de votre demande</label>
+                    <select
+                      id="modal-subject"
+                      name="subject"
+                      value={subject}
+                      onChange={(e) => {
+                        setSubject(e.target.value);
+                        e.currentTarget.blur();
+                      }}
+                    >
+                      <option value="Demande de devis">
+                        Demande de devis personnalisé
+                      </option>
+                      <option value="Nettoyage de bureaux">
+                        Entretien régulier de bureaux
+                      </option>
+                      <option value="Nettoyage industriel">
+                        Nettoyage industriel & entrepôt
+                      </option>
+                      <option value="Visite technique">
+                        Demande de visite technique sur site
+                      </option>
+                      <option value="Facility management">
+                        Facility services & conciergerie
+                      </option>
+                      <option value="Partenariat">
+                        Partenariat & sous-traitance
+                      </option>
+                      <option value="Autre demande">Autre demande</option>
+                    </select>
+                  </div>
+                  <div className="necs-devis-grid necs-devis-grid--city">
+                    <div className="field">
+                      <label htmlFor="modal-city">Ville *</label>
+                      <select id="modal-city" name="city" required defaultValue="">
+                        <option value="" disabled>
+                          Choisir…
+                        </option>
+                        <option value="Yaoundé">Yaoundé</option>
+                        <option value="Douala">Douala</option>
+                        <option value="Autre">Autre / environs</option>
+                      </select>
+                    </div>
+                    <div className="field">
+                      <label htmlFor="modal-surface">Surface approx. (m²)</label>
+                      <input
+                        id="modal-surface"
+                        name="surface"
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="Ex. 450"
+                      />
+                    </div>
+                  </div>
+                  <div className="field">
+                    <label htmlFor="modal-message">
+                      Détail (fréquence, contraintes, adresse…) *
+                    </label>
+                    <textarea
+                      id="modal-message"
+                      name="message"
+                      rows={2}
+                      placeholder="Ex. Nettoyage quotidien de bureaux à Bonanjo, 5j/7…"
+                      required
+                    />
+                  </div>
+                </section>
 
-              <div className="field">
-                <label htmlFor="modal-subject">Objet de votre demande</label>
-                  <select
-                    id="modal-subject"
-                    name="subject"
-                    value={subject}
-                    onChange={(e) => {
-                      setSubject(e.target.value);
-                      e.currentTarget.blur();
-                    }}
-                  >
-                  <option value="Demande de devis">Demande de devis personnalisé</option>
-                  <option value="Nettoyage de bureaux">Entretien régulier de bureaux</option>
-                  <option value="Nettoyage industriel">Nettoyage industriel & entrepôt</option>
-                  <option value="Visite technique">Demande de visite technique sur site</option>
-                  <option value="Facility management">Facility services & conciergerie</option>
-                  <option value="Partenariat">Partenariat & sous-traitance</option>
-                  <option value="Autre demande">Autre demande</option>
-                </select>
-              </div>
+                <section className="necs-devis-section" aria-label="Créneau">
+                  <SlotCalendar
+                    value={slot}
+                    onChange={setSlot}
+                    idPrefix="modal-slot"
+                    compact
+                  />
+                </section>
 
-              <div className="field">
-                <label htmlFor="modal-message">
-                  Détail de votre besoin (superficie, fréquence, localisation…) *
+                <label className="field field--consent">
+                  <input type="checkbox" name="consent" value="1" required />
+                  <span>
+                    J’accepte que NECS traite mes données pour répondre à cette
+                    demande (devis / contact). *
+                  </span>
                 </label>
-                <textarea
-                  id="modal-message"
-                  name="message"
-                  rows={4}
-                  placeholder="Ex. Nettoyage quotidien de 450m² de bureaux à Bonanjo, 5j/7, avec vitrerie mensuelle..."
-                  required
-                />
               </div>
-
-              <label className="field field--consent">
-                <input type="checkbox" name="consent" value="1" required />
-                <span>
-                  J’accepte que NECS traite mes données pour répondre à cette
-                  demande (devis / contact). *
-                </span>
-              </label>
 
               <div className="necs-modal-actions">
                 <button
@@ -253,7 +343,7 @@ export function ContactModal({
                   type="submit"
                   disabled={sending || submitted}
                 >
-                  {sending ? "Envoi…" : "Envoyer ma demande"}
+                  {sending ? "Envoi…" : "Envoyer"}
                   <span aria-hidden className="btn__chev">
                     →
                   </span>
@@ -266,11 +356,6 @@ export function ContactModal({
                   Annuler
                 </button>
               </div>
-
-              <p className="form-note">
-                Un conseiller NECS vous répond sous 24 heures ouvrées. Données
-                confidentielles ; consentement requis.
-              </p>
             </form>
           </>
         )}

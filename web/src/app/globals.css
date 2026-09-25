@@ -1114,6 +1114,14 @@ p { margin: 0 0 1rem; color: var(--muted); }
   color: var(--ink);
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
+.field input[type="checkbox"],
+.field input[type="radio"] {
+  width: auto;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
@@ -1877,7 +1885,23 @@ p { margin: 0 0 1rem; color: var(--muted); }
   }
 
   .necs-modal-card > .necs-modal-form {
-    padding: 1.15rem 1.25rem 1.35rem;
+    padding: 0;
+  }
+
+  .necs-modal-form__scroll {
+    padding: 1rem 1.25rem 0.35rem;
+  }
+
+  .necs-modal-form .necs-modal-actions {
+    padding: 0.75rem 1.25rem 0.25rem;
+  }
+
+  .necs-modal-form__note {
+    padding: 0 1.25rem 1rem;
+  }
+
+  .necs-devis-grid {
+    grid-template-columns: 1fr;
   }
 
   .necs-modal-card > .necs-modal-success {
@@ -2580,7 +2604,7 @@ a.more:hover {
 .necs-modal-card {
   position: relative;
   width: 100%;
-  max-width: 620px;
+  max-width: 760px;
   max-height: min(92dvh, 880px);
   overflow: hidden;
   display: flex;
@@ -2605,10 +2629,81 @@ a.more:hover {
 .necs-modal-card > .necs-modal-form {
   flex: 1 1 auto;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.necs-modal-form__scroll {
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 1.5rem 2rem 2rem;
+  padding: 1.25rem 2rem 0.5rem;
+  display: grid;
+  gap: 1.15rem;
+}
+
+.necs-modal-form .necs-modal-actions {
+  flex-shrink: 0;
+  position: static;
+  margin: 0;
+  padding: 0.85rem 2rem 0.35rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), #fff 40%);
+  border-top: 1px solid rgba(207, 220, 232, 0.75);
+}
+
+.necs-modal-form__note {
+  flex-shrink: 0;
+  margin: 0;
+  padding: 0 2rem 1.15rem;
+}
+
+.necs-devis-section {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.necs-devis-section__title {
+  margin: 0;
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  color: var(--blue-950);
+}
+
+.necs-devis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1rem;
+  min-width: 0;
+}
+
+.necs-devis-grid .field {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.necs-devis-grid .field input:not([type="checkbox"]):not([type="radio"]),
+.necs-devis-grid .field select,
+.necs-devis-grid .field textarea,
+.necs-modal-form .field input:not([type="checkbox"]):not([type="radio"]),
+.necs-modal-form .field select,
+.necs-modal-form .field textarea {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.necs-modal-form.necs-devis-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-height: 0;
 }
 
 .necs-modal-card > .necs-modal-success {
@@ -2688,7 +2783,8 @@ a.more:hover {
   line-height: 1.45;
 }
 
-.necs-modal-form {
+/* Ancien layout grille — ne pas appliquer au devis (flex + scroll interne) */
+.necs-modal-form:not(.necs-devis-form) {
   display: grid;
   gap: 1rem;
 }
@@ -2704,12 +2800,23 @@ a.more:hover {
   cursor: pointer;
 }
 
-.field--consent input {
+.field--consent input[type="checkbox"] {
   margin-top: 0.2rem;
-  width: 1rem;
+  width: 1rem !important;
+  max-width: 1rem !important;
   height: 1rem;
   flex-shrink: 0;
+  padding: 0 !important;
+  border: 1px solid rgba(10, 58, 114, 0.35);
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: none;
   accent-color: #0a3a72;
+}
+
+.field--consent span {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .necs-modal-actions {
@@ -2717,12 +2824,7 @@ a.more:hover {
   flex-wrap: wrap;
   gap: 0.75rem;
   align-items: center;
-  position: sticky;
-  bottom: 0;
   z-index: 2;
-  margin: 0.35rem -0.25rem -0.35rem;
-  padding: 0.85rem 0.25rem 0.15rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 32%);
 }
 
 .necs-modal-success {

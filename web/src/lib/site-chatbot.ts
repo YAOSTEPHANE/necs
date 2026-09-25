@@ -49,7 +49,7 @@ export const CHAT_STARTER_ACTIONS: ChatQuickAction[] = [
 export const CHAT_TOPIC_RAIL: ChatQuickAction[] = [
   { type: "reply", label: "Devis", text: "Je voudrais un devis" },
   { type: "reply", label: "Yaoundé / Douala", text: "Où intervenez-vous ?" },
-  { type: "reply", label: "Qualité digitale", text: "Quelle est votre qualité ?" },
+  { type: "reply", label: "Créneau / RDV", text: "Je veux un créneau" },
   { type: "quote", label: "Parler à un conseiller", subject: "Conseil via chat" },
 ];
 
@@ -108,6 +108,23 @@ const INTENTS: Intent[] = [
         label: "Demande urgente",
         subject: "Urgence nettoyage",
       },
+    ],
+  },
+  {
+    id: "creneau",
+    weight: 5,
+    patterns: [
+      /\b(cr[eé]neau|calendrier|rendez.?vous|rdv|disponib|planifier|r[eé]server|horaire de visite)\b/i,
+      /\b(quand|visite technique).{0,24}\b(venir|passer|appeler)\b/i,
+    ],
+    answer: `Vous pouvez choisir un créneau de visite ou de rappel directement dans le formulaire devis (lun–ven, 09h–16h, fuseau Africa/Douala).\n\nOuvrez le formulaire et sélectionnez un jour puis une heure.`,
+    actions: [
+      {
+        type: "quote",
+        label: "Choisir un créneau",
+        subject: "Visite technique",
+      },
+      { type: "reply", label: "Horaires NECS", text: "Quels sont vos horaires ?" },
     ],
   },
   {
