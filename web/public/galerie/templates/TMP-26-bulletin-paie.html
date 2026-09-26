@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bulletin de paie — NECS SARL</title>
+  <link rel="stylesheet" href="../css/necs-premium.css" />
+  <style>
+    .paie-table { width: 100%; border-collapse: collapse; margin: 1rem 0 1.25rem; font-size: 0.92rem; }
+    .paie-table th, .paie-table td { border: 1px solid #cfdce8; padding: 0.55rem 0.65rem; vertical-align: top; }
+    .paie-table thead th { background: #0a3a72; color: #fff; font-weight: 650; text-align: left; }
+    .paie-table .right { text-align: right; white-space: nowrap; }
+    .paie-table .center { text-align: center; }
+    .paie-table tbody tr:nth-child(even) { background: #f5f8fb; }
+    .paie-totals { display: grid; gap: 0.35rem; max-width: 22rem; margin-left: auto; margin-bottom: 1.25rem; }
+    .paie-totals .row { display: flex; justify-content: space-between; gap: 1rem; padding: 0.4rem 0.55rem; border-bottom: 1px solid #e2eaf2; }
+    .paie-totals .row.total { background: linear-gradient(118deg, #0a3a72, #4faf2a); color: #fff; border: 0; border-radius: 8px; font-weight: 750; margin-top: 0.35rem; padding: 0.65rem 0.75rem; }
+    .paie-info { font-size: 0.85rem; color: #5b6b7c; margin: 0.75rem 0 0; }
+  </style>
+</head>
+<body>
+  <div class="doc-page">
+    <div class="doc-actions no-print">
+      <a class="btn btn-ghost" href="../index.html">← Galerie des templates</a>
+      <button class="btn btn-ghost" type="button" onclick="window.print()">Imprimer / PDF</button>
+      <button class="btn btn-primary" type="button">Valider le modèle</button>
+    </div>
+
+    <article class="doc-sheet">
+      <div class="doc-sheet__accent"></div>
+      <header class="doc-header">
+        <img class="doc-header__logo" src="../assets/logo-necs.png" alt="Logo NECS SARL" />
+        <div class="doc-header__brand">
+          <p class="coords">
+            Propreté · Rigueur · Confiance<br />
+            Siège : [Adresse complète — Cameroun]<br />
+            Tél. : [+237 …] · Email : rh@necs.cm<br />
+            N° CNPS employeur : [À compléter]
+          </p>
+        </div>
+        <div class="doc-header__meta">
+          <span class="doc-type">Bulletin de paie</span>
+          <p class="meta-line">N° <strong>NECS-RH-PAIE-2026-03-019</strong></p>
+          <p class="meta-line">Période : <strong>Mars 2026</strong></p>
+          <p class="meta-line">Statut : <strong>Validé</strong></p>
+        </div>
+      </header>
+
+      <div class="doc-body">
+        <div class="doc-title-block">
+          <h2>Bulletin de paie collaborateur</h2>
+          <p>Éléments de rémunération, cotisations CNPS, IRPP et net à payer (FCFA).</p>
+        </div>
+
+        <div class="alert-note">
+          Document confidentiel RH — à remettre au collaborateur et à archiver (paie mensuelle).
+        </div>
+
+        <div class="section">
+          <div class="section-title">Collaborateur</div>
+          <div class="form-grid">
+            <div class="field"><label>Nom &amp; prénoms <span class="req">*</span></label><input type="text" name="nom" value="Grace Embolo" required /></div>
+            <div class="field"><label>Matricule</label><input type="text" name="matricule" value="NECS-AE-019" /></div>
+            <div class="field"><label>N° CNPS salarié</label><input type="text" name="cnps" value="" /></div>
+            <div class="field"><label>Poste</label><input type="text" name="poste" value="Agent d’entretien" /></div>
+            <div class="field"><label>Site d’affectation</label><input type="text" name="site" value="Immeuble Horizon — Douala" /></div>
+            <div class="field"><label>Période (YYYY-MM) <span class="req">*</span></label><input type="month" name="periode" value="2026-03" required /></div>
+            <div class="field"><label>Mode de paiement</label>
+              <select name="paiement">
+                <option>Virement bancaire</option>
+                <option>Mobile Money</option>
+                <option>Espèces</option>
+                <option>Chèque</option>
+              </select>
+            </div>
+            <div class="field"><label>E-mail</label><input type="email" name="email" value="" /></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Éléments de rémunération (FCFA)</div>
+          <div class="form-grid">
+            <div class="field"><label>Salaire de base <span class="req">*</span></label><input type="number" name="base" value="150000" required /></div>
+            <div class="field"><label>Indemnité de transport</label><input type="number" name="transport" value="25000" /></div>
+            <div class="field"><label>Primes</label><input type="number" name="primes" value="10000" /></div>
+            <div class="field"><label>Heures supplémentaires (h)</label><input type="number" name="hs_h" value="4" step="0.5" /></div>
+            <div class="field"><label>Montant heures supp.</label><input type="number" name="hs_mt" value="4327" /></div>
+            <div class="field"><label>Autres gains</label><input type="number" name="autres_gains" value="0" /></div>
+            <div class="field"><label>Autres retenues</label><input type="number" name="autres_retenues" value="0" /></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Détail du bulletin</div>
+          <table class="paie-table">
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Libellé</th>
+                <th class="right">Gains</th>
+                <th class="right">Retenues</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="center">BASE</td>
+                <td>Salaire de base</td>
+                <td class="right">150 000</td>
+                <td class="right">—</td>
+              </tr>
+              <tr>
+                <td class="center">TRANS</td>
+                <td>Indemnité de transport</td>
+                <td class="right">25 000</td>
+                <td class="right">—</td>
+              </tr>
+              <tr>
+                <td class="center">PRIME</td>
+                <td>Primes</td>
+                <td class="right">10 000</td>
+                <td class="right">—</td>
+              </tr>
+              <tr>
+                <td class="center">HS</td>
+                <td>Heures supplémentaires (4 h)</td>
+                <td class="right">4 327</td>
+                <td class="right">—</td>
+              </tr>
+              <tr>
+                <td class="center">CNPS_S</td>
+                <td>CNPS salarié (4,2 %)</td>
+                <td class="right">—</td>
+                <td class="right">6 902</td>
+              </tr>
+              <tr>
+                <td class="center">IRPP</td>
+                <td>IRPP</td>
+                <td class="right">—</td>
+                <td class="right">12 594</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="paie-totals">
+            <div class="row"><span>Salaire brut</span><strong>189 327 FCFA</strong></div>
+            <div class="row"><span>Total retenues</span><strong>19 496 FCFA</strong></div>
+            <div class="row"><span>CNPS employeur (info 7,7 %)</span><strong>12 654 FCFA</strong></div>
+            <div class="row total"><span>Net à payer</span><span>169 831 FCFA</span></div>
+          </div>
+          <p class="paie-info">
+            Assiette CNPS plafonnée · barème IRPP indicatif Cameroun · montants en francs CFA (XAF).
+          </p>
+        </div>
+
+        <div class="section">
+          <div class="section-title">Signatures &amp; validation</div>
+          <div class="signature-grid">
+            <div class="signature-box">
+              <h4>Responsable RH / Paie</h4>
+              <p>Émission &amp; contrôle</p>
+              <div class="signature-line">Signature / Date</div>
+            </div>
+            <div class="signature-box">
+              <h4>Collaborateur</h4>
+              <p>Accusé de réception</p>
+              <div class="signature-line">Signature / Date</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="doc-footer">
+        <div>
+          <strong>NECS / NECLEANING &amp; SERVICES SARL</strong><br />
+          Bulletin de paie — usage interne RH / collaborateur<br />
+          ID : NECS-RH-PAIE-2026-03-019 · Date : <span data-today></span> · Module : RH
+        </div>
+        <div class="footer-mark">Digitalisation NECS</div>
+      </footer>
+    </article>
+  </div>
+  <script src="../js/necs-forms.js"></script>
+</body>
+</html>

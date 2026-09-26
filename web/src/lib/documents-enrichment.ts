@@ -4512,6 +4512,143 @@ export const DOC_ENRICHMENTS: Record<string, DocEnrichment> = {
       },
     ],
   },
+  "TMP-26": {
+    checks: [
+      "Identité collaborateur vérifiée",
+      "Période de paie renseignée",
+      "Salaire de base cohérent avec contrat",
+      "CNPS salarié / employeur calculés",
+      "IRPP calculé",
+      "Net à payer contrôlé",
+      "Mode de paiement indiqué",
+      "Validation RH / paie",
+      "Remise au collaborateur / archivage",
+    ],
+    kpis: moneyKpis(
+      "Bulletins mois|42",
+      "Validés|38",
+      "Payés|35",
+      "Masse nette|7,1 M",
+    ),
+    lineHeaders: ["Code", "Libellé", "Gains", "Retenues"],
+    lineRows: [
+      ["BASE", "Salaire de base", "150 000", "—"],
+      ["TRANS", "Indemnité de transport", "25 000", "—"],
+      ["PRIME", "Primes", "10 000", "—"],
+      ["HS", "Heures supplémentaires (4 h)", "4 327", "—"],
+      ["CNPS_S", "CNPS salarié (4,2 %)", "—", "6 902"],
+      ["IRPP", "IRPP", "—", "12 594"],
+      ["BRUT", "Salaire brut", "189 327", "—"],
+      ["NET", "Net à payer", "169 831", "—"],
+    ],
+    extraSections: [
+      {
+        title: "Cotisations & impôts",
+        fields: [
+          {
+            name: "statut_paie",
+            label: "Statut bulletin",
+            kind: "select",
+            options: ["Brouillon", "Calculé", "Validé", "Payé", "Annulé"],
+            defaultValue: "Calculé",
+          },
+          {
+            name: "brut",
+            label: "Salaire brut (FCFA)",
+            kind: "text",
+            hint: "Calculé automatiquement",
+          },
+          {
+            name: "cnps_salarie",
+            label: "CNPS salarié (FCFA)",
+            kind: "text",
+          },
+          {
+            name: "cnps_employeur",
+            label: "CNPS employeur — info (FCFA)",
+            kind: "text",
+          },
+          {
+            name: "irpp",
+            label: "IRPP (FCFA)",
+            kind: "text",
+          },
+          {
+            name: "net",
+            label: "Net à payer (FCFA)",
+            kind: "text",
+            required: true,
+          },
+          {
+            name: "banque",
+            label: "Compte / Mobile Money",
+            kind: "text",
+            full: true,
+          },
+          {
+            name: "note_rh",
+            label: "Note RH",
+            kind: "textarea",
+            full: true,
+          },
+        ],
+      },
+      {
+        title: "Validation",
+        fields: [
+          {
+            name: "emetteur",
+            label: "Émis par",
+            kind: "text",
+            required: true,
+          },
+          {
+            name: "date_emission",
+            label: "Date d’émission",
+            kind: "date",
+          },
+          {
+            name: "date_paiement",
+            label: "Date de paiement",
+            kind: "date",
+          },
+          {
+            name: "decision",
+            label: "Décision",
+            kind: "select",
+            options: ["En attente", "Validé", "Payé", "À corriger"],
+            defaultValue: "En attente",
+          },
+        ],
+      },
+    ],
+    extraRecords: [
+      {
+        id: "PAIE-2026-03-019",
+        label: "G. Embolo ; Mars 2026",
+        status: "Validé",
+        owner: "RH",
+        updated: "31/03/2026",
+        amount: "169 831 FCFA",
+      },
+      {
+        id: "PAIE-2026-03-007",
+        label: "A. Kouam ; Mars 2026",
+        status: "Payé",
+        owner: "RH",
+        updated: "28/03/2026",
+        amount: "142 200 FCFA",
+      },
+      {
+        id: "PAIE-2026-03-012",
+        label: "M. Ngo ; Mars 2026",
+        status: "Calculé",
+        owner: "RH",
+        updated: "30/03/2026",
+        amount: "158 450 FCFA",
+      },
+    ],
+  },
   "DIG-01": {
     checks: [
       "Lead qualifié (besoin + budget)",

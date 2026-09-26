@@ -241,12 +241,24 @@ export const ADMIN_HOME_APPS: AdminNavItem[] = [
     href: "/admin/rh",
     label: "Ressources humaines",
     code: "RH",
-    description: "Recrutement, embauche, signatures, onboarding, compétences",
+    description:
+      "Recrutement, embauche, signatures, onboarding, compétences, paie",
     kind: "app",
-    roles: ["admin", "rh", "manager"],
+    roles: ["admin", "rh", "manager", "finance"],
     icon: "interview",
     match: "prefix",
     shortLabel: "RH",
+  },
+  {
+    href: "/admin/paie",
+    label: "Paie employés",
+    code: "RH",
+    description: "Bulletins, CNPS, IRPP, net à payer (FCFA)",
+    kind: "app",
+    roles: ["admin", "rh", "manager", "finance"],
+    icon: "invoice",
+    match: "prefix",
+    shortLabel: "Paie",
   },
   {
     href: "/admin/finance",
@@ -423,6 +435,7 @@ const DOC_IDS_SUPERSEDED_BY_APPS = new Set([
   "TMP-15", // Demande d’achat → Achats
   "TMP-16", // Congés → RH conges
   "TMP-17", // Pointage → RH / Ops pointage
+  "TMP-26", // Bulletin paie → RH paie /admin/paie
   "TMP-18", // Préfacture → Finance
   "TMP-19", // Facture → Finance
   "TMP-20", // Avoir → Finance

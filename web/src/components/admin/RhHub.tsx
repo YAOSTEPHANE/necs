@@ -13,6 +13,7 @@ import { FormationsCompetencesWorkspace } from "@/components/admin/FormationsCom
 import { JobDescriptionWorkspace } from "@/components/admin/JobDescriptionWorkspace";
 import { LeaveRequestWorkspace } from "@/components/admin/LeaveRequestWorkspace";
 import { PointageWorkspace } from "@/components/admin/PointageWorkspace";
+import { PayrollWorkspace } from "@/components/admin/PayrollWorkspace";
 import { safeRouterReplace } from "@/lib/safe-navigate";
 
 export type RhTab =
@@ -24,6 +25,7 @@ export type RhTab =
   | "onboarding"
   | "conges"
   | "pointage"
+  | "paie"
   | "competences";
 
 const TABS: {
@@ -40,6 +42,7 @@ const TABS: {
   { id: "fiches-poste", label: "Postes", hint: "Fiches" },
   { id: "conges", label: "Congés", hint: "Absences" },
   { id: "pointage", label: "Pointage", hint: "Présence" },
+  { id: "paie", label: "Paie", hint: "Bulletins" },
 ];
 
 function parseTab(raw: string | null): RhTab {
@@ -102,6 +105,14 @@ function parseTab(raw: string | null): RhTab {
   }
   if (raw === "pointage" || raw === "tmp-17" || raw === "rh-09") {
     return "pointage";
+  }
+  if (
+    raw === "paie" ||
+    raw === "payroll" ||
+    raw === "bulletins" ||
+    raw === "rh-10"
+  ) {
+    return "paie";
   }
   if (
     raw === "recrutement" ||
@@ -196,6 +207,7 @@ export function RhHub() {
         {tab === "onboarding" ? <OnboardingWorkspace embedded /> : null}
         {tab === "conges" ? <LeaveRequestWorkspace embedded /> : null}
         {tab === "pointage" ? <PointageWorkspace embedded /> : null}
+        {tab === "paie" ? <PayrollWorkspace embedded /> : null}
         {tab === "competences" ? (
           <FormationsCompetencesWorkspace embedded />
         ) : null}

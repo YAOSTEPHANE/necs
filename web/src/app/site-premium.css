@@ -1,4 +1,4 @@
-/* NECS â€” couche ultra-premium (site public) */
+/* NECS Ã¢â¬â couche ultra-premium (site public) */
 
 :root {
   --space-section: clamp(5.5rem, 10vw, 8.5rem);
@@ -34,7 +34,7 @@ h1, h2, h3, h4 {
   width: min(1120px, calc(100% - 2.5rem));
 }
 
-/* â€”â€”â€” Header : barre toujours lisible (mobile + PC) â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Header : barre toujours lisible (mobile + PC) Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .site-header {
   -webkit-backdrop-filter: blur(18px) saturate(1.35);
   backdrop-filter: blur(18px) saturate(1.35);
@@ -224,15 +224,15 @@ h1, h2, h3, h4 {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  padding: 0.45rem 0.7rem;
-  border: 0;
+  padding: 0.45rem 0.78rem;
+  border: 1px solid rgba(10, 58, 114, 0.18);
   border-radius: 999px;
-  background: transparent;
-  color: inherit;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--blue-950);
   font: inherit;
-  font-weight: 600;
+  font-weight: 650;
   cursor: pointer;
-  transition: background 0.25s, color 0.25s;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
 }
 
 .nav-more__btn svg {
@@ -247,8 +247,9 @@ h1, h2, h3, h4 {
 .nav-more__btn:hover,
 .nav-more.is-open .nav-more__btn,
 .nav-more.is-active .nav-more__btn {
-  background: rgba(18, 96, 168, 0.07);
+  background: #fff;
   color: var(--blue-700);
+  border-color: rgba(18, 96, 168, 0.4);
 }
 
 .site-header.is-transparent:not(.is-scrolled) .nav-more__btn {
@@ -332,7 +333,7 @@ h1, h2, h3, h4 {
   display: inline-flex;
 }
 
-/* â€”â€”â€” Buttons â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Buttons Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .btn {
   letter-spacing: 0.01em;
   padding: 1rem 1.55rem;
@@ -397,7 +398,7 @@ h1, h2, h3, h4 {
   background: var(--soft);
 }
 
-/* â€”â€”â€” Media â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Media Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .media-3d__inner {
   border-radius: 4px 22px 4px 22px;
   border: 1px solid rgba(10, 58, 114, 0.1);
@@ -414,7 +415,7 @@ h1, h2, h3, h4 {
   transform: scale(1.045);
 }
 
-/* â€”â€”â€” Hero accueil : contenu visible dÃ¨s le haut (PC + mobile) â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Hero accueil : contenu visible dÃÂ¨s le haut (PC + mobile) Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .hero {
   align-items: center;
 }
@@ -494,7 +495,7 @@ h1, h2, h3, h4 {
   letter-spacing: 0.22em;
 }
 
-/* â€”â€”â€” Sections â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Sections Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .section {
   padding: var(--space-section) 0;
 }
@@ -654,7 +655,7 @@ h1, h2, h3, h4 {
   box-shadow: none;
 }
 
-/* â€”â€”â€” Accueil : tÃ©moignages ultra-premium â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Accueil : tÃÂ©moignages ultra-premium Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .home-page .home-testimonials {
   position: relative;
   overflow: hidden;
@@ -1017,7 +1018,7 @@ h1, h2, h3, h4 {
   padding: 2.5rem 2.15rem 2.15rem;
 }
 
-/* Devis modal — grille 2 cols + scroll (gagne sur cascade site-premium) */
+/* Devis modal â grille 2 cols + scroll (gagne sur cascade site-premium) */
 .necs-devis-form .necs-modal-form__scroll {
   flex: 1 1 auto;
   min-height: 0;
@@ -1078,7 +1079,7 @@ h1, h2, h3, h4 {
   box-sizing: border-box;
 }
 
-/* Typo plus compacte — formulaire devis modal */
+/* Typo plus compacte â formulaire devis modal */
 .necs-modal-card:has(.necs-devis-form) {
   font-size: 0.875rem;
 }
@@ -1592,7 +1593,7 @@ h1, h2, h3, h4 {
   }
 }
 
-/* â€”â€”â€” Page Ã€ propos : affiche identitÃ©, mobile = desktop â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Page Ãâ¬ propos : affiche identitÃÂ©, mobile = desktop Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .identity-flyer {
   background: #fff;
   padding-top: 4.6rem;
@@ -2110,7 +2111,7 @@ h1, h2, h3, h4 {
   }
 }
 
-/* Accueil : sections plus rapprochÃ©es */
+/* Accueil : sections plus rapprochÃÂ©es */
 .home-page .section {
   padding: clamp(2.4rem, 4.5vw, 3.6rem) 0;
 }
@@ -2170,7 +2171,7 @@ h1, h2, h3, h4 {
   }
 }
 
-/* â€”â€”â€” Cookie consent â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Cookie consent Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .cookie-banner {
   position: fixed;
   left: 0;
@@ -2576,7 +2577,7 @@ body:has(.cookie-panel) .site-chat,
   }
 }
 
-/* â€”â€”â€” Site chatbot ultra-premium â€”â€”â€” */
+/* Ã¢â¬âÃ¢â¬âÃ¢â¬â Site chatbot ultra-premium Ã¢â¬âÃ¢â¬âÃ¢â¬â */
 .site-chat {
   position: fixed;
   right: 1.1rem;
@@ -3175,7 +3176,7 @@ body:has(.cookie-panel) .site-chat,
     animation: none !important;
   }
 }
-/* ——— Slot calendar (créneaux clients) ——— */
+/* âââ Slot calendar (crÃ©neaux clients) âââ */
 .slot-cal {
   margin: 0 0 1rem;
   padding: 1rem 1.05rem 0.95rem;
@@ -3398,7 +3399,7 @@ body:has(.cookie-panel) .site-chat,
   }
 }
 
-/* ��� SEO landing pages (villes & services) ��� */
+/*  SEO landing pages (villes & services)  */
 .seo-land {
   background:
     radial-gradient(90% 60% at 10% 0%, rgba(18, 96, 168, 0.08), transparent 50%),
