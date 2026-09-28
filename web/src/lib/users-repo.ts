@@ -70,7 +70,7 @@ export async function ensureSeedAdmin(): Promise<void> {
 
   const email = (
     process.env.ADMIN_BOOTSTRAP_EMAIL ||
-    "direction@necs.cm"
+    "directionnecs@gmail.com"
   )
     .trim()
     .toLowerCase();

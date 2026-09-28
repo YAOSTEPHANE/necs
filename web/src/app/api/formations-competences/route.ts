@@ -72,12 +72,11 @@ export async function GET(request: Request) {
   const auth = await requireAccess();
   if (auth.error) return auth.error;
   const { session } = auth;
-  const actor = actorFrom(session);
 
   const url = new URL(request.url);
   if (url.searchParams.get("meta") === "1") {
     const [alerts, catalog, postes] = await Promise.all([
-      countSkillAlerts(actor),
+      countSkillAlerts(),
       getSkillCatalog(),
       getPosteProfiles(),
     ]);
@@ -91,10 +90,10 @@ export async function GET(request: Request) {
   }
 
   const [items, catalog, postes, alerts] = await Promise.all([
-    listCollaboratorSkills(actor),
+    listCollaboratorSkills(),
     getSkillCatalog(),
     getPosteProfiles(),
-    countSkillAlerts(actor),
+    countSkillAlerts(),
   ]);
 
   return NextResponse.json({

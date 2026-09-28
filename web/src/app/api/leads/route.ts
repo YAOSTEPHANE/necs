@@ -264,11 +264,15 @@ export async function POST(request: Request) {
       preferredSlotLabel: preferredSlotLabel || undefined,
     });
 
-    // Notification commercial (sauf si le saisisseur est déjà commercial — on notifie quand même l’équipe)
-    void notifyCommercialNewLead({
-      lead: saved.lead,
-      created: saved.created,
-    }).catch((err) => console.error("[leads:notify]", err));
+    // Notification admin + commercial (await pour que SMTP finisse avant freeze Vercel)
+    try {
+      await notifyCommercialNewLead({
+        lead: saved.lead,
+        created: saved.created,
+      });
+    } catch (err) {
+      console.error("[leads:notify]", err);
+    }
 
     return NextResponse.json({
       ok: true,

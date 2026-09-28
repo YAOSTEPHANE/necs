@@ -124,117 +124,6 @@ export async function getPosteProfiles(): Promise<PosteProfile[]> {
     .filter((p) => p.active);
 }
 
-function demoSeed(actor: Actor): CollaboratorSkills[] {
-  const t = nowMs();
-  const catalog = DEFAULT_SKILL_CATALOG;
-  const mk = (
-    partial: Omit<CollaboratorSkills, "history" | "createdAt" | "updatedAt"> & {
-      historyNote: string;
-    },
-  ): CollaboratorSkills => ({
-    id: partial.id,
-    employeeName: partial.employeeName,
-    email: partial.email,
-    phone: partial.phone,
-    posteId: partial.posteId,
-    site: partial.site,
-    managerName: partial.managerName,
-    rhOwner: partial.rhOwner,
-    skills: partial.skills,
-    comments: partial.comments,
-    history: [
-      hist("created", actor, partial.historyNote),
-    ],
-    createdAt: t - 86_400_000,
-    updatedAt: t,
-  });
-
-  const cert = (monthsAgo: number, skillId: string, level: SkillLevel, title: string): AcquiredSkill => {
-    const def = catalog.find((c) => c.id === skillId)!;
-    const certified = new Date();
-    certified.setMonth(certified.getMonth() - monthsAgo);
-    const certifiedAt = certified.toISOString();
-    return {
-      skillId,
-      level,
-      certifiedAt,
-      expiresAt: computeExpiryFromCertification(certifiedAt, def.renewalMonths),
-      trainingTitle: title,
-      note: "",
-    };
-  };
-
-  return [
-    mk({
-      id: `SK-${randomUUID().slice(0, 8).toUpperCase()}`,
-      employeeName: "Aïcha Nkomo",
-      email: "aicha.nkomo@necs.cm",
-      phone: "+237 6 90 11 22 33",
-      posteId: "agent",
-      site: "Immeuble Horizon — Akwa",
-      managerName: "Paul Mbarga",
-      rhOwner: actor.name,
-      skills: [
-        cert(2, "sec_hse", 3, "Session HSE sept. 2026"),
-        cert(4, "sec_gestes", 2, "Gestes & postures"),
-        cert(1, "sec_chimiques", 3, "FDS produits"),
-        cert(3, "met_protocole", 3, "Protocole bureaux"),
-        cert(6, "met_materiel", 2, "Autolaveuse"),
-        cert(0, "rel_accueil", 2, "Accueil client"),
-      ],
-      comments: "Référente équipe matin",
-      historyNote: "Fiche démo agent — couverture quasi complète",
-    }),
-    mk({
-      id: `SK-${randomUUID().slice(0, 8).toUpperCase()}`,
-      employeeName: "Jean Owona",
-      email: "jean.owona@necs.cm",
-      phone: "+237 6 77 44 55 66",
-      posteId: "agent",
-      site: "Usine Bassa",
-      managerName: "Paul Mbarga",
-      rhOwner: actor.name,
-      skills: [
-        cert(14, "sec_hse", 2, "HSE 2025 — à renouveler"),
-        cert(8, "sec_gestes", 2, "Gestes"),
-        cert(2, "met_protocole", 2, "Protocole industrie"),
-      ],
-      comments: "Écarts sécurité / chimie à combler",
-      historyNote: "Fiche démo agent — écarts et renouvellement",
-    }),
-    mk({
-      id: `SK-${randomUUID().slice(0, 8).toUpperCase()}`,
-      employeeName: "Paul Mbarga",
-      email: "paul.mbarga@necs.cm",
-      phone: "+237 6 55 88 99 00",
-      posteId: "chef",
-      site: "Secteur Douala centre",
-      managerName: "Direction Ops",
-      rhOwner: actor.name,
-      skills: [
-        cert(3, "sec_hse", 4, "HSE chefs"),
-        cert(5, "sec_gestes", 3, "Gestes avancés"),
-        cert(2, "sec_chimiques", 3, "Chimie"),
-        cert(10, "sec_secours", 2, "SST — renouvellement proche"),
-        cert(1, "met_protocole", 4, "Protocoles multi-sites"),
-        cert(4, "qual_controles", 3, "NC & contrôles"),
-        cert(0, "rel_accueil", 3, "Relation client"),
-        cert(6, "mgr_equipe", 3, "Encadrement"),
-      ],
-      comments: "Chef d’équipe Akwa / Bassa",
-      historyNote: "Fiche démo chef d’équipe",
-    }),
-  ];
-}
-
-async function ensureDemoSeed(actor: Actor): Promise<void> {
-  const col = await collabCol();
-  const count = await col.countDocuments();
-  if (count > 0) return;
-  const seed = demoSeed(actor);
-  if (seed.length) await col.insertMany(seed);
-}
-
 function enrich(
   item: CollaboratorSkills,
   catalog: SkillDef[],
@@ -257,8 +146,7 @@ function enrich(
   };
 }
 
-export async function listCollaboratorSkills(actor: Actor) {
-  await ensureDemoSeed(actor);
+export async function listCollaboratorSkills() {
   const [col, catalog, postes] = await Promise.all([
     collabCol(),
     getSkillCatalog(),
@@ -270,8 +158,8 @@ export async function listCollaboratorSkills(actor: Actor) {
     .map((item) => enrich(item, catalog, postes));
 }
 
-export async function countSkillAlerts(actor: Actor) {
-  const items = await listCollaboratorSkills(actor);
+export async function countSkillAlerts() {
+  const items = await listCollaboratorSkills();
   let gapPeople = 0;
   let renewalCount = 0;
   let gapCount = 0;

@@ -1,7 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 
 export const ADMIN_EMAIL =
-  process.env.E2E_ADMIN_EMAIL || "direction@necs.cm";
+  process.env.E2E_ADMIN_EMAIL || "directionnecs@gmail.com";
 export const ADMIN_PASSWORD =
   process.env.E2E_ADMIN_PASSWORD || "NecsAdmin2026!";
 

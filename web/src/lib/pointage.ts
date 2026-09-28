@@ -117,143 +117,21 @@ export function evaluatePunch(punch: PunchRecord): PunchRecord {
   return { ...punch, status, anomaly, updatedAt: nowLabel() };
 }
 
-function seedEmployees(): Employee[] {
-  return [
-    {
-      id: "EMP-001",
-      name: "Amina Kouam",
-      role: "Agent d’entretien",
-      site: "Immeuble Horizon",
-      shiftStart: "06:00",
-      shiftEnd: "14:00",
-      active: true,
-    },
-    {
-      id: "EMP-002",
-      name: "Marc Ngo",
-      role: "Agent d’entretien",
-      site: "Immeuble Horizon",
-      shiftStart: "06:00",
-      shiftEnd: "14:00",
-      active: true,
-    },
-    {
-      id: "EMP-003",
-      name: "Sandrine Talla",
-      role: "Chef d’équipe",
-      site: "Usine Bassa",
-      shiftStart: "14:00",
-      shiftEnd: "22:00",
-      active: true,
-    },
-    {
-      id: "EMP-004",
-      name: "Paul Essomba",
-      role: "Agent d’entretien",
-      site: "Mall Riviera",
-      shiftStart: "22:00",
-      shiftEnd: "06:00",
-      active: true,
-    },
-    {
-      id: "EMP-005",
-      name: "Grace Embolo",
-      role: "Agent d’entretien",
-      site: "Mall Riviera",
-      shiftStart: "06:00",
-      shiftEnd: "14:00",
-      active: true,
-    },
-  ];
+/** Anciens employés de démo semés dans le navigateur (à purger). */
+const LEGACY_DEMO_EMPLOYEES: Record<string, string> = {
+  "EMP-001": "Amina Kouam",
+  "EMP-002": "Marc Ngo",
+  "EMP-003": "Sandrine Talla",
+  "EMP-004": "Paul Essomba",
+  "EMP-005": "Grace Embolo",
+};
+
+function isLegacyDemoEmployee(id: string, name: string): boolean {
+  return LEGACY_DEMO_EMPLOYEES[id] === name;
 }
 
-function seedPunches(employees: Employee[]): PunchRecord[] {
-  const today = todayIso();
-  const demo: PunchRecord[] = [
-    evaluatePunch({
-      id: `PTG-EMP-001-${today}`,
-      employeeId: "EMP-001",
-      employeeName: "Amina Kouam",
-      site: "Immeuble Horizon",
-      date: today,
-      plannedIn: "06:00",
-      plannedOut: "14:00",
-      actualIn: "06:02",
-      actualOut: "14:05",
-      mode: "Mobile",
-      status: "Complet",
-      anomaly: "Aucune",
-      validatedBy: "Superviseur",
-      note: "",
-      updatedAt: nowLabel(),
-    }),
-    evaluatePunch({
-      id: `PTG-EMP-002-${today}`,
-      employeeId: "EMP-002",
-      employeeName: "Marc Ngo",
-      site: "Immeuble Horizon",
-      date: today,
-      plannedIn: "06:00",
-      plannedOut: "14:00",
-      actualIn: "06:18",
-      actualOut: null,
-      mode: "Mobile",
-      status: "Retard",
-      anomaly: "Retard",
-      validatedBy: null,
-      note: "",
-      updatedAt: nowLabel(),
-    }),
-    evaluatePunch({
-      id: `PTG-EMP-003-${today}`,
-      employeeId: "EMP-003",
-      employeeName: "Sandrine Talla",
-      site: "Usine Bassa",
-      date: today,
-      plannedIn: "14:00",
-      plannedOut: "22:00",
-      actualIn: "13:58",
-      actualOut: null,
-      mode: "Terminal",
-      status: "En cours",
-      anomaly: "",
-      validatedBy: null,
-      note: "",
-      updatedAt: nowLabel(),
-    }),
-  ];
-
-  // Ensure every active employee has a row for today
-  for (const emp of employees.filter((e) => e.active)) {
-    if (!demo.some((p) => p.employeeId === emp.id && p.date === today)) {
-      demo.push(
-        evaluatePunch({
-          id: `PTG-${emp.id}-${today}`,
-          employeeId: emp.id,
-          employeeName: emp.name,
-          site: emp.site,
-          date: today,
-          plannedIn: emp.shiftStart,
-          plannedOut: emp.shiftEnd,
-          actualIn: null,
-          actualOut: null,
-          mode: "Mobile",
-          status: "Absent",
-          anomaly: "",
-          validatedBy: null,
-          note: "",
-          updatedAt: nowLabel(),
-        }),
-      );
-    }
-  }
-
-  return demo;
-}
-
-function seedStore(): PointageStore {
-  const employees = seedEmployees();
-  return { employees, punches: seedPunches(employees) };
+function emptyStore(): PointageStore {
+  return { employees: [], punches: [] };
 }
 
 function emitUpdate() {
@@ -263,26 +141,31 @@ function emitUpdate() {
 }
 
 export function loadPointageStore(): PointageStore {
-  if (typeof window === "undefined") return seedStore();
+  if (typeof window === "undefined") return emptyStore();
   try {
     const raw = localStorage.getItem(NECS_POINTAGE_KEY);
-    if (!raw) {
-      const seeded = seedStore();
-      localStorage.setItem(NECS_POINTAGE_KEY, JSON.stringify(seeded));
-      return seeded;
+    if (!raw) return emptyStore();
+    const parsed = JSON.parse(raw) as Partial<PointageStore>;
+    const storedEmployees = Array.isArray(parsed?.employees) ? parsed.employees : [];
+    const storedPunches = Array.isArray(parsed?.punches) ? parsed.punches : [];
+    const employees = storedEmployees.filter(
+      (e) => !isLegacyDemoEmployee(e.id, e.name),
+    );
+    const punches = storedPunches.filter(
+      (p) => !isLegacyDemoEmployee(p.employeeId, p.employeeName),
+    );
+    if (
+      employees.length !== storedEmployees.length ||
+      punches.length !== storedPunches.length
+    ) {
+      localStorage.setItem(
+        NECS_POINTAGE_KEY,
+        JSON.stringify({ employees, punches }),
+      );
     }
-    const parsed = JSON.parse(raw) as PointageStore;
-    if (!parsed?.employees?.length) {
-      const seeded = seedStore();
-      localStorage.setItem(NECS_POINTAGE_KEY, JSON.stringify(seeded));
-      return seeded;
-    }
-    return {
-      employees: parsed.employees,
-      punches: Array.isArray(parsed.punches) ? parsed.punches : [],
-    };
+    return { employees, punches };
   } catch {
-    return seedStore();
+    return emptyStore();
   }
 }
 

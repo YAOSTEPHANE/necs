@@ -255,7 +255,7 @@ export async function createContractDocument(
     employeeEmail: cleanEmail(input.employeeEmail),
     employeeUserId: clean(input.employeeUserId, 80),
     directionName: clean(input.directionName, 120) || "Direction NECS",
-    directionEmail: cleanEmail(input.directionEmail) || "direction@necs.cm",
+    directionEmail: cleanEmail(input.directionEmail) || "directionnecs@gmail.com",
     jobTitle: clean(input.jobTitle, 160) || "Agent d’entretien",
     assignmentSite: clean(input.assignmentSite, 200),
     assignmentZone: clean(input.assignmentZone, 120),

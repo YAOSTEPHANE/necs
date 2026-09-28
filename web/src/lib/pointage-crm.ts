@@ -686,43 +686,53 @@ export async function runConcurrentPunchTest(
     email: `test-${i}@pointage.local`,
   }));
 
-  // Pré-création des lignes (comme un matin de vacation)
-  await Promise.all(
-    fakeAgents.map((a) =>
-      ensurePunchForUser(a, date, {
-        ...actor,
-        userId: a.userId,
-        name: a.name,
-        email: a.email,
-      }),
-    ),
-  );
+  let results: Awaited<ReturnType<typeof punchInAtomic>>[];
+  let durationMs = 0;
+  try {
+    // Pré-création des lignes (comme un matin de vacation)
+    await Promise.all(
+      fakeAgents.map((a) =>
+        ensurePunchForUser(a, date, {
+          ...actor,
+          userId: a.userId,
+          name: a.name,
+          email: a.email,
+        }),
+      ),
+    );
 
-  // Pic simultané : 2× arrivée par agent (doit bloquer le doublon)
-  const results = await Promise.all(
-    fakeAgents.flatMap((a) => {
-      const fakeActor: Actor = {
-        userId: a.userId,
-        name: a.name,
-        email: a.email,
-        role: "nettoyeur",
-      };
-      const reqA = `burst-${a.userId}-a`;
-      const reqB = `burst-${a.userId}-b`;
-      return [
-        punchInAtomic(a.userId, fakeActor, {
-          date,
-          mode: "Mobile",
-          clientRequestId: reqA,
-        }),
-        punchInAtomic(a.userId, fakeActor, {
-          date,
-          mode: "Mobile",
-          clientRequestId: reqB,
-        }),
-      ];
-    }),
-  );
+    // Pic simultané : 2× arrivée par agent (doit bloquer le doublon)
+    results = await Promise.all(
+      fakeAgents.flatMap((a) => {
+        const fakeActor: Actor = {
+          userId: a.userId,
+          name: a.name,
+          email: a.email,
+          role: "nettoyeur",
+        };
+        const reqA = `burst-${a.userId}-a`;
+        const reqB = `burst-${a.userId}-b`;
+        return [
+          punchInAtomic(a.userId, fakeActor, {
+            date,
+            mode: "Mobile",
+            clientRequestId: reqA,
+          }),
+          punchInAtomic(a.userId, fakeActor, {
+            date,
+            mode: "Mobile",
+            clientRequestId: reqB,
+          }),
+        ];
+      }),
+    );
+    durationMs = Date.now() - started;
+  } finally {
+    await (await col()).deleteMany({ date });
+    await (await idemCol()).deleteMany({
+      key: { $regex: `^in:TEST-USR-${date}` },
+    });
+  }
 
   const byUser = new Map<string, PointagePunch>();
   let duplicatesBlocked = 0;
@@ -733,14 +743,7 @@ export async function runConcurrentPunchTest(
 
   const inserted = [...byUser.values()].filter((p) => p.actualIn).length;
   const lost = target - inserted;
-  const durationMs = Date.now() - started;
   const ok = inserted === target && lost === 0;
-
-  // Nettoyage des lignes de test
-  await (await col()).deleteMany({ date });
-  await (await idemCol()).deleteMany({
-    key: { $regex: `^in:TEST-USR-${date}` },
-  });
 
   return {
     target,

@@ -386,22 +386,29 @@ export async function deleteLead(
   return byLatest.deletedCount > 0;
 }
 
-/** Notifie le commercial (env + comptes rôle commercial actifs). */
+/** Notifie admin + commercial (env + comptes actifs). */
 export async function notifyCommercialNewLead(input: {
   lead: DbLead;
   created: boolean;
 }): Promise<void> {
   const recipients = new Set<string>();
-  const envMail =
-    process.env.LEADS_NOTIFY_EMAIL?.trim() ||
-    process.env.COMMERCIAL_EMAIL?.trim() ||
-    "";
-  if (envMail.includes("@")) recipients.add(envMail.toLowerCase());
+  const envMails = [
+    process.env.ADMIN_BOOTSTRAP_EMAIL?.trim(),
+    process.env.LEADS_NOTIFY_EMAIL?.trim(),
+    process.env.COMMERCIAL_EMAIL?.trim(),
+  ];
+  for (const envMail of envMails) {
+    if (envMail?.includes("@")) recipients.add(envMail.toLowerCase());
+  }
 
   try {
     const users = await listUsers();
     for (const u of users) {
-      if (u.role === "commercial" && u.active && u.email.includes("@")) {
+      if (
+        (u.role === "admin" || u.role === "commercial") &&
+        u.active &&
+        u.email.includes("@")
+      ) {
         recipients.add(u.email.trim().toLowerCase());
       }
     }
@@ -410,7 +417,7 @@ export async function notifyCommercialNewLead(input: {
   }
 
   if (recipients.size === 0) {
-    console.warn("[leads] Aucun destinataire notification commercial.");
+    console.warn("[leads] Aucun destinataire notification (admin/commercial).");
     return;
   }
 

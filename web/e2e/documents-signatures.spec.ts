@@ -76,7 +76,7 @@ function stubDoc(
     employeeEmail: "awa@necs.cm",
     employeeUserId: "u-awa",
     directionName: "Direction",
-    directionEmail: "direction@necs.cm",
+    directionEmail: "directionnecs@gmail.com",
     jobTitle: "Agent d’entretien",
     assignmentSite: "",
     assignmentZone: "",

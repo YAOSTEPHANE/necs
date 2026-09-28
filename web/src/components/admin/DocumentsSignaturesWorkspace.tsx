@@ -74,7 +74,7 @@ const EMPTY_DRAFT: Draft = {
   employeeName: "",
   employeeEmail: "",
   directionName: "Direction NECS",
-  directionEmail: "direction@necs.cm",
+  directionEmail: "directionnecs@gmail.com",
   requireRh: false,
   note: "",
   connectorProvider: "",
