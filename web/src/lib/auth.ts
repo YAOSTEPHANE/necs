@@ -45,6 +45,7 @@ export function homeForRole(role: UserRole): string {
 /** Routes autorisées pour un nettoyeur. */
 export function isAgentAllowedPath(pathname: string): boolean {
   if (pathname.startsWith("/admin/mon-espace")) return true;
+  if (pathname.startsWith("/admin/operations")) return true;
   if (pathname.startsWith("/admin/pointage")) return true;
   if (pathname.startsWith("/admin/ordres-de-travail")) return true;
   if (pathname.startsWith("/admin/terrain")) return true;

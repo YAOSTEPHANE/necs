@@ -85,7 +85,7 @@ export function RoleSpaceWorkspace() {
           <div className="role-space__tool-grid">
             {space.tools.map((tool) => (
               <Link
-                key={tool.href}
+                key={`${tool.href}|${tool.label}`}
                 href={tool.href}
                 className="role-space__tool"
                 style={{ ["--tool-c" as string]: tool.tone }}

@@ -201,7 +201,7 @@ export function OfflineSyncHost({ children }: { children?: ReactNode }) {
 }
 
 /** Contrôles offline à placer dans le header admin. */
-export function OfflineSyncBar() {
+export function OfflineSyncBar({ compact = false }: { compact?: boolean }) {
   const ctx = useContext(OfflineSyncContext);
   if (!ctx?.ready) return null;
 
@@ -218,39 +218,59 @@ export function OfflineSyncBar() {
     purgeSynced,
   } = ctx;
 
-  return (
-    <div className="offline-sync-slot">
-      <div
-        className={`offline-bar offline-bar--topbar${online ? "" : " is-offline"}${pending ? " has-queue" : ""}`}
-        role="status"
+  const actions = (
+    <div className="offline-bar__actions">
+      <button
+        type="button"
+        className="btn-admin btn-admin--ghost"
+        disabled={busy || !online}
+        onClick={() => void syncNow()}
       >
+        Synchroniser
+      </button>
+      <button
+        type="button"
+        className="btn-admin btn-admin--ghost"
+        onClick={toggleForceOffline}
+      >
+        {isForceOffline() ? "Fin test offline" : "Simuler offline"}
+      </button>
+    </div>
+  );
+
+  return (
+    <div className={`offline-sync-slot${compact ? " is-compact" : ""}`}>
+      {compact ? (
         <button
           type="button"
-          className="offline-bar__toggle"
+          className={`offline-pill${online ? "" : " is-offline"}${pending ? " has-queue" : ""}`}
+          aria-expanded={open}
+          aria-label={`${online ? "En ligne" : "Hors ligne"}${pending > 0 ? ` — ${pending} opération(s) en attente` : ""}. Ouvrir la synchronisation`}
           onClick={() => setOpen((v) => !v)}
         >
-          {online ? "En ligne" : "Hors ligne / dégradé"}
-          {pending > 0 ? ` · ${pending} en file` : ""}
-          {conflicts > 0 ? ` · ${conflicts} conflit(s)` : ""}
+          <i className="offline-pill__dot" aria-hidden />
+          <span className="offline-pill__label">
+            {online ? "En ligne" : "Hors ligne"}
+          </span>
+          {pending > 0 ? <em className="offline-pill__count">{pending}</em> : null}
         </button>
-        <div className="offline-bar__actions">
+      ) : (
+        <div
+          className={`offline-bar offline-bar--topbar${online ? "" : " is-offline"}${pending ? " has-queue" : ""}`}
+          role="status"
+        >
           <button
             type="button"
-            className="btn-admin btn-admin--ghost"
-            disabled={busy || !online}
-            onClick={() => void syncNow()}
+            className="offline-bar__toggle"
+            onClick={() => setOpen((v) => !v)}
           >
-            Synchroniser
+            {online ? "En ligne" : "Hors ligne / dégradé"}
+            {pending > 0 ? ` · ${pending} en file` : ""}
+            {conflicts > 0 ? ` · ${conflicts} conflit(s)` : ""}
           </button>
-          <button
-            type="button"
-            className="btn-admin btn-admin--ghost"
-            onClick={toggleForceOffline}
-          >
-            {isForceOffline() ? "Fin test offline" : "Simuler offline"}
-          </button>
+          {actions}
         </div>
-      </div>
+      )}
 
       {open ? (
         <div
@@ -264,6 +284,15 @@ export function OfflineSyncBar() {
               anti-doublon à la sync
             </p>
           </header>
+          {compact ? (
+            <div className="offline-panel__status">
+              <strong>
+                {online ? "Connexion active" : "Hors ligne / mode dégradé"}
+                {conflicts > 0 ? ` · ${conflicts} conflit(s)` : ""}
+              </strong>
+              {actions}
+            </div>
+          ) : null}
           {items.length === 0 ? (
             <p className="note">Aucune opération en file.</p>
           ) : (

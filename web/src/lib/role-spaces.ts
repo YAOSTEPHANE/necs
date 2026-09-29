@@ -195,12 +195,6 @@ export const ROLE_SPACES: Partial<Record<UserRole, RoleSpaceConfig>> = {
         tone: "#b45309",
       },
       {
-        href: "/admin/qualite",
-        label: "Qualité",
-        hint: "Contrôles, rapports site, audits",
-        tone: "#d97706",
-      },
-      {
         href: "/admin/operations?tab=pointage",
         label: "Pointage",
         hint: "Présence terrain · export",

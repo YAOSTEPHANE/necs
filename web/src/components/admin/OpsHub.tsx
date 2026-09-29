@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ModuleHeader } from "@/components/admin/Ui";
 import { IconVisit } from "@/components/admin/Icons";
+import { isNettoyeur, loadSession } from "@/lib/auth";
 import { OpsReferentialWorkspace } from "@/components/admin/OpsReferentialWorkspace";
 import { OpsPlanningWorkspace } from "@/components/admin/OpsPlanningWorkspace";
 import { WorkOrdersWorkspace } from "@/components/admin/WorkOrdersWorkspace";
@@ -87,6 +88,12 @@ const TABS: { id: OpsTab; label: string; hint: string }[] = [
     label: "Rapport mensuel",
     hint: "Performance client",
   },
+];
+
+const AGENT_TABS: { id: OpsTab; label: string; hint: string }[] = [
+  { id: "pointage", label: "Pointage", hint: "Arrivée & départ" },
+  { id: "missions", label: "Missions", hint: "Ordres de travail" },
+  { id: "terrain", label: "Photos", hint: "Avant / après" },
 ];
 
 function parseTab(raw: string | null): OpsTab {
@@ -195,7 +202,10 @@ export function OpsHub() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
-  const tab = parseTab(rawTab);
+  const [agentMode] = useState(() => isNettoyeur(loadSession()));
+  const tabs = agentMode ? AGENT_TABS : TABS;
+  const parsedTab = parseTab(rawTab);
+  const tab = tabs.some((t) => t.id === parsedTab) ? parsedTab : tabs[0].id;
   const feature = parseQualiteFeature(
     tab,
     rawTab,
@@ -222,6 +232,33 @@ export function OpsHub() {
       ? `Opérations — ${current.label}`
       : "Opérations";
   }, [tab]);
+
+  if (agentMode) {
+    return (
+      <div className="dig-hub ops-hub ops-hub--agent leads-page">
+        <nav
+          className="dig-hub__tabs ops-hub__agent-tabs"
+          aria-label="Mon terrain"
+        >
+          {AGENT_TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={tab === t.id ? "dig-hub__tab is-active" : "dig-hub__tab"}
+              aria-current={tab === t.id ? "page" : undefined}
+              onClick={() => setTab(t.id)}
+            >
+              <span>{t.label}</span>
+              <em>{t.hint}</em>
+            </button>
+          ))}
+        </nav>
+        {tab === "pointage" ? <PointageWorkspace /> : null}
+        {tab === "missions" ? <WorkOrdersWorkspace /> : null}
+        {tab === "terrain" ? <TerrainPhotosWorkspace /> : null}
+      </div>
+    );
+  }
 
   return (
     <div className="dig-hub ops-hub leads-page">

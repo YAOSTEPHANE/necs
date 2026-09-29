@@ -599,11 +599,7 @@ export function PointageWorkspace({
           </>
         }
         actions={
-          agentMode ? (
-            <Link href="/admin/mon-espace" className="btn-admin btn-admin--ghost">
-              ← Accueil agent
-            </Link>
-          ) : (
+          agentMode ? undefined : (
             <>
               <button
                 type="button"
@@ -780,8 +776,8 @@ export function PointageWorkspace({
           </h3>
         </div>
 
-        <div className="pointage-grid">
-          <div className="pointage-list">
+        <div className={`pointage-grid${agentMode ? " pointage-grid--agent" : ""}`}>
+          <div className="pointage-list" hidden={agentMode && Boolean(selected)}>
             {filtered.length === 0 ? (
               <EmptyState
                 title="Aucun pointage"

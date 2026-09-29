@@ -26,7 +26,8 @@ import {
 import { toast } from "@/lib/toast";
 import { fileToOptimizedDataUrl } from "@/lib/settings";
 import { persistOptimizedImage } from "@/lib/vercel-blob-client";
-import { loadSession } from "@/lib/auth";
+import { isNettoyeur, loadSession } from "@/lib/auth";
+import { revealDetailOnMobile } from "@/lib/mobile-reveal";
 import {
   enqueueOfflineOp,
   shouldUseOfflineQueue,
@@ -83,6 +84,7 @@ export function WorkOrdersWorkspace() {
   const [planningSlots, setPlanningSlots] = useState<PlanningSlot[]>([]);
   const [loading, setLoading] = useState(true);
   const [canSupervise, setCanSupervise] = useState(false);
+  const [agentMode] = useState(() => isNettoyeur(loadSession()));
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<
     WorkOrderStatus | "all" | "action"
@@ -440,12 +442,14 @@ export function WorkOrdersWorkspace() {
     <div className="leads-page work-orders-page">
       <ModuleHeader
         tone="#0f766e"
-        badge="Opérations"
+        badge={agentMode ? "Espace agent" : "Opérations"}
         icon={<IconVisit size={20} />}
-        title="Ordres de travail"
+        title={agentMode ? "Mes missions" : "Ordres de travail"}
         meta={
           <>
-            <span>Missions · consignes · preuves · clôture</span>
+            {agentMode ? null : (
+              <span>Missions · consignes · preuves · clôture</span>
+            )}
             <span>
               <strong>{stats.aTraiter}</strong> à traiter ·{" "}
               <strong>{stats.enCours}</strong> en cours
@@ -453,32 +457,34 @@ export function WorkOrdersWorkspace() {
           </>
         }
         actions={
-          <div className="leads-header-actions">
-            <Link
-              href="/admin/operations?tab=planification"
-              className="btn-admin btn-admin--ghost"
-            >
-              Planning
-            </Link>
-            <Link
-              href="/admin/operations?tab=referentiel"
-              className="btn-admin btn-admin--ghost"
-            >
-              Référentiel
-            </Link>
-            {canSupervise ? (
-              <button
-                type="button"
-                className="btn-admin btn-admin--primary"
-                onClick={() => {
-                  setComposerStep("mission");
-                  setComposerOpen(true);
-                }}
+          agentMode ? undefined : (
+            <div className="leads-header-actions">
+              <Link
+                href="/admin/operations?tab=planification"
+                className="btn-admin btn-admin--ghost"
               >
-                Nouvel OT
-              </button>
-            ) : null}
-          </div>
+                Planning
+              </Link>
+              <Link
+                href="/admin/operations?tab=referentiel"
+                className="btn-admin btn-admin--ghost"
+              >
+                Référentiel
+              </Link>
+              {canSupervise ? (
+                <button
+                  type="button"
+                  className="btn-admin btn-admin--primary"
+                  onClick={() => {
+                    setComposerStep("mission");
+                    setComposerOpen(true);
+                  }}
+                >
+                  Nouvel OT
+                </button>
+              ) : null}
+            </div>
+          )
         }
       />
 
@@ -581,7 +587,10 @@ export function WorkOrdersWorkspace() {
                     role="option"
                     aria-selected={o.id === selectedId}
                     className={`leads-card${o.id === selectedId ? " is-active" : ""}${incomplete ? " wo-card--warn" : ""}${o.status === "anomalie" ? " wo-card--anomaly" : ""}`}
-                    onClick={() => setSelectedId(o.id)}
+                    onClick={() => {
+                      setSelectedId(o.id);
+                      revealDetailOnMobile(".wo-detail");
+                    }}
                   >
                     <span className="leads-card__body">
                       <span className="leads-card__top">
@@ -615,11 +624,20 @@ export function WorkOrdersWorkspace() {
                 <div className="leads-empty">
                   <span className="leads-empty__orb" aria-hidden />
                   <p className="leads-empty__eyebrow">Missions</p>
-                  <h2>Aucun ordre de travail</h2>
-                  <p>
-                    Créez un OT depuis un créneau du{" "}
-                    <Link href="/admin/operations?tab=planification">planning</Link>.
-                  </p>
+                  <h2>
+                    {agentMode ? "Aucune mission pour ce filtre" : "Aucun ordre de travail"}
+                  </h2>
+                  {agentMode ? (
+                    <p>
+                      Vos missions assignées par le superviseur apparaîtront
+                      ici avec consignes, checklist et preuves.
+                    </p>
+                  ) : (
+                    <p>
+                      Créez un OT depuis un créneau du{" "}
+                      <Link href="/admin/operations?tab=planification">planning</Link>.
+                    </p>
+                  )}
                 </div>
               ) : null}
             </div>

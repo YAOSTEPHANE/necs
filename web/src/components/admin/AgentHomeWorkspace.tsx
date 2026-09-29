@@ -370,26 +370,67 @@ export function AgentHomeWorkspace() {
             </span>
           </>
         }
-        actions={
-          <Link href="/admin/operations?tab=pointage" className="btn-admin btn-admin--ghost">
-            Pointage détaillé
-          </Link>
-        }
       />
 
-      <section className="agent-pointage-strip panel-card">
-        <div>
+      <section className="agent-home__punch-card panel-card">
+        <div className="agent-home__punch-site">
           <strong>{punch.site}</strong>
           <span>
             {punch.plannedIn} – {punch.plannedOut}
-            {punch.planningSlotId ? " · planning" : " · hors planning"} ·{" "}
-            {workedHours(punch)}
+            {punch.planningSlotId ? " · planning" : " · hors planning"}
           </span>
         </div>
-        <div className="agent-pointage-strip__actions">
+        <dl className="agent-home__times">
+          <div>
+            <dt>Arrivée</dt>
+            <dd>{punch.actualIn || "—"}</dd>
+          </div>
+          <div>
+            <dt>Départ</dt>
+            <dd>{punch.actualOut || "—"}</dd>
+          </div>
+          <div>
+            <dt>Durée</dt>
+            <dd>{workedHours(punch)}</dd>
+          </div>
+        </dl>
+
+        {nextAction ? (
+          nextAction.id === "in" || nextAction.id === "out" ? (
+            <button
+              type="button"
+              className={`agent-home__next agent-home__next--${nextAction.id}`}
+              disabled={busy}
+              onClick={nextAction.id === "in" ? onPunchIn : onPunchOut}
+            >
+              <IconClock size={22} />
+              <span>
+                <strong>{busy ? "Enregistrement…" : nextAction.label}</strong>
+                <small>{nextAction.hint}</small>
+              </span>
+            </button>
+          ) : (
+            <Link
+              href="/admin/operations?tab=terrain"
+              className="agent-home__next agent-home__next--photo"
+            >
+              <IconVisit size={22} />
+              <span>
+                <strong>Prendre la {nextAction.label.toLowerCase()}</strong>
+                <small>{nextAction.hint}</small>
+              </span>
+            </Link>
+          )
+        ) : (
+          <p className="agent-home__done">
+            <IconCheck size={18} /> Journée de pointage complète. Merci !
+          </p>
+        )}
+
+        <div className="agent-home__secondary">
           <button
             type="button"
-            className="btn-admin btn-admin--primary"
+            className="btn-admin btn-admin--ghost"
             disabled={busy || Boolean(punch.actualIn)}
             onClick={onPunchIn}
           >
@@ -403,55 +444,64 @@ export function AgentHomeWorkspace() {
           >
             {punch.actualOut ? `Départ ${punch.actualOut}` : "Pointer le départ"}
           </button>
-          <Link href="/admin/operations?tab=terrain" className="btn-admin btn-admin--ghost">
-            <IconVisit size={16} /> Photos
-          </Link>
-          <Link
-            href="/admin/operations?tab=missions"
-            className="btn-admin btn-admin--ghost"
-          >
-            <IconChecklist size={16} /> Missions
-          </Link>
         </div>
       </section>
 
-      {nextAction ? (
-        <p className="note">
-          Prochaine étape : <strong>{nextAction.label}</strong> —{" "}
-          {nextAction.hint}
-        </p>
-      ) : (
-        <p className="note">
-          <IconCheck size={14} /> Journée de pointage complète.
-        </p>
-      )}
+      <section className="agent-home__journey panel-card" aria-label="Étapes de la journée">
+        <div className="agent-home__section-head">
+          <h2>Ma journée</h2>
+          <span>
+            {steps.filter((s) => s.done).length}/{steps.length} étapes
+          </span>
+        </div>
+        <ol className="agent-home__steps">
+          {steps.map((s, i) => (
+            <li
+              key={s.id}
+              className={`agent-home__step${s.done ? " is-done" : ""}${s.active ? " is-active" : ""}`}
+            >
+              <span className="agent-home__step-num" aria-hidden>
+                {s.done ? <IconCheck size={14} /> : i + 1}
+              </span>
+              <div>
+                <strong>{s.label}</strong>
+                <small>{s.hint}</small>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-      <ol className="agent-day-steps">
-        {steps.map((s) => (
-          <li
-            key={s.id}
-            className={`${s.done ? "is-done" : ""}${s.active ? " is-active" : ""}`}
-          >
-            <strong>{s.label}</strong>
-            <span>{s.hint}</span>
-          </li>
-        ))}
-      </ol>
-
-      <div className="agent-home-links">
-        <Link href="/admin/operations?tab=pointage" className="panel-card">
-          <IconClock size={18} /> Mon pointage
+      <nav className="agent-home__links" aria-label="Raccourcis">
+        <Link href="/admin/operations?tab=pointage" className="agent-home__link">
+          <IconClock size={20} />
+          <span>
+            <strong>Mon pointage</strong>
+            <small>Historique du jour</small>
+          </span>
         </Link>
-        <Link href="/admin/operations?tab=terrain" className="panel-card">
-          <IconVisit size={18} /> Photos terrain
+        <Link href="/admin/operations?tab=terrain" className="agent-home__link">
+          <IconVisit size={20} />
+          <span>
+            <strong>Photos</strong>
+            <small>Arrivée &amp; départ</small>
+          </span>
         </Link>
-        <Link href="/admin/operations?tab=missions" className="panel-card">
-          <IconCalendar size={18} /> Ordres de travail
+        <Link href="/admin/operations?tab=missions" className="agent-home__link">
+          <IconCalendar size={20} />
+          <span>
+            <strong>Missions</strong>
+            <small>Ordres de travail</small>
+          </span>
         </Link>
-        <Link href="/admin/documents-signatures" className="panel-card">
-          <IconChecklist size={18} /> Mes documents
+        <Link href="/admin/documents-signatures" className="agent-home__link">
+          <IconChecklist size={20} />
+          <span>
+            <strong>Documents</strong>
+            <small>À signer</small>
+          </span>
         </Link>
-      </div>
+      </nav>
     </div>
   );
 }

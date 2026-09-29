@@ -329,6 +329,7 @@ export const ADMIN_AGENT_APPS: AdminNavItem[] = [
     roles: ["nettoyeur"],
     icon: "home",
     match: "prefix",
+    shortLabel: "Accueil",
   },
   {
     href: "/admin/operations?tab=pointage",
@@ -387,6 +388,7 @@ export const ADMIN_CLIENT_APPS: AdminNavItem[] = [
     roles: ["client"],
     icon: "home",
     match: "prefix",
+    shortLabel: "Accueil",
   },
   {
     href: "/admin/templates?domain=CRM",
@@ -397,6 +399,7 @@ export const ADMIN_CLIENT_APPS: AdminNavItem[] = [
     roles: ["client"],
     icon: "contract",
     match: "exact",
+    shortLabel: "Devis",
   },
   {
     href: "/admin/templates?domain=FIN",

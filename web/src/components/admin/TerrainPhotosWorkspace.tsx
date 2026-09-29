@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { AdminOverlayPortal } from "@/components/admin/AdminOverlayPortal";
 import {
   FormEvent,
@@ -22,6 +21,7 @@ import {
   updateVisitMeta,
   visitNeedsProof,
 } from "@/lib/site-photos";
+import { revealDetailOnMobile } from "@/lib/mobile-reveal";
 import {
   deleteSiteVisitRemote,
   fetchSiteVisits,
@@ -444,22 +444,16 @@ export function TerrainPhotosWorkspace() {
         }
         actions={
           <>
-            {agentMode ? (
-              <Link
-                href="/admin/mon-espace"
+            {agentMode ? null : (
+              <button
+                type="button"
                 className="btn-admin btn-admin--ghost"
+                onClick={exportCsv}
+                disabled={filtered.length === 0}
               >
-                ← Accueil agent
-              </Link>
-            ) : null}
-            <button
-              type="button"
-              className="btn-admin btn-admin--ghost"
-              onClick={exportCsv}
-              disabled={filtered.length === 0}
-            >
-              Export CSV
-            </button>
+                Export CSV
+              </button>
+            )}
             <button
               type="button"
               className="btn-admin btn-admin--primary"
@@ -575,7 +569,10 @@ export function TerrainPhotosWorkspace() {
                           ? " is-warn"
                           : ""
                     }`}
-                    onClick={() => setSelectedId(v.id)}
+                    onClick={() => {
+                      setSelectedId(v.id);
+                      revealDetailOnMobile(".terrain-main");
+                    }}
                   >
                     <div className="terrain-visit-item__top">
                       <strong>{v.site}</strong>

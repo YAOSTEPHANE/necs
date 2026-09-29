@@ -461,6 +461,24 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }, [pathname, search, sideCollapsed, navQuery]);
 
   useEffect(() => {
+    const id = window.requestAnimationFrame(() => {
+      document
+        .querySelectorAll<HTMLElement>(".dig-hub__tabs")
+        .forEach((strip) => {
+          const active = strip.querySelector<HTMLElement>(".is-active");
+          if (!active || strip.scrollWidth <= strip.clientWidth) return;
+          const offset =
+            active.getBoundingClientRect().left -
+            strip.getBoundingClientRect().left +
+            strip.scrollLeft;
+          strip.scrollLeft =
+            offset - (strip.clientWidth - active.offsetWidth) / 2;
+        });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [pathname, search, authReady]);
+
+  useEffect(() => {
     if (!navOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") setNavOpen(false);
@@ -541,6 +559,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   const agentMode = isNettoyeur(session);
+  const bottomNav = agentMode || isClient(session);
   const roleSpace = getRoleSpace(session.role);
   const heading = (() => {
     const base = pageTitle(pathname, agentMode);
@@ -553,7 +572,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   return (
     <OfflineSyncHost>
     <div
-      className={`dash-app${navOpen ? " is-nav-open" : ""}${sideCollapsed ? " is-side-collapsed" : ""}`}
+      className={`dash-app${navOpen ? " is-nav-open" : ""}${sideCollapsed ? " is-side-collapsed" : ""}${bottomNav ? " has-bottomnav" : ""}`}
     >
       <header className="dash-mobilebar">
         <button
@@ -565,11 +584,15 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         >
           <IconMenu size={20} />
         </button>
-        <Link className="dash-brand" href="/admin" aria-label="NECS Admin">
+        <Link
+          className="dash-brand"
+          href={homeForRole(session.role)}
+          aria-label="Accueil NECS"
+        >
           <BrandLogo alt="NECS" width={36} height={36} />
         </Link>
         <div className="dash-mobilebar__actions">
-          <OfflineSyncBar />
+          <OfflineSyncBar compact />
           <Link
             className="dash-mobilebar__site"
             href="/"
@@ -783,6 +806,30 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           <main className="dash-main dash-main--has-hero">{children}</main>
         </div>
       </div>
+
+      {bottomNav ? (
+        <nav className="dash-bottomnav" aria-label="Navigation rapide">
+          {homeLinks.map((item) => {
+            const active = isNavItemActive(item, pathname, search);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`dash-bottomnav__link${active ? " is-active" : ""}`}
+                style={{ ["--icon-c" as string]: navItemTone(item) }}
+                aria-current={active ? "page" : undefined}
+              >
+                <span className="dash-bottomnav__icon">
+                  <NavIcon id={item.icon} size={20} />
+                </span>
+                <span className="dash-bottomnav__label">
+                  {navDisplayLabel(item, true)}
+                </span>
+              </Link>
+            );
+          })}
+        </nav>
+      ) : null}
     </div>
     </OfflineSyncHost>
   );
