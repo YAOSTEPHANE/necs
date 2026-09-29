@@ -8974,6 +8974,57 @@ body:has(.leads-composer[aria-modal="true"]) .profile-menu {
   font-weight: 650;
 }
 
+.pointage-geo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.pointage-geo__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  min-width: 0;
+}
+
+.pointage-geo__item.has-geo {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.pointage-geo__item span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.pointage-geo__item a {
+  font-weight: 700;
+  color: #1260a8;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.pointage-geo__item small {
+  font-size: 0.78rem;
+  color: #475569;
+}
+
+.pointage-geo__item strong {
+  font-size: 0.88rem;
+  color: #94a3b8;
+}
+
+.pointage-geo__item strong.is-missing {
+  color: #b45309;
+}
+
 .pointage-detail__footer {
   display: flex;
   justify-content: space-between;
@@ -24286,6 +24337,13 @@ body:has(.leads-composer[aria-modal="true"]) .profile-menu {
   margin-top: 0.1rem;
   font-size: 0.8rem;
   opacity: 0.85;
+}
+
+.agent-home__geo-note {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: center;
 }
 
 .agent-home__done {

@@ -15,7 +15,9 @@ import {
 import {
   canAccessPointage,
   canSupervisePointage,
+  isPointageGeoEnabled,
   isPunchMode,
+  parseGeo,
   todayIso,
 } from "@/lib/pointage-shared";
 import {
@@ -35,6 +37,19 @@ function mongoUnavailable() {
         "Base de données indisponible. Configurez DATABASE_URL pour le pointage.",
     },
     { status: 503 },
+  );
+}
+
+/** Un agent terrain ne peut pas pointer lui-même sans position valide. */
+function missingAgentGeo(role: string, geo: unknown): NextResponse | null {
+  if (role !== "nettoyeur" || !isPointageGeoEnabled()) return null;
+  if (parseGeo(geo)) return null;
+  return NextResponse.json(
+    {
+      error:
+        "Position requise pour pointer. Activez la localisation du téléphone puis réessayez.",
+    },
+    { status: 400 },
   );
 }
 
@@ -132,6 +147,8 @@ export async function POST(request: Request) {
             { status: 403 },
           );
         }
+        const noGeo = missingAgentGeo(auth.session.role, body.geo);
+        if (noGeo) return noGeo;
         const result = await punchInAtomic(targetUserId, auth.actor, {
           date: body.date !== undefined ? String(body.date) : undefined,
           mode: isPunchMode(body.mode) ? body.mode : "Mobile",
@@ -156,6 +173,8 @@ export async function POST(request: Request) {
             { status: 403 },
           );
         }
+        const noGeo = missingAgentGeo(auth.session.role, body.geo);
+        if (noGeo) return noGeo;
         const result = await punchOutAtomic(targetUserId, auth.actor, {
           date: body.date !== undefined ? String(body.date) : undefined,
           mode: isPunchMode(body.mode) ? body.mode : "Mobile",

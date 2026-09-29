@@ -38,9 +38,15 @@ import {
   todayIso,
   workedHours,
   type ConcurrentTestResult,
+  type GeoPoint,
   type PointagePunch,
   type PunchMode,
 } from "@/lib/pointage-shared";
+import {
+  formatAccuracy,
+  mapsUrl,
+  readPunchPosition,
+} from "@/lib/pointage-geo-client";
 
 type StatusFilter = "all" | "open" | "late" | "absent" | "ok" | "validated";
 
@@ -73,24 +79,22 @@ function newClientRequestId(): string {
   return `req-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-async function readGeo(
-  enabled: boolean,
-): Promise<{ lat: number; lng: number; accuracy: number | null } | undefined> {
-  if (!enabled || typeof navigator === "undefined" || !navigator.geolocation) {
-    return undefined;
-  }
-  return new Promise((resolve) => {
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        resolve({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy ?? null,
-        }),
-      () => resolve(undefined),
-      { enableHighAccuracy: false, timeout: 4000, maximumAge: 60_000 },
+/**
+ * Position de l’agent pour son propre pointage. `null` = pointage bloqué
+ * (position obligatoire mais indisponible), `undefined` = non applicable.
+ */
+async function positionForSelfPunch(
+  required: boolean,
+): Promise<GeoPoint | null | undefined> {
+  if (!required) return undefined;
+  try {
+    return await readPunchPosition();
+  } catch (error) {
+    toast.error(
+      error instanceof Error ? error.message : "Position indisponible.",
     );
-  });
+    return null;
+  }
 }
 
 export function PointageWorkspace({
@@ -287,7 +291,8 @@ export function PointageWorkspace({
       toast.warning("Arrivée déjà enregistrée (anti double-pointage).");
       return;
     }
-    const geo = await readGeo(geoEnabled);
+    const geo = await positionForSelfPunch(geoEnabled && agentMode);
+    if (geo === null) return;
     const uid = punch.userId || userId;
     if (shouldUseOfflineQueue()) {
       const session = loadSession();
@@ -345,7 +350,8 @@ export function PointageWorkspace({
       toast.warning("Départ déjà enregistré.");
       return;
     }
-    const geo = await readGeo(geoEnabled);
+    const geo = await positionForSelfPunch(geoEnabled && agentMode);
+    if (geo === null) return;
     const uid = punch.userId || userId;
     if (shouldUseOfflineQueue()) {
       const session = loadSession();
@@ -1049,6 +1055,34 @@ export function PointageWorkspace({
   );
 }
 
+function PunchPlace({
+  label,
+  punched,
+  geo,
+}: {
+  label: string;
+  punched: boolean;
+  geo: GeoPoint | null;
+}) {
+  return (
+    <div className={`pointage-geo__item${geo ? " has-geo" : ""}`}>
+      <span>{label}</span>
+      {geo ? (
+        <>
+          <a href={mapsUrl(geo)} target="_blank" rel="noopener noreferrer">
+            Voir sur la carte
+          </a>
+          <small>{formatAccuracy(geo)}</small>
+        </>
+      ) : (
+        <strong className={punched ? "is-missing" : undefined}>
+          {punched ? "Sans position" : "—"}
+        </strong>
+      )}
+    </div>
+  );
+}
+
 function PunchDetail({
   punch,
   actorName,
@@ -1169,17 +1203,19 @@ function PunchDetail({
         <p className="pointage-detail__ok">Aucune anomalie détectée</p>
       )}
 
-      {(punch.geoIn || punch.geoOut) && geoEnabled ? (
-        <p className="pointage-detail__ok">
-          Géo arrivée{" "}
-          {punch.geoIn
-            ? `${punch.geoIn.lat.toFixed(4)}, ${punch.geoIn.lng.toFixed(4)}`
-            : "—"}{" "}
-          · départ{" "}
-          {punch.geoOut
-            ? `${punch.geoOut.lat.toFixed(4)}, ${punch.geoOut.lng.toFixed(4)}`
-            : "—"}
-        </p>
+      {geoEnabled || punch.geoIn || punch.geoOut ? (
+        <div className="pointage-geo" aria-label="Lieu du pointage">
+          <PunchPlace
+            label="Lieu d’arrivée"
+            punched={Boolean(punch.actualIn)}
+            geo={punch.geoIn}
+          />
+          <PunchPlace
+            label="Lieu de départ"
+            punched={Boolean(punch.actualOut)}
+            geo={punch.geoOut}
+          />
+        </div>
       ) : null}
 
       {canSupervise && !agentMode ? (

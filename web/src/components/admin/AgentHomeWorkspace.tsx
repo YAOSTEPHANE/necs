@@ -12,8 +12,10 @@ import {
   currentTimeHm,
   todayIso,
   workedHours,
+  type GeoPoint,
   type PointagePunch,
 } from "@/lib/pointage-shared";
+import { formatAccuracy, readPunchPosition } from "@/lib/pointage-geo-client";
 import {
   enqueueOfflineOp,
   shouldUseOfflineQueue,
@@ -79,7 +81,9 @@ export function AgentHomeWorkspace() {
   const [visits, setVisits] = useState<SiteVisit[]>([]);
   const [ready, setReady] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [busyLabel, setBusyLabel] = useState("Enregistrement…");
   const busyLock = useRef(false);
+  const [geoRequired, setGeoRequired] = useState(false);
   const [agentName, setAgentName] = useState("Agent");
   const [clock, setClock] = useState(currentTimeHm());
   const date = todayIso();
@@ -94,10 +98,12 @@ export function AgentHomeWorkspace() {
       );
       const data = (await res.json()) as {
         punches?: PointagePunch[];
+        geoEnabled?: boolean;
         error?: string;
       };
       if (!res.ok) throw new Error(data.error || "Chargement");
       setPunch(data.punches?.[0] ?? null);
+      setGeoRequired(Boolean(data.geoEnabled));
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erreur pointage");
     }
@@ -214,6 +220,12 @@ export function AgentHomeWorkspace() {
     busyLock.current = true;
     setBusy(true);
     try {
+      let geo: GeoPoint | undefined;
+      if (geoRequired) {
+        setBusyLabel("Localisation…");
+        geo = await readPunchPosition();
+      }
+      setBusyLabel("Enregistrement…");
       if (shouldUseOfflineQueue()) {
         const session = loadSession();
         if (!session?.userId) throw new Error("Session requise");
@@ -224,6 +236,7 @@ export function AgentHomeWorkspace() {
             userId: session.userId,
             date: todayIso(),
             mode: "Mobile",
+            geo,
           },
           occurredAt: new Date().toISOString(),
         });
@@ -261,6 +274,7 @@ export function AgentHomeWorkspace() {
           action,
           mode: "Mobile",
           clientRequestId: newClientRequestId(),
+          geo,
         }),
       });
       const data = (await res.json()) as {
@@ -277,10 +291,11 @@ export function AgentHomeWorkspace() {
             : "Départ déjà enregistré.",
         );
       } else {
+        const where = geo ? ` · position ${formatAccuracy(geo)}` : "";
         toast.success(
           action === "punch_in"
-            ? `Arrivée pointée à ${currentTimeHm()}`
-            : `Départ pointé à ${currentTimeHm()}`,
+            ? `Arrivée pointée à ${currentTimeHm()}${where}`
+            : `Départ pointé à ${currentTimeHm()}${where}`,
         );
       }
       await refreshPunch();
@@ -405,7 +420,7 @@ export function AgentHomeWorkspace() {
             >
               <IconClock size={22} />
               <span>
-                <strong>{busy ? "Enregistrement…" : nextAction.label}</strong>
+                <strong>{busy ? busyLabel : nextAction.label}</strong>
                 <small>{nextAction.hint}</small>
               </span>
             </button>
@@ -445,6 +460,11 @@ export function AgentHomeWorkspace() {
             {punch.actualOut ? `Départ ${punch.actualOut}` : "Pointer le départ"}
           </button>
         </div>
+        {geoRequired && !punch.actualOut ? (
+          <p className="agent-home__geo-note">
+            Votre position est enregistrée uniquement au moment du pointage.
+          </p>
+        ) : null}
       </section>
 
       <section className="agent-home__journey panel-card" aria-label="Étapes de la journée">
