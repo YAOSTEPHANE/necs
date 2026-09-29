@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Guide administrateur — Console NECS</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  @page :first { margin: 0; }
+  :root {
+    --navy: #0a3a72; --blue: #1260a8; --sky: #3ec8e8; --green: #8fd14a;
+    --ink: #0f172a; --muted: #475569; --line: #dbe3ee; --soft: #f1f6fc;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; font-family: "Segoe UI", Roboto, Arial, sans-serif; color: var(--ink); font-size: 10.4pt; line-height: 1.5; }
+  h1, h2, h3 { color: var(--navy); line-height: 1.2; }
+  h1 { font-size: 21pt; margin: 0 0 4mm; padding-bottom: 3mm; border-bottom: 3px solid var(--sky); break-before: page; }
+  h1 .num { display: inline-block; min-width: 11mm; color: var(--sky); }
+  h2 { font-size: 13.5pt; margin: 6mm 0 2mm; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; color: var(--blue); break-after: avoid; }
+  p { margin: 0 0 2.4mm; }
+  ul, ol { margin: 0 0 3mm; padding-left: 6mm; }
+  li { margin: 0 0 1mm; }
+  strong { color: #0b2a52; }
+  .ui { font-weight: 600; color: var(--blue); white-space: nowrap; }
+  code { font-family: Consolas, monospace; font-size: 9pt; background: var(--soft); padding: 0 1.2mm; border-radius: 1mm; }
+
+  /* Couverture */
+  .cover { height: 297mm; padding: 0; position: relative; overflow: hidden;
+    background: linear-gradient(155deg, #0a3a72 0%, #1260a8 55%, #3ec8e8 100%); color: #fff; }
+  .cover__band { position: absolute; left: 0; right: 0; bottom: 0; height: 16mm; background: var(--green); }
+  .cover__inner { padding: 30mm 22mm; }
+  .cover__logo { width: 34mm; height: 34mm; border-radius: 6mm; background: #fff; padding: 3mm; object-fit: contain; }
+  .cover__kicker { margin-top: 40mm; font-size: 11pt; letter-spacing: .25em; text-transform: uppercase; opacity: .85; }
+  .cover h1 { color: #fff; border: 0; font-size: 36pt; margin: 3mm 0 4mm; padding: 0; break-before: avoid; }
+  .cover__sub { font-size: 15pt; max-width: 140mm; opacity: .95; }
+  .cover__meta { position: absolute; left: 22mm; bottom: 28mm; font-size: 10.5pt; line-height: 1.7; opacity: .95; }
+  .cover__meta b { color: #fff; }
+
+  /* Sommaire */
+  .toc { break-before: page; }
+  .toc h1 { break-before: avoid; }
+  .toc ol { list-style: none; padding: 0; columns: 2; column-gap: 10mm; }
+  .toc li { display: flex; gap: 3mm; padding: 1.6mm 0; border-bottom: 1px dotted var(--line); break-inside: avoid; }
+  .toc li span { color: var(--sky); font-weight: 700; min-width: 7mm; }
+
+  /* Blocs */
+  .lead { font-size: 11pt; color: var(--muted); margin-bottom: 4mm; }
+  .box { border-radius: 3mm; padding: 3mm 4mm; margin: 3mm 0 4mm; break-inside: avoid; border: 1px solid; }
+  .box > b:first-child { display: block; margin-bottom: 1mm; }
+  .tip { background: #effaf0; border-color: #bfe8b0; }
+  .tip > b:first-child { color: #2f7d18; }
+  .warn { background: #fff7ea; border-color: #f7d49b; }
+  .warn > b:first-child { color: #b45309; }
+  .info { background: #eef6ff; border-color: #c7defa; }
+  .info > b:first-child { color: var(--blue); }
+
+  .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 1.5mm; margin: 2mm 0 4mm; break-inside: avoid; }
+  .flow span { background: var(--soft); border: 1px solid #c7defa; color: var(--navy); font-weight: 600; font-size: 9pt; border-radius: 10mm; padding: 1mm 3mm; }
+  .flow i { color: var(--sky); font-style: normal; font-weight: 700; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; }
+  .steps li { counter-increment: s; position: relative; padding-left: 9mm; margin-bottom: 2mm; }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 6mm; height: 6mm; border-radius: 50%;
+    background: var(--blue); color: #fff; font-weight: 700; font-size: 8.5pt; display: flex; align-items: center; justify-content: center; }
+
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; font-size: 9.4pt; break-inside: auto; }
+  th { background: var(--navy); color: #fff; text-align: left; padding: 1.8mm 2.4mm; font-weight: 600; }
+  td { padding: 1.6mm 2.4mm; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr:nth-child(even) td { background: #f8fafc; }
+  tr { break-inside: avoid; }
+
+  figure { margin: 3mm 0 5mm; break-inside: avoid; }
+  figure img { width: 100%; border: 1px solid var(--line); border-radius: 2.5mm; box-shadow: 0 1mm 3mm rgba(10,58,114,.12); }
+  figcaption { font-size: 8.8pt; color: var(--muted); margin-top: 1.5mm; text-align: center; }
+  .phones { display: flex; gap: 5mm; justify-content: center; break-inside: avoid; margin: 3mm 0 5mm; }
+  .phones figure { width: 52mm; margin: 0; }
+  .phones figure img { height: 112mm; object-fit: cover; object-position: top; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; }
+  .card { border: 1px solid var(--line); border-radius: 3mm; padding: 3mm 4mm; break-inside: avoid; background: #fff; }
+  .card h3 { margin-top: 0; }
+  .check li { list-style: none; position: relative; padding-left: 6mm; }
+  .check li::before { content: "☐"; position: absolute; left: 0; color: var(--blue); }
+  .role { font-weight: 600; color: var(--navy); }
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<section class="cover">
+  <div class="cover__inner">
+    <img class="cover__logo" src="{{logo}}" alt="NECS" />
+    <div class="cover__kicker">Guide d’utilisation</div>
+    <h1>Console de gestion NECS</h1>
+    <div class="cover__sub">Manuel de l’administrateur : comptes, commercial, opérations, pointage, photos terrain, RH, paie, finance et paramètres.</div>
+  </div>
+  <div class="cover__meta">
+    <b>Adresse :</b> https://servicesnecs.vercel.app/admin<br />
+    <b>Public :</b> Administrateur (Direction)<br />
+    <b>Version :</b> {{date}}
+  </div>
+  <div class="cover__band"></div>
+</section>
+
+<!-- ============ SOMMAIRE ============ -->
+<section class="toc">
+  <h1>Sommaire</h1>
+  <ol>
+    <li><span>1</span>Premiers pas</li>
+    <li><span>2</span>Se connecter en sécurité</li>
+    <li><span>3</span>Se repérer dans la console</li>
+    <li><span>4</span>Tableau de bord</li>
+    <li><span>5</span>Utilisateurs et rôles</li>
+    <li><span>6</span>Demandes digitales</li>
+    <li><span>7</span>CRM, clients, pipeline et contrats</li>
+    <li><span>8</span>Opérations</li>
+    <li><span>9</span>Pointage et géolocalisation</li>
+    <li><span>10</span>Photos terrain et suppression mensuelle</li>
+    <li><span>11</span>Logistique et achats</li>
+    <li><span>12</span>Qualité</li>
+    <li><span>13</span>Ressources humaines</li>
+    <li><span>14</span>Paie employés</li>
+    <li><span>15</span>Finance</li>
+    <li><span>16</span>Direction, juridique et bibliothèque</li>
+    <li><span>17</span>Paramètres</li>
+    <li><span>18</span>Ce que voit l’agent terrain</li>
+    <li><span>19</span>Portail client</li>
+    <li><span>20</span>Routines de l’administrateur</li>
+    <li><span>21</span>Dépannage et questions fréquentes</li>
+    <li><span>22</span>Glossaire</li>
+  </ol>
+  <div class="box info"><b>Comment lire ce guide</b>
+    Les libellés en <span class="ui">bleu gras</span> sont ceux des boutons et menus tels qu’ils apparaissent à l’écran. Les encadrés verts donnent des conseils, les encadrés orange signalent un point d’attention.</div>
+</section>
+
+<!-- ============ 1 ============ -->
+<h1><span class="num">1</span>Premiers pas</h1>
+<p class="lead">La console NECS est l’outil de gestion interne de l’entreprise. Elle réunit dans une seule application le commercial, les opérations sur site, les ressources humaines, la paie et la finance.</p>
+<h2>Accéder à la console</h2>
+<ul>
+  <li>Ouvrez <b>https://servicesnecs.vercel.app/admin</b> dans un navigateur récent (Chrome, Edge, Safari ou Firefox).</li>
+  <li>La console fonctionne sur ordinateur, tablette et téléphone. Sur téléphone, vous pouvez l’ajouter à l’écran d’accueil comme une application.</li>
+  <li>Chaque personne a son propre compte. Ce que chacun voit dépend de son <b>rôle</b> (voir chapitre 5).</li>
+</ul>
+<h2>Votre rôle d’administrateur</h2>
+<p>L’administrateur a accès à tout. Il est le seul à pouvoir :</p>
+<ul>
+  <li>voir le <span class="ui">Tableau de bord</span> de synthèse ;</li>
+  <li>créer, modifier, désactiver ou supprimer des comptes dans <span class="ui">Utilisateurs</span> ;</li>
+  <li>régler l’entreprise, la marque, les documents et la sécurité dans <span class="ui">Paramètres</span>.</li>
+</ul>
+<div class="box tip"><b>Bon réflexe</b>
+Ne partagez jamais votre compte administrateur. Créez un compte par collaborateur avec le rôle adapté : c’est plus sûr, et l’historique des actions reste lisible.</div>
+
+<!-- ============ 2 ============ -->
+<h1><span class="num">2</span>Se connecter en sécurité</h1>
+<h2>Connexion</h2>
+<ol class="steps">
+  <li>Sur la page de connexion, saisissez votre <span class="ui">E-mail</span> et votre <span class="ui">Mot de passe</span>. Le bouton <span class="ui">Voir</span> affiche le mot de passe ; un message vous prévient si la touche Verr. Maj. est activée.</li>
+  <li>Cochez <span class="ui">Rester connecté</span> sur un appareil personnel : la session dure alors <b>7 jours</b>. Sans cette case, elle dure <b>4 heures</b>.</li>
+  <li>Cliquez sur <span class="ui">Se connecter</span>. L’administrateur arrive sur le Tableau de bord ; les autres rôles arrivent sur leur espace.</li>
+</ol>
+<h2>Protections automatiques</h2>
+<ul>
+  <li>Après <b>5 mots de passe erronés</b>, le compte est bloqué pendant <b>15 minutes</b>.</li>
+  <li>Un compte <b>désactivé</b> ne peut plus se connecter (message « Ce compte est désactivé. »).</li>
+  <li>Un compte dont l’<b>adresse e-mail n’est pas confirmée</b> ne peut pas se connecter. Le bouton <span class="ui">Renvoyer le lien</span> renvoie l’e-mail de confirmation.</li>
+</ul>
+<h2>Mot de passe oublié</h2>
+<ol class="steps">
+  <li>Cliquez sur <span class="ui">Mot de passe oublié ?</span>, saisissez l’adresse e-mail et cliquez sur <span class="ui">Envoyer le lien</span>.</li>
+  <li>Ouvrez l’e-mail reçu : le lien est valable <b>1 heure</b> (3 demandes maximum par heure).</li>
+  <li>Choisissez un nouveau mot de passe : <b>au moins 10 caractères</b>, avec au moins une lettre et un chiffre.</li>
+</ol>
+<div class="box info"><b>Pour un collaborateur bloqué</b>
+En tant qu’administrateur, vous pouvez aussi lui définir un nouveau mot de passe depuis sa fiche dans <span class="ui">Utilisateurs</span> (bouton <span class="ui">Mot de passe</span>).</div>
+
+<!-- ============ 3 ============ -->
+<h1><span class="num">3</span>Se repérer dans la console</h1>
+<figure><img src="{{img:01-tableau-de-bord}}" alt="" /><figcaption>La console : menu latéral à gauche, barre supérieure, contenu du module au centre.</figcaption></figure>
+<h2>Le menu latéral</h2>
+<p>Les modules sont rangés par domaine : <b>Raccourcis</b> (Tableau de bord), <b>Digital</b>, <b>Commercial</b>, <b>Opérations</b>, <b>Qualité</b>, <b>Ressources humaines</b>, <b>Finance</b>, <b>Pilotage</b> et <b>Configuration</b>. Le bouton flèche en haut réduit ou élargit le menu. Un point rouge sur <span class="ui">Demandes digitales</span> signale de nouvelles demandes à traiter.</p>
+<h2>La recherche rapide</h2>
+<p>Le champ <span class="ui">Rechercher… (Ctrl+K)</span> trouve un module ou un modèle de document par son nom. Tapez <b>Ctrl + K</b> au clavier pour l’ouvrir depuis n’importe où.</p>
+<h2>La barre supérieure</h2>
+<ul>
+  <li><b>Pastille En ligne / Hors ligne</b> : indique l’état de la connexion. Hors connexion, les pointages et contrôles sont gardés sur l’appareil (chiffrés) et envoyés automatiquement au retour du réseau. <span class="ui">Synchroniser</span> force l’envoi ; <span class="ui">Simuler offline</span> sert uniquement aux tests.</li>
+  <li><span class="ui">Voir le site public</span> ouvre le site vitrine NECS.</li>
+  <li><span class="ui">Mon compte</span> donne accès à votre profil, aux Paramètres, aux Utilisateurs et à <span class="ui">Se déconnecter</span>.</li>
+</ul>
+<h2>Les messages</h2>
+<p>Après chaque action, un message apparaît en haut de l’écran : vert (succès), orange (avertissement) ou rouge (erreur, avec l’explication).</p>
+<h2>Sur téléphone</h2>
+<p>Le menu s’ouvre avec le bouton ☰. Les agents terrain et les clients ont en plus une barre de navigation en bas de l’écran.</p>
+
+<!-- ============ 4 ============ -->
+<h1><span class="num">4</span>Tableau de bord</h1>
+<p class="lead">Réservé à l’administrateur, il donne la synthèse de l’activité et signale ce qui demande une action.</p>
+<ul>
+  <li><b>Période</b> : boutons <span class="ui">Mensuel</span> et <span class="ui">Hebdo</span>. <span class="ui">Exporter</span> télécharge la liste des missions (CSV, ouvrable dans Excel).</li>
+  <li><b>Accès rapides</b> : CRM, Pipeline, Missions, Planning, Demandes, RH, Finance, Qualité.</li>
+  <li><b>Bandeau « À traiter »</b> : relances commerciales en retard et missions en alerte.</li>
+  <li><b>4 indicateurs</b> : Pipeline pondéré (en FCFA), Missions, Satisfaction, Effectif terrain.</li>
+  <li><b>Pilotage graphique</b> en 3 onglets : Commercial (entonnoir, issue du pipeline, valeur par étape), Terrain (charge, répartition, planification), Qualité (tendance 8 semaines, satisfaction, radar).</li>
+  <li><b>Missions à venir</b> (calendrier et détail, liens <span class="ui">Ouvrir le planning</span> et <span class="ui">Voir le pointage</span>) et <b>Demandes site</b> (<span class="ui">Marquer traité</span>, <span class="ui">Voir tout</span>).</li>
+</ul>
+<div class="box tip"><b>Routine conseillée</b>
+Commencez chaque journée par le bandeau « À traiter », puis les demandes du site. Deux minutes suffisent pour ne rien laisser passer.</div>
+
+<!-- ============ 5 ============ -->
+<h1><span class="num">5</span>Utilisateurs et rôles</h1>
+<figure><img src="{{img:02-utilisateurs}}" alt="" /><figcaption>Écran « Utilisateurs &amp; rôles » : indicateurs, cartes par rôle, liste et fiche du compte.</figcaption></figure>
+<h2>Les rôles</h2>
+<table>
+  <tr><th style="width:30%">Rôle</th><th>Usage</th><th style="width:22%">Page d’accueil</th></tr>
+  <tr><td class="role">Administrateur</td><td>Accès complet, comptes, paramètres</td><td>Tableau de bord</td></tr>
+  <tr><td class="role">Commercial / CRM</td><td>Prospects, devis, offres, commandes, contrats</td><td>Mon espace</td></tr>
+  <tr><td class="role">Marketing / Capture leads</td><td>Demandes du site, campagnes, consentements</td><td>Mon espace</td></tr>
+  <tr><td class="role">Opérations</td><td>Planning, ordres de travail, matériel, pointage</td><td>Mon espace</td></tr>
+  <tr><td class="role">Ressources humaines</td><td>Recrutement, dossiers, congés, pointage, paie</td><td>Mon espace</td></tr>
+  <tr><td class="role">Manager / Responsable</td><td>Validations, suivi des équipes, consultation de la paie</td><td>Mon espace</td></tr>
+  <tr><td class="role">Finance</td><td>Préfactures, factures, relances, paie</td><td>Mon espace</td></tr>
+  <tr><td class="role">Qualité</td><td>Contrôles, rapports, non-conformités</td><td>Mon espace</td></tr>
+  <tr><td class="role">Nettoyeur / Agent terrain</td><td>Pointage, photos, missions, documents à signer</td><td>Accueil agent</td></tr>
+  <tr><td class="role">Client</td><td>Portail : devis, contrats, factures</td><td>Accueil client</td></tr>
+</table>
+<h2>Créer un compte</h2>
+<ol class="steps">
+  <li>Cliquez sur <span class="ui">+ Nouvel utilisateur</span> (ou directement <span class="ui">+ Agent terrain</span> / <span class="ui">+ Compte client</span>).</li>
+  <li><b>Identité</b> : nom complet, e-mail de connexion, téléphone et mot de passe provisoire.</li>
+  <li><b>Rôle</b> : choisissez le rôle et laissez <span class="ui">Compte actif</span> coché.</li>
+  <li><b>Revue</b> : vérifiez puis cliquez sur <span class="ui">Créer le compte</span>.</li>
+</ol>
+<div class="box warn"><b>Confirmation de l’e-mail obligatoire</b>
+À la création, la personne reçoit un e-mail « Confirmer mon adresse e-mail » (lien valable 48 heures) et la Direction reçoit une copie « Nouveau compte créé ». Tant que l’adresse n’est pas confirmée, la connexion est refusée. La fiche affiche « En attente de vérification » ; le bouton <span class="ui">Renvoyer le lien</span> renvoie l’e-mail. Communiquez le mot de passe provisoire par un autre canal (en main propre, SMS).</div>
+<h2>Gérer un compte existant</h2>
+<ul>
+  <li><span class="ui">Modifier</span> : nom, téléphone, e-mail (un changement d’e-mail redemande une confirmation), rôle.</li>
+  <li><span class="ui">Mot de passe</span> : définir un nouveau mot de passe pour la personne.</li>
+  <li><span class="ui">Désactiver</span> / <span class="ui">Activer</span> : bloque ou rétablit l’accès sans rien effacer. <b>À privilégier au départ d’un collaborateur.</b></li>
+  <li><span class="ui">Supprimer le compte</span> : définitif, avec confirmation.</li>
+  <li>Filtres <span class="ui">Actifs</span>, <span class="ui">Inactifs</span>, <span class="ui">Jamais connectés</span> et <span class="ui">Export CSV</span> pour faire le point.</li>
+</ul>
+<div class="box info"><b>Sécurités intégrées</b>
+Vous ne pouvez ni désactiver ni supprimer votre propre compte, et le compte initial de la Direction (USR-001) ne peut pas être supprimé. Pour un agent terrain, le lien avec le pointage est créé automatiquement.</div>
+
+<!-- ============ 6 ============ -->
+<h1><span class="num">6</span>Demandes digitales</h1>
+<figure><img src="{{img:03-demandes}}" alt="" /><figcaption>Module « Demandes digitales » : les demandes reçues depuis le site et les réseaux.</figcaption></figure>
+<p>Chaque demande de devis faite sur le site arrive ici, et un <b>e-mail est envoyé aux administrateurs et commerciaux actifs</b>.</p>
+<h3>Onglet Inbox leads</h3>
+<div class="flow"><span>Nouveau</span><i>→</i><span>En cours</span><i>→</i><span>Traité</span></div>
+<ul>
+  <li><span class="ui">Prendre en charge</span>, <span class="ui">Marquer traité</span>, <span class="ui">Rouvrir</span>, conversion <span class="ui">→ Prospect</span> ou <span class="ui">→ Client</span>.</li>
+  <li><span class="ui">Nouveau prospect</span> pour saisir un contact reçu par téléphone, WhatsApp ou visite (cochez le consentement).</li>
+  <li><span class="ui">Export CSV</span> de la liste.</li>
+</ul>
+<h3>Autres onglets</h3>
+<ul>
+  <li><b>Messages</b> : demandes avec priorité et délai de traitement ; <span class="ui">Affecter</span>, convertir en prospect, client, opportunité ou tâche, <span class="ui">Clôturer</span>.</li>
+  <li><b>Intégrations</b> : connexion Facebook Lead Ads (<span class="ui">Synchroniser maintenant</span>) et autres réseaux.</li>
+  <li><b>Campagnes</b> : provenance des demandes sur 7, 30 ou 90 jours.</li>
+  <li><b>Consentements</b> : contacts qui acceptent d’être recontactés, par canal, export CSV.</li>
+</ul>
+
+<!-- ============ 7 ============ -->
+<h1><span class="num">7</span>CRM, clients, pipeline et contrats</h1>
+<p class="lead">Le CRM suit une affaire du premier contact jusqu’au contrat signé.</p>
+<div class="flow"><span>Prospect</span><i>→</i><span>Besoin</span><i>→</i><span>Visite technique</span><i>→</i><span>Devis</span><i>→</i><span>Offre</span><i>→</i><span>Bon de commande</span><i>→</i><span>Contrat</span></div>
+<table>
+  <tr><th style="width:24%">Onglet du CRM</th><th>Ce qu’on y fait</th></tr>
+  <tr><td class="role">Prospects</td><td><span class="ui">Nouveau prospect</span>, contacts, attribution à un commercial, statuts personnalisables.</td></tr>
+  <tr><td class="role">Qualification besoin</td><td>Surface, type de locaux, niveau de service attendu.</td></tr>
+  <tr><td class="role">Audit / visite</td><td><span class="ui">Planifier</span>, <span class="ui">Démarrer la visite</span> : checklist, zones, photos, effectif recommandé, risques. <span class="ui">Valider le rapport horodaté</span> puis <span class="ui">Créer le devis</span>.</td></tr>
+  <tr><td class="role">Chiffrage / devis</td><td>Calcul depuis prestations, effectifs, fréquences et tarifs. <span class="ui">Soumettre à validation</span> → <span class="ui">Valider</span> → <span class="ui">Marquer envoyé client</span>. Au-delà du seuil finance défini dans <span class="ui">Tarifs &amp; seuils</span>, la Direction doit valider.</td></tr>
+  <tr><td class="role">Proposition / offre</td><td><span class="ui">Générer depuis sources</span>, revue, envoi, négociation, <span class="ui">Marquer acceptée</span>, puis <span class="ui">Créer un BC</span>.</td></tr>
+  <tr><td class="role">Bon de commande</td><td>Validation, puis <span class="ui">Transmettre aux ops</span> pour lancer l’exécution.</td></tr>
+</table>
+<div class="cols">
+  <div class="card"><h3>Clients</h3><p>Fiches clients (Prospect, Actif, Inactif) : <span class="ui">Nouveau client</span>, <span class="ui">Marquer actif</span>, <span class="ui">Export CSV</span>.</p></div>
+  <div class="card"><h3>Pipeline et relances</h3><p>Étapes avec probabilité (20 % à 70 %), alertes « En retard » et « Sous 48 h », <span class="ui">Nouvelle relance</span>, <span class="ui">Marquer gagnée</span>, <span class="ui">Classer perdue</span> (motif obligatoire), <span class="ui">Créer le contrat</span>.</p></div>
+</div>
+<h2>Contrats</h2>
+<ol class="steps">
+  <li><span class="ui">Transformer une affaire gagnée</span> → <span class="ui">Créer le contrat brouillon</span> : sites et tarifs sont repris.</li>
+  <li>Complétez puis <span class="ui">Activer (OPS / Finance)</span> : le contrat alimente le référentiel des Opérations.</li>
+  <li>En cours de vie : <span class="ui">Créer un avenant</span> (motif obligatoire, nouveau niveau de service, effectif, date de fin) ou <span class="ui">Suspendre</span>.</li>
+</ol>
+
+<!-- ============ 8 ============ -->
+<h1><span class="num">8</span>Opérations</h1>
+<p class="lead">Le module Opérations organise le travail sur les sites, du planning jusqu’au rapport mensuel.</p>
+<table>
+  <tr><th style="width:24%">Onglet</th><th>Ce qu’on y fait</th></tr>
+  <tr><td class="role">Référentiel</td><td>Sites et prestations. <span class="ui">Synchroniser depuis contrats</span>, consignes par site.</td></tr>
+  <tr><td class="role">Planning</td><td><span class="ui">Nouveau créneau</span>, vue semaine ou jour, alertes conflit, sous-effectif, absence. <span class="ui">Affecter</span>, <span class="ui">Remplacer</span>, <span class="ui">Créer OT</span>.</td></tr>
+  <tr><td class="role">Ordres de travail</td><td>Missions : Planifié → En cours → Terminé → Clôturé (ou Anomalie). Checklist, photos avant / après, <span class="ui">Signaler anomalie</span>, <span class="ui">Clôturer (superviseur)</span>.</td></tr>
+  <tr><td class="role">Matériel</td><td>Stocks : entrées, consommations, dotations aux sites, transferts. Alerte sous le seuil minimum.</td></tr>
+  <tr><td class="role">Pointage</td><td>Présences du jour (chapitre 9).</td></tr>
+  <tr><td class="role">Photos</td><td>Preuves avant / après par site (chapitre 10).</td></tr>
+  <tr><td class="role">Qualité</td><td>Contrôles, non-conformités, satisfaction client (chapitre 12).</td></tr>
+  <tr><td class="role">Intégration</td><td>Checklist d’accueil des nouveaux agents.</td></tr>
+  <tr><td class="role">Rapport mensuel</td><td>Indicateurs de performance, export CSV, <span class="ui">Imprimer / PDF</span>.</td></tr>
+</table>
+<p>Les onglets Bons de commande, Livraisons, Rapport site, Demandes d’achat et Préfactures ouvrent les mêmes écrans que les modules Logistique, Achats, Qualité et Finance.</p>
+
+<!-- ============ 9 ============ -->
+<h1><span class="num">9</span>Pointage et géolocalisation</h1>
+<figure><img src="{{img:04-pointage}}" alt="" /><figcaption>Onglet Pointage : indicateurs du jour, liste des agents et fiche détaillée.</figcaption></figure>
+<h2>Lire le pointage du jour</h2>
+<ul>
+  <li>Choisissez la date en haut à droite. Les indicateurs donnent les <b>Présents</b>, <b>En service</b>, <b>Retards / anomalies</b> et <b>Absents</b>.</li>
+  <li>Filtres : Tous, En service, Retards, Absents, OK, Validés, et par site.</li>
+  <li>Une tolérance de <b>10 minutes</b> s’applique. Anomalies détectées automatiquement : retard, départ anticipé, pas d’arrivée, départ manquant, hors planning.</li>
+</ul>
+<h2>Agir sur un pointage</h2>
+<ul>
+  <li><span class="ui">Corriger horaires</span> : saisie manuelle en cas d’oubli (le pointage passe en mode « Manuel »).</li>
+  <li><span class="ui">Signaler</span> avec un motif d’anomalie, et un commentaire superviseur.</li>
+  <li><span class="ui">Valider</span> : disponible une fois l’arrivée et le départ pointés.</li>
+  <li><span class="ui">Export CSV</span> pour la paie ou les archives.</li>
+</ul>
+<h2>Géolocalisation du pointage</h2>
+<p>Quand un agent pointe son arrivée ou son départ, <b>sa position est enregistrée</b> à ce moment précis (pas de suivi continu). Dans la fiche, le superviseur voit :</p>
+<ul>
+  <li><b>Lieu d’arrivée</b> et <b>Lieu de départ</b> avec le lien <span class="ui">Voir sur la carte</span> (Google Maps) et la précision (par exemple « ± 12 m ») ;</li>
+  <li>« Sans position » en orange pour un pointage saisi à la main par un superviseur.</li>
+</ul>
+<div class="box warn"><b>Si l’agent refuse la localisation</b>
+Le pointage est bloqué. L’agent doit autoriser la position pour le site dans les réglages de son navigateur (Chrome : cadenas à gauche de l’adresse → Autorisations → Position). En cas de besoin urgent, un superviseur peut <span class="ui">Corriger horaires</span>.</div>
+<div class="box info"><b>Information des employés</b>
+La loi camerounaise sur les données personnelles demande d’informer les agents que leur position est enregistrée lors du pointage. Une mention dans le contrat de travail ou le règlement intérieur suffit. L’écran de l’agent l’indique aussi en permanence.</div>
+
+<!-- ============ 10 ============ -->
+<h1><span class="num">10</span>Photos terrain et suppression mensuelle</h1>
+<figure><img src="{{img:05-photos}}" alt="" /><figcaption>Onglet Photos : visites par site avec photos d’arrivée et de départ.</figcaption></figure>
+<p>Chaque visite regroupe deux preuves : la <b>photo d’arrivée</b> (état du site au début) et la <b>photo de départ</b> (après nettoyage). La visite passe de « En cours » à « Terminé » dès que la photo de départ est déposée.</p>
+<ul>
+  <li>Indicateurs : Visites, En cours, Terminées, Sans preuve. Filtres : Aujourd’hui, Sans preuve…</li>
+  <li><span class="ui">+ Nouvelle visite</span>, <span class="ui">Modifier</span>, <span class="ui">Agrandir</span>, <span class="ui">Télécharger</span>, <span class="ui">Télécharger tout</span>, <span class="ui">Supprimer</span>, <span class="ui">Export CSV</span>.</li>
+  <li>Chaque agent ne voit que ses propres visites ; l’administrateur voit tout.</li>
+</ul>
+<div class="box warn"><b>Suppression automatique le 1er de chaque mois</b>
+Le 1er de chaque mois vers 1 h 30 (heure du Cameroun), toutes les visites des <b>mois précédents</b> sont supprimées avec leurs photos. Exemple : les photos de septembre sont effacées le 1er octobre. <b>Avant la fin du mois, téléchargez les photos à conserver</b> (litige client, réclamation) avec <span class="ui">Télécharger tout</span> sur chaque visite concernée. Les heures de pointage, elles, sont conservées.</div>
+
+<!-- ============ 11 ============ -->
+<h1><span class="num">11</span>Logistique et achats</h1>
+<div class="cols">
+  <div class="card"><h3>Bons de livraison / réception</h3>
+    <div class="flow"><span>Brouillon</span><i>→</i><span>En livraison</span><i>→</i><span>Livré</span><i>→</i><span>Réceptionné</span></div>
+    <p>Chaque ligne est marquée Conforme, Écart, Refusé ou Manquant. En cas d’écart, le bon passe en « Écart / réserves ».</p></div>
+  <div class="card"><h3>Demandes d’achat</h3>
+    <div class="flow"><span>Brouillon</span><i>→</i><span>En validation</span><i>→</i><span>Validée</span><i>→</i><span>Commandée</span></div>
+    <p><span class="ui">Nouvelle DA</span> avec ses lignes, <span class="ui">Soumettre</span> ; le responsable (N+1) valide ou refuse avec un motif.</p></div>
+</div>
+<p>L’onglet <b>Stocks</b> reprend l’écran Matériel des Opérations (mouvements et seuils d’alerte).</p>
+
+<!-- ============ 12 ============ -->
+<h1><span class="num">12</span>Qualité</h1>
+<h2>Contrôle qualité</h2>
+<ol class="steps">
+  <li><span class="ui">Nouveau contrôle</span> : site, prestation, périodicité et seuil de réussite.</li>
+  <li><span class="ui">Démarrer le contrôle</span> : une note par critère, une photo obligatoire, des observations.</li>
+  <li><span class="ui">Valider conforme</span>, ou <span class="ui">Valider en NC</span> si la note est sous le seuil : une non-conformité est créée.</li>
+</ol>
+<h2>Non-conformités</h2>
+<div class="flow"><span>Ouverte</span><i>→</i><span>Affectée</span><i>→</i><span>En cours</span><i>→</i><span>À valider</span><i>→</i><span>Clôturée</span></div>
+<p>Criticité Critique, Majeure ou Mineure. On affecte un responsable, on enregistre l’action corrective avec une preuve photo, puis la Qualité valide et clôture.</p>
+<h2>Rapports</h2>
+<ul>
+  <li><b>Rapport de prestation / site</b> : Brouillon → Soumis → Validé → Publié.</li>
+  <li><b>Rapport mensuel de performance client</b> : indicateurs, CSV, impression PDF.</li>
+  <li><b>Satisfaction</b> (Opérations &gt; Qualité) : <span class="ui">Nouveau score</span> et plans d’action.</li>
+</ul>
+
+<!-- ============ 13 ============ -->
+<h1><span class="num">13</span>Ressources humaines</h1>
+<table>
+  <tr><th style="width:22%">Onglet</th><th>Ce qu’on y fait</th></tr>
+  <tr><td class="role">Besoin</td><td>Demande de recrutement : <span class="ui">Soumettre pour validation</span>, validation hiérarchique puis budget.</td></tr>
+  <tr><td class="role">Recrutement</td><td>Candidature → Présélection → Entretien → Évaluation (note sur 100) → Décision (Retenir, Refuser, Liste d’attente).</td></tr>
+  <tr><td class="role">Embauche</td><td>Checklist des pièces avec dates de réception et d’expiration. La validation est bloquée tant qu’une pièce manque ou a expiré.</td></tr>
+  <tr><td class="role">Contrats</td><td><span class="ui">Préparer un document</span>, validation Direction, <span class="ui">Signer</span> (signature électronique), <span class="ui">Archiver</span>.</td></tr>
+  <tr><td class="role">Intégration</td><td>Suivi de l’accueil jusqu’à <span class="ui">Valider la fin d’intégration</span>.</td></tr>
+  <tr><td class="role">Compétences</td><td>Écarts et renouvellements de formations.</td></tr>
+  <tr><td class="role">Postes</td><td>Fiches de poste versionnées.</td></tr>
+  <tr><td class="role">Congés</td><td><span class="ui">Nouvelle demande</span> → <span class="ui">Soumettre validation</span> → <span class="ui">Valider</span> ou <span class="ui">Refuser</span>.</td></tr>
+  <tr><td class="role">Pointage / Paie</td><td>Mêmes écrans qu’aux chapitres 9 et 14.</td></tr>
+</table>
+
+<!-- ============ 14 ============ -->
+<h1><span class="num">14</span>Paie employés</h1>
+<figure><img src="{{img:06-paie}}" alt="" /><figcaption>Bulletins de paie : période, totaux (brut, CNPS, IRPP, net) et liste des bulletins.</figcaption></figure>
+<h2>Créer un bulletin</h2>
+<ol class="steps">
+  <li>Choisissez le mois puis <span class="ui">Nouveau bulletin</span>.</li>
+  <li>Collaborateur : période, nom, matricule, poste, site, numéro CNPS.</li>
+  <li>Éléments : salaire de base, indemnité de transport, primes, heures supplémentaires, autres gains ou retenues, mode de paiement (virement, Mobile Money, espèces, chèque).</li>
+  <li>Vérifiez l’<span class="ui">Aperçu calculé</span> puis <span class="ui">Créer le bulletin</span>.</li>
+</ol>
+<h2>Calcul automatique</h2>
+<ul>
+  <li>CNPS salarié <b>4,2 %</b> et employeur <b>7,7 %</b>, plafond de 750 000 FCFA.</li>
+  <li>Heures supplémentaires majorées de 25 % (base 173,33 h par mois).</li>
+  <li>IRPP selon un barème progressif simplifié (10 % à 35 %) après abattement de 20 %.</li>
+</ul>
+<div class="flow"><span>Calculé</span><i>→</i><span>Validé</span><i>→</i><span>Payé</span></div>
+<p><span class="ui">Valider</span>, puis <span class="ui">Marquer payé</span> une fois le salaire versé. <span class="ui">Annuler</span> reste possible tant que le bulletin n’est pas payé. <span class="ui">Imprimer fiche</span> produit le bulletin papier.</p>
+<div class="box warn"><b>À vérifier</b>
+Le barème d’IRPP est simplifié : faites contrôler les premiers bulletins par votre comptable avant de les généraliser. Le rôle Manager ne peut que consulter ; seuls l’Administrateur, les RH et la Finance créent, valident et paient.</div>
+
+<!-- ============ 15 ============ -->
+<h1><span class="num">15</span>Finance</h1>
+<div class="flow"><span>Devis</span><i>→</i><span>Préfacture</span><i>→</i><span>Facture</span><i>→</i><span>Relance</span><i>→</i><span>Preuve / accusé</span></div>
+<table>
+  <tr><th style="width:22%">Onglet</th><th>Ce qu’on y fait</th></tr>
+  <tr><td class="role">Préfacture</td><td>Écarts entre prévu et réalisé par ligne : <span class="ui">Soumettre au contrôle</span> → <span class="ui">Valider</span> → <span class="ui">Marquer facturée</span>.</td></tr>
+  <tr><td class="role">Devis, Factures, Avoirs</td><td>Brouillon → Validé → Envoyé → Payé / soldé : <span class="ui">+ Ligne</span>, <span class="ui">Valider</span>, <span class="ui">Marquer envoyé</span>, <span class="ui">Marquer payée</span>.</td></tr>
+  <tr><td class="role">Relevés</td><td>Compte d’un client sur une période : factures, avoirs, règlements, solde. <span class="ui">+ Règlement</span>.</td></tr>
+  <tr><td class="role">Relances</td><td>4 niveaux : R1 amiable, R2 fermeté, R3 mise en demeure, R4 escalade direction. <span class="ui">Créer la relance</span>, <span class="ui">Envoyer</span>, <span class="ui">Marquer soldée</span>.</td></tr>
+  <tr><td class="role">Accusés</td><td>Preuves d’envoi et de réception des documents.</td></tr>
+</table>
+
+<!-- ============ 16 ============ -->
+<h1><span class="num">16</span>Direction, juridique et bibliothèque</h1>
+<h2>Juridique : contrat de prestation client</h2>
+<div class="flow"><span>Brouillon</span><i>→</i><span>En revue juridique</span><i>→</i><span>Signé (client + NECS)</span><i>→</i><span>Actif</span></div>
+<p>Ajoutez sites, prestations et lignes tarifaires. Les deux signatures sont nécessaires avant l’activation. Ensuite : <span class="ui">Suspendre</span>, <span class="ui">Résilier</span>, <span class="ui">Réactiver</span>.</p>
+<h2>Direction</h2>
+<ul>
+  <li><b>Avenant au contrat</b> : <span class="ui">Nouvel avenant</span> (périmètre, tarif, durée, effectifs, prestations). Il s’applique immédiatement et l’état précédent est conservé.</li>
+  <li><b>Rapport mensuel</b> de performance client.</li>
+</ul>
+<h2>Bibliothèque</h2>
+<p>Tous les modèles de documents (devis, contrats, bulletins, rapports…) classés par domaine, avec recherche. Le client n’y voit que ses devis, contrats et factures.</p>
+
+<!-- ============ 17 ============ -->
+<h1><span class="num">17</span>Paramètres</h1>
+<figure><img src="{{img:07-parametres}}" alt="" /><figcaption>Paramètres : état de la configuration et sections de réglage.</figcaption></figure>
+<table>
+  <tr><th style="width:22%">Section</th><th>Contenu</th></tr>
+  <tr><td class="role">Entreprise</td><td>Raison sociale, RCCM, NIF, téléphone, WhatsApp, e-mail, horaires, adresse, devise (XAF), fuseau horaire.</td></tr>
+  <tr><td class="role">Marque</td><td>Logo, favicon, réseaux sociaux.</td></tr>
+  <tr><td class="role">Images site</td><td>Photos du site public ; <span class="ui">Publier les images</span>.</td></tr>
+  <tr><td class="role">Documents</td><td>Préfixes de numérotation (devis, facture, contrat, mission), validité des devis, TVA, conditions de paiement, pied de page des PDF.</td></tr>
+  <tr><td class="role">Notifications</td><td>Nouvelle demande de devis, alertes planning, non-conformité, facture échue, absence non remplacée, résumés quotidien et hebdomadaire.</td></tr>
+  <tr><td class="role">Site public</td><td>Textes et coordonnées du site vitrine ; <span class="ui">Publier sur le site</span>.</td></tr>
+  <tr><td class="role">Sécurité</td><td>Longueur du mot de passe, journal d’audit, options avancées.</td></tr>
+</table>
+<p>Une barre « Modifications non enregistrées » rappelle d’<span class="ui">Enregistrer</span>. <span class="ui">Export JSON</span> sauvegarde toute la configuration ; <span class="ui">Import JSON</span> la restaure.</p>
+<div class="box warn"><b>Point connu</b>
+Le champ « Durée de session » de la section Sécurité est enregistré mais pas encore appliqué : la session dure 7 jours avec « Rester connecté », sinon 4 heures.</div>
+<div class="box tip"><b>Avant toute grosse modification</b>
+Faites un <span class="ui">Export JSON</span> : vous pourrez revenir en arrière en un clic.</div>
+
+<!-- ============ 18 ============ -->
+<h1><span class="num">18</span>Ce que voit l’agent terrain</h1>
+<p class="lead">Connaître l’écran de l’agent vous aide à le former et à répondre à ses questions.</p>
+<div class="phones">
+  <figure><img src="{{img:08-agent-accueil}}" alt="" /><figcaption>Accueil agent : « Ma journée ».</figcaption></figure>
+  <figure><img src="{{img:09-agent-photos}}" alt="" /><figcaption>Photos d’arrivée et de départ.</figcaption></figure>
+  <figure><img src="{{img:10-agent-geo-refus}}" alt="" /><figcaption>Pointage bloqué sans localisation.</figcaption></figure>
+</div>
+<h2>La journée type, en 4 étapes</h2>
+<ol class="steps">
+  <li><b>Pointer l’arrivée</b> sur le site (la position est enregistrée).</li>
+  <li><b>Photo d’arrivée</b> : état du site au début.</li>
+  <li><b>Photo de départ</b> : après nettoyage, avant de partir.</li>
+  <li><b>Pointer le départ</b> : possible seulement après les deux photos.</li>
+</ol>
+<p>Quand tout est fait : « Journée de pointage complète. Merci ! ». En bas de l’écran : Accueil, Pointage, Missions (ordres de travail, checklist, anomalies), Photos, Documents (à signer).</p>
+<div class="box tip"><b>Formation d’un nouvel agent (10 minutes)</b>
+Créez son compte avec <span class="ui">+ Agent terrain</span>, faites-lui confirmer son e-mail, installez l’application sur son téléphone, puis faites un essai complet des 4 étapes avec lui. Vérifiez qu’il a bien cliqué sur « Autoriser » pour la position et l’appareil photo.</div>
+
+<!-- ============ 19 ============ -->
+<h1><span class="num">19</span>Portail client</h1>
+<ul>
+  <li>Le client voit « Votre portail NECS » : ses <b>devis et contrats</b> et ses <b>factures</b>.</li>
+  <li>Créez son accès avec <span class="ui">+ Compte client</span>. L’inscription en libre-service (<code>/admin/inscription</code>) peut être ouverte sur demande, avec un code d’invitation.</li>
+  <li>Comme tout compte, le client doit confirmer son e-mail avant sa première connexion.</li>
+</ul>
+
+<!-- ============ 20 ============ -->
+<h1><span class="num">20</span>Routines de l’administrateur</h1>
+<div class="cols">
+  <div class="card"><h3>Chaque jour</h3><ul class="check">
+    <li>Bandeau « À traiter » du Tableau de bord</li>
+    <li>Nouvelles demandes digitales prises en charge</li>
+    <li>Pointage : absents, retards, anomalies</li>
+    <li>Visites « Sans preuve » dans Photos</li>
+  </ul></div>
+  <div class="card"><h3>Chaque semaine</h3><ul class="check">
+    <li>Relances du pipeline en retard</li>
+    <li>Validation des pointages de la semaine</li>
+    <li>Non-conformités ouvertes</li>
+    <li>Demandes d’achat et congés en attente</li>
+  </ul></div>
+  <div class="card"><h3>Avant la fin du mois</h3><ul class="check">
+    <li><b>Télécharger les photos terrain à conserver</b></li>
+    <li>Export CSV du pointage du mois</li>
+    <li>Préfactures contrôlées et factures émises</li>
+    <li>Bulletins de paie validés</li>
+  </ul></div>
+  <div class="card"><h3>Chaque mois</h3><ul class="check">
+    <li>Bulletins marqués payés</li>
+    <li>Rapport mensuel de performance client</li>
+    <li>Comptes « Jamais connectés » ou partis désactivés</li>
+    <li>Export JSON des Paramètres</li>
+  </ul></div>
+</div>
+
+<!-- ============ 21 ============ -->
+<h1><span class="num">21</span>Dépannage et questions fréquentes</h1>
+<table>
+  <tr><th style="width:36%">Situation</th><th>Solution</th></tr>
+  <tr><td>Un collaborateur ne peut pas se connecter : « Adresse e-mail non confirmée »</td><td>Il doit cliquer sur le lien reçu (vérifier les spams). Depuis sa fiche, <span class="ui">Renvoyer le lien</span>.</td></tr>
+  <tr><td>« Compte verrouillé » après plusieurs essais</td><td>Attendre 15 minutes, ou lui définir un nouveau mot de passe (<span class="ui">Mot de passe</span> dans sa fiche).</td></tr>
+  <tr><td>« Ce compte est désactivé »</td><td>Réactiver le compte dans Utilisateurs si c’est voulu.</td></tr>
+  <tr><td>L’agent ne peut pas pointer : « Localisation refusée »</td><td>Autoriser la position pour le site dans le navigateur, activer le GPS du téléphone, réessayer près d’une fenêtre. En dernier recours : <span class="ui">Corriger horaires</span>.</td></tr>
+  <tr><td>L’appareil photo ne s’ouvre pas</td><td>Autoriser l’appareil photo pour le navigateur dans les réglages du téléphone ; l’agent peut aussi choisir une photo de la galerie.</td></tr>
+  <tr><td>La pastille indique « Hors ligne »</td><td>Rien n’est perdu : les pointages et contrôles partent automatiquement au retour du réseau. <span class="ui">Synchroniser</span> force l’envoi.</td></tr>
+  <tr><td>Des photos d’un mois passé ont disparu</td><td>C’est la suppression automatique du 1er du mois. Télécharger les photos importantes avant la fin de chaque mois.</td></tr>
+  <tr><td>Les e-mails (confirmation, nouvelles demandes) n’arrivent pas</td><td>Vérifier les spams, puis contacter le support technique : la messagerie d’envoi (Gmail) doit peut-être être reconfigurée.</td></tr>
+  <tr><td>Un rôle Qualité ou Finance voit l’onglet Pointage mais obtient une erreur</td><td>Ces rôles n’ont pas accès au pointage. Utiliser un compte Opérations, RH ou Manager.</td></tr>
+</table>
+
+<!-- ============ 22 ============ -->
+<h1><span class="num">22</span>Glossaire</h1>
+<table>
+  <tr><th style="width:24%">Terme</th><th>Signification</th></tr>
+  <tr><td class="role">Lead</td><td>Demande de contact ou de devis reçue (site, réseaux, téléphone).</td></tr>
+  <tr><td class="role">Prospect</td><td>Entreprise intéressée, pas encore cliente.</td></tr>
+  <tr><td class="role">Pipeline</td><td>Ensemble des affaires en cours, avec leur probabilité de succès.</td></tr>
+  <tr><td class="role">BC</td><td>Bon de commande.</td></tr>
+  <tr><td class="role">BL</td><td>Bon de livraison.</td></tr>
+  <tr><td class="role">DA</td><td>Demande d’achat interne.</td></tr>
+  <tr><td class="role">OT</td><td>Ordre de travail : une mission sur un site.</td></tr>
+  <tr><td class="role">SLA</td><td>Niveau de service promis au client (Standard, Premium, Critique).</td></tr>
+  <tr><td class="role">NC</td><td>Non-conformité : écart constaté lors d’un contrôle qualité.</td></tr>
+  <tr><td class="role">Avenant</td><td>Modification d’un contrat en cours.</td></tr>
+  <tr><td class="role">Préfacture</td><td>Projet de facture à contrôler avant émission.</td></tr>
+  <tr><td class="role">CNPS / IRPP</td><td>Cotisations sociales / impôt sur le revenu retenus sur la paie.</td></tr>
+  <tr><td class="role">CSV</td><td>Fichier de données ouvrable dans Excel.</td></tr>
+  <tr><td class="role">Hors ligne</td><td>Mode sans réseau : les actions sont gardées et envoyées plus tard.</td></tr>
+</table>
+<div class="box info"><b>Support</b>
+Pour toute anomalie technique, notez le module, l’heure et le message affiché, et faites une capture d’écran : le diagnostic sera beaucoup plus rapide.</div>
+
+</body>
+</html>
