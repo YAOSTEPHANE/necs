@@ -15,9 +15,16 @@ export type DbUser = {
   active: boolean;
   lastLogin: string;
   employeeId?: string;
+  /** `false` = lien de vérification pas encore cliqué ; absent = compte antérieur, considéré vérifié. */
+  emailVerified?: boolean;
+  emailVerifiedAt?: number;
   createdAt: number;
   updatedAt: number;
 };
+
+export function isEmailVerified(user: Pick<DbUser, "emailVerified">): boolean {
+  return user.emailVerified !== false;
+}
 
 export type PublicUser = Omit<AdminUser, "password"> & { password?: string };
 
@@ -38,6 +45,7 @@ export function toPublicUser(user: DbUser): PublicUser {
     active: user.active,
     lastLogin: user.lastLogin,
     password: "",
+    emailVerified: isEmailVerified(user),
     ...(user.employeeId ? { employeeId: user.employeeId } : {}),
   };
 }
@@ -152,6 +160,7 @@ export async function upsertDbUser(input: {
       input.password && input.password.trim().length > 0
         ? await hashPassword(input.password.trim())
         : existing.passwordHash;
+    const emailChanged = existing.email !== email;
     const next: DbUser = {
       ...existing,
       name: input.name.trim(),
@@ -161,6 +170,7 @@ export async function upsertDbUser(input: {
       passwordHash,
       active: input.active,
       updatedAt: now,
+      ...(emailChanged ? { emailVerified: false } : {}),
       ...(input.employeeId !== undefined
         ? { employeeId: input.employeeId || undefined }
         : {}),
@@ -183,12 +193,28 @@ export async function upsertDbUser(input: {
     passwordHash: await hashPassword(input.password.trim()),
     active: input.active,
     lastLogin: "Jamais",
+    emailVerified: false,
     createdAt: now,
     updatedAt: now,
     ...(input.employeeId ? { employeeId: input.employeeId } : {}),
   };
   await col.insertOne(doc);
   return doc;
+}
+
+/** Ignore le lien si l’adresse du compte a changé depuis l’envoi. */
+export async function markUserEmailVerified(
+  id: string,
+  email: string,
+): Promise<DbUser | null> {
+  const col = await usersCollection();
+  const now = Date.now();
+  const result = await col.findOneAndUpdate(
+    { id, email: email.trim().toLowerCase() },
+    { $set: { emailVerified: true, emailVerifiedAt: now, updatedAt: now } },
+    { returnDocument: "after" },
+  );
+  return result ?? null;
 }
 
 export async function setUserActive(

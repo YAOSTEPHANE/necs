@@ -1,17 +1,8 @@
 import { NextResponse } from "next/server";
+import { sendAccountVerification } from "@/lib/email-verification";
 import { hasMongoConfig } from "@/lib/mongo";
-import {
-  SESSION_COOKIE,
-  hasAuthSecret,
-  sessionCookieOptions,
-  signSessionToken,
-} from "@/lib/session-server";
-import {
-  findUserByEmail,
-  sessionFieldsFromUser,
-  touchLastLogin,
-  upsertDbUser,
-} from "@/lib/users-repo";
+import { hasAuthSecret } from "@/lib/session-server";
+import { findUserByEmail, upsertDbUser } from "@/lib/users-repo";
 import {
   assertSameOrigin,
   clampText,
@@ -101,7 +92,6 @@ export async function POST(request: Request) {
     const phone = clampText(String(body.phone || ""), 40);
     const password = String(body.password || "").slice(0, 200);
     const inviteCode = clampText(String(body.inviteCode || ""), 80);
-    const remember = body.remember !== false;
     // Inscription publique = portail client uniquement.
     // Les agents (nettoyeur) sont créés par un administrateur.
     if (body.role && body.role !== "client") {
@@ -156,21 +146,20 @@ export async function POST(request: Request) {
       active: true,
     });
 
-    const maxAge = remember ? 60 * 60 * 24 * 7 : 60 * 60 * 4;
-    const fields = sessionFieldsFromUser(user);
-    const token = await signSessionToken(fields, maxAge);
-    await touchLastLogin(user.id);
-
-    const res = NextResponse.json({
-      ok: true,
-      session: {
-        ...fields,
-        loggedAt: Date.now(),
-        expiresAt: Date.now() + maxAge * 1000,
-      },
+    const mail = await sendAccountVerification({
+      user,
+      request,
+      createdBy: "Inscription publique (portail client)",
     });
-    res.cookies.set(SESSION_COOKIE, token, sessionCookieOptions(maxAge));
-    return res;
+
+    return NextResponse.json({
+      ok: true,
+      verificationRequired: true,
+      emailSent: mail.sent,
+      message: mail.sent
+        ? `Compte créé. Un lien de confirmation a été envoyé à ${user.email}.`
+        : "Compte créé, mais l’e-mail de confirmation n’a pas pu partir. Contactez la Direction NECS.",
+    });
   } catch (error) {
     console.error("[auth/register]", error);
     const message = safeErrorMessage(error, "Inscription impossible.");

@@ -52,6 +52,7 @@ export function isAgentAllowedPath(pathname: string): boolean {
   if (pathname.startsWith("/admin/login")) return true;
   if (pathname.startsWith("/admin/mot-de-passe-oublie")) return true;
   if (pathname.startsWith("/admin/reinitialiser-mot-de-passe")) return true;
+  if (pathname.startsWith("/admin/verifier-email")) return true;
   return false;
 }
 
@@ -63,6 +64,7 @@ export function isClientAllowedPath(pathname: string): boolean {
   if (pathname.startsWith("/admin/inscription")) return true;
   if (pathname.startsWith("/admin/mot-de-passe-oublie")) return true;
   if (pathname.startsWith("/admin/reinitialiser-mot-de-passe")) return true;
+  if (pathname.startsWith("/admin/verifier-email")) return true;
   return false;
 }
 
@@ -122,7 +124,7 @@ export function clearSession(): void {
 
 export type LoginResult =
   | { ok: true; session: AdminSession }
-  | { ok: false; error: string };
+  | { ok: false; error: string; code?: "email_unverified" };
 
 /** Connexion serveur (cookie httpOnly + cache local pour l’UI). */
 export async function loginAdmin(
@@ -143,10 +145,17 @@ export async function loginAdmin(
     });
     const data = (await res.json()) as {
       error?: string;
+      code?: string;
       session?: AdminSession;
     };
     if (!res.ok || !data.session) {
-      return { ok: false, error: data.error || "Identifiants incorrects." };
+      return {
+        ok: false,
+        error: data.error || "Identifiants incorrects.",
+        ...(data.code === "email_unverified"
+          ? { code: "email_unverified" as const }
+          : {}),
+      };
     }
     saveSession(data.session);
     return { ok: true, session: data.session };
@@ -169,10 +178,14 @@ export type RegisterInput = {
   role?: "client";
 };
 
-/** Inscription publique portail client + session. */
+export type RegisterResult =
+  | { ok: true; message: string; emailSent: boolean }
+  | { ok: false; error: string };
+
+/** Inscription publique portail client ; la connexion suit la confirmation de l’e-mail. */
 export async function registerAdmin(
   input: RegisterInput,
-): Promise<LoginResult> {
+): Promise<RegisterResult> {
   try {
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -190,21 +203,44 @@ export async function registerAdmin(
     });
     const data = (await res.json()) as {
       error?: string;
-      session?: AdminSession;
+      message?: string;
+      emailSent?: boolean;
     };
-    if (!res.ok || !data.session) {
+    if (!res.ok) {
       return {
         ok: false,
         error: data.error || "Inscription impossible.",
       };
     }
-    saveSession(data.session);
-    return { ok: true, session: data.session };
+    return {
+      ok: true,
+      message: data.message || "Compte créé. Confirmez votre adresse e-mail.",
+      emailSent: data.emailSent === true,
+    };
   } catch {
     return {
       ok: false,
       error: "Impossible de joindre le serveur d’inscription.",
     };
+  }
+}
+
+export async function resendVerificationEmail(
+  email: string,
+): Promise<{ ok: boolean; message: string }> {
+  try {
+    const res = await fetch("/api/auth/resend-verification", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ email }),
+    });
+    const data = (await res.json()) as { message?: string; error?: string };
+    return res.ok
+      ? { ok: true, message: data.message || "Lien renvoyé." }
+      : { ok: false, message: data.error || "Envoi impossible." };
+  } catch {
+    return { ok: false, message: "Réseau indisponible. Réessayez." };
   }
 }
 

@@ -326,7 +326,11 @@ export function UsersWorkspace() {
           active: draft.active,
         }),
       });
-      const data = (await res.json()) as { error?: string; user?: AdminUser };
+      const data = (await res.json()) as {
+        error?: string;
+        user?: AdminUser;
+        verificationEmailSent?: boolean;
+      };
       if (!res.ok || !data.user) {
         setError(data.error || "Enregistrement impossible.");
         toast.error(data.error || "Enregistrement impossible.");
@@ -338,7 +342,17 @@ export function UsersWorkspace() {
         : users.map((u) => (u.id === data.user!.id ? data.user! : u));
       persistLocalMirror(next);
       setSelectedId(data.user.id);
-      toast.success(isNew ? "Compte créé." : "Compte mis à jour.");
+      if (data.verificationEmailSent === true) {
+        toast.success(
+          `${isNew ? "Compte créé" : "Compte mis à jour"}. Lien de vérification envoyé à ${data.user.email}.`,
+        );
+      } else if (data.verificationEmailSent === false) {
+        toast.warning(
+          "Compte enregistré, mais l’e-mail de vérification n’a pas pu partir. Utilisez « Renvoyer le lien ».",
+        );
+      } else {
+        toast.success(isNew ? "Compte créé." : "Compte mis à jour.");
+      }
       setOverlayOpen(false);
       setDraft(null);
     } catch {
@@ -371,6 +385,31 @@ export function UsersWorkspace() {
         users.map((u) => (u.id === data.user!.id ? data.user! : u)),
       );
       toast.success(data.user.active ? "Compte activé." : "Compte désactivé.");
+    } catch {
+      toast.error("Impossible de joindre le serveur.");
+    } finally {
+      busyLock.current = false;
+      setBusyId(null);
+    }
+  };
+
+  const resendVerification = async (user: AdminUser) => {
+    if (busyId || busyLock.current) return;
+    busyLock.current = true;
+    setBusyId(user.id);
+    try {
+      const res = await fetch("/api/users", {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: user.id, resendVerification: true }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) {
+        toast.error(data.error || "Envoi impossible.");
+        return;
+      }
+      toast.success(`Lien de vérification renvoyé à ${user.email}.`);
     } catch {
       toast.error("Impossible de joindre le serveur.");
     } finally {
@@ -808,6 +847,16 @@ export function UsersWorkspace() {
                   >
                     {selected.active ? "Désactiver" : "Activer"}
                   </button>
+                  {selected.emailVerified === false ? (
+                    <button
+                      type="button"
+                      className="btn-admin btn-admin--ghost"
+                      disabled={busyId === selected.id}
+                      onClick={() => void resendVerification(selected)}
+                    >
+                      Renvoyer le lien
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className="btn-admin btn-admin--primary"
@@ -828,6 +877,14 @@ export function UsersWorkspace() {
                     ) : (
                       "—"
                     )}
+                  </dd>
+                </div>
+                <div>
+                  <dt>E-mail</dt>
+                  <dd>
+                    {selected.emailVerified === false
+                      ? "En attente de vérification"
+                      : "Vérifié"}
                   </dd>
                 </div>
                 <div>

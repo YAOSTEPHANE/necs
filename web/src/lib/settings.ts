@@ -26,6 +26,8 @@ export type AdminUser = {
   lastLogin: string;
   /** Lien vers l’employé pointage (espace agent). */
   employeeId?: string;
+  /** Adresse confirmée via le lien reçu par e-mail. */
+  emailVerified?: boolean;
 };
 
 export type SocialNetworkId =

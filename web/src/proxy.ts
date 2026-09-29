@@ -45,6 +45,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith("/admin/inscription") ||
     pathname.startsWith("/admin/mot-de-passe-oublie") ||
     pathname.startsWith("/admin/reinitialiser-mot-de-passe") ||
+    pathname.startsWith("/admin/verifier-email") ||
     pathname === "/api/blob/status"
   ) {
     return withSecurityHeaders(NextResponse.next());

@@ -6,6 +6,7 @@ import { AuthFrame, AuthLoading } from "@/components/admin/AuthFrame";
 import {
   loginAdmin,
   refreshSessionFromServer,
+  resendVerificationEmail,
   resolvePostLoginPath,
 } from "@/lib/auth";
 import { toast } from "@/lib/toast";
@@ -32,6 +33,21 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(true);
   const [capsOn, setCapsOn] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
+  const justVerified = search.get("verified") === "1";
+
+  const onResend = async () => {
+    if (!unverifiedEmail) return;
+    setResending(true);
+    try {
+      const result = await resendVerificationEmail(unverifiedEmail);
+      if (result.ok) toast.success(result.message);
+      else toast.error(result.message);
+    } finally {
+      setResending(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +66,7 @@ function LoginForm() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setUnverifiedEmail(null);
     const mail = email.trim().toLowerCase();
     if (!mail.includes("@")) {
       const msg = "Indiquez une adresse e-mail valide.";
@@ -68,6 +85,7 @@ function LoginForm() {
       const result = await loginAdmin(mail, password, { remember });
       if (!result.ok) {
         setError(result.error);
+        if (result.code === "email_unverified") setUnverifiedEmail(mail);
         toast.error(result.error);
         return;
       }
@@ -87,10 +105,40 @@ function LoginForm() {
       </header>
 
       <form className="login-form" onSubmit={onSubmit} noValidate>
+        {justVerified && !error ? (
+          <p className="login-field__hint">
+            Adresse e-mail confirmée : vous pouvez vous connecter.
+          </p>
+        ) : null}
+
         {error ? (
           <div className="login-error" role="alert">
             <span className="login-error__icon">!</span>
-            <p>{error}</p>
+            <p>
+              {error}
+              {unverifiedEmail ? (
+                <>
+                  {" "}
+                  <button
+                    type="button"
+                    style={{
+                      background: "none",
+                      border: 0,
+                      padding: 0,
+                      color: "inherit",
+                      font: "inherit",
+                      fontWeight: 700,
+                      textDecoration: "underline",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => void onResend()}
+                    disabled={resending}
+                  >
+                    {resending ? "Envoi…" : "Renvoyer le lien"}
+                  </button>
+                </>
+              ) : null}
+            </p>
           </div>
         ) : null}
 

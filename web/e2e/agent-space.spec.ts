@@ -8,7 +8,7 @@ import {
 } from "./helpers";
 
 test.describe("Espace agent (création admin)", () => {
-  test("admin crée un agent, l’agent accède à mon-espace", async ({
+  test("admin crée un agent, connexion bloquée tant que l’e-mail n’est pas vérifié", async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -40,9 +40,12 @@ test.describe("Espace agent (création admin)", () => {
     await logoutIfNeeded(page);
     await loginAs(page, email, password);
 
-    await expect(page).toHaveURL(/\/admin\/mon-espace/, { timeout: 20_000 });
+    await expect(page.getByText(/Adresse e-mail non confirmée/i)).toBeVisible({
+      timeout: 20_000,
+    });
     await expect(
-      page.getByText(/Espace agent|Parcours du jour|Pointage mobile/i).first(),
+      page.getByRole("button", { name: "Renvoyer le lien" }),
     ).toBeVisible();
+    await expect(page).toHaveURL(/\/admin\/login/);
   });
 });

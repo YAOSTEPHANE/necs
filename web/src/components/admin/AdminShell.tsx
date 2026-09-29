@@ -288,7 +288,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     pathname.startsWith("/admin/login") ||
     pathname.startsWith("/admin/inscription") ||
     pathname.startsWith("/admin/mot-de-passe-oublie") ||
-    pathname.startsWith("/admin/reinitialiser-mot-de-passe");
+    pathname.startsWith("/admin/reinitialiser-mot-de-passe") ||
+    pathname.startsWith("/admin/verifier-email");
   // Alias HMR : d’anciens chunks Turbopack référencent encore isLoginPage.
   const isLoginPage = isAuthPage;
   const searchRef = useRef<HTMLInputElement>(null);
@@ -428,6 +429,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       pathname.startsWith("/admin/inscription") ||
       pathname.startsWith("/admin/mot-de-passe-oublie") ||
       pathname.startsWith("/admin/reinitialiser-mot-de-passe") ||
+      pathname.startsWith("/admin/verifier-email") ||
       isLoginPage
     ) {
       return;

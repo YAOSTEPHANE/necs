@@ -9,6 +9,7 @@ import {
 } from "@/lib/session-server";
 import {
   findUserByEmail,
+  isEmailVerified,
   sessionFieldsFromUser,
   touchLastLogin,
 } from "@/lib/users-repo";
@@ -129,6 +130,17 @@ export async function POST(request: Request) {
     }
 
     await clearLoginFailures(lockKey);
+
+    if (!isEmailVerified(user)) {
+      return NextResponse.json(
+        {
+          error:
+            "Adresse e-mail non confirmée. Cliquez sur le lien reçu par e-mail pour activer votre compte.",
+          code: "email_unverified",
+        },
+        { status: 403 },
+      );
+    }
 
     const maxAge = remember ? 60 * 60 * 24 * 7 : 60 * 60 * 4;
     const fields = sessionFieldsFromUser(user);

@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 import { uniqueEmail } from "./helpers";
 
 test.describe("Inscription client", () => {
-  test("crée un compte client et ouvre le portail", async ({ page }) => {
+  test("crée un compte client puis demande la confirmation de l’e-mail", async ({ page }) => {
     const email = uniqueEmail("client");
     const password = "ClientTest2026!";
 
@@ -23,7 +23,13 @@ test.describe("Inscription client", () => {
     await expect(page.getByText(email)).toBeVisible();
     await page.getByRole("button", { name: "Créer mon compte client" }).click();
 
-    await expect(page).toHaveURL(/\/admin\/espace/, { timeout: 25_000 });
-    await expect(page).not.toHaveURL(/\/admin\/inscription/);
+    await expect(page).toHaveURL(/\/admin\/login/, { timeout: 25_000 });
+
+    await page.locator('input[name="email"]').fill(email);
+    await page.locator('input[name="password"]').fill(password);
+    await page.getByRole("button", { name: "Se connecter" }).click();
+    await expect(page.getByText(/Adresse e-mail non confirmée/i)).toBeVisible({
+      timeout: 20_000,
+    });
   });
 });

@@ -141,10 +141,12 @@ function RegisterForm() {
         toast.error(result.error);
         return;
       }
-      toast.success(
-        `Bienvenue, ${result.session.name.split(" ")[0] ?? result.session.name}`,
+      if (result.emailSent) toast.success(result.message);
+      else toast.warning(result.message);
+      safeRouterReplace(
+        router,
+        `/admin/login?next=${encodeURIComponent(next)}`,
       );
-      safeRouterReplace(router, resolvePostLoginPath(result.session.role, next));
     } finally {
       setLoading(false);
     }

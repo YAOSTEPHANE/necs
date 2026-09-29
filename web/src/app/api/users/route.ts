@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { hasMongoConfig } from "@/lib/mongo";
 import { getServerSession } from "@/lib/session-server";
+import { sendAccountVerification } from "@/lib/email-verification";
 import {
   deleteDbUser,
+  findUserById,
+  isEmailVerified,
   listUsers,
   setUserActive,
   toPublicUser,
@@ -117,6 +120,7 @@ export async function POST(request: Request) {
       );
     }
 
+    const previous = id ? await findUserById(id) : null;
     const user = await upsertDbUser({
       id,
       name,
@@ -127,7 +131,22 @@ export async function POST(request: Request) {
       active: body.active !== false,
       employeeId,
     });
-    return NextResponse.json({ user: toPublicUser(user) });
+
+    const isNew = !previous;
+    const emailChanged = previous !== null && previous.email !== user.email;
+    let verificationEmailSent: boolean | undefined;
+    if (isNew || emailChanged) {
+      const mail = await sendAccountVerification({
+        user,
+        request,
+        createdBy: isNew ? gate.session.name : undefined,
+      });
+      verificationEmailSent = mail.sent;
+    }
+    return NextResponse.json({
+      user: toPublicUser(user),
+      ...(verificationEmailSent !== undefined ? { verificationEmailSent } : {}),
+    });
   } catch (error) {
     console.error("[users/POST]", error);
     return NextResponse.json(
@@ -157,10 +176,34 @@ export async function PATCH(request: Request) {
   if (gate.error) return gate.error;
 
   try {
-    const body = (await request.json()) as { id?: string; active?: boolean };
+    const body = (await request.json()) as {
+      id?: string;
+      active?: boolean;
+      resendVerification?: boolean;
+    };
     const id = clampText(String(body.id || ""), 64);
     if (!id) {
       return NextResponse.json({ error: "id manquant" }, { status: 400 });
+    }
+    if (body.resendVerification === true) {
+      const target = await findUserById(id);
+      if (!target) {
+        return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
+      }
+      if (isEmailVerified(target)) {
+        return NextResponse.json(
+          { error: "Cette adresse e-mail est déjà vérifiée." },
+          { status: 400 },
+        );
+      }
+      const mail = await sendAccountVerification({ user: target, request });
+      if (!mail.sent) {
+        return NextResponse.json(
+          { error: "L’e-mail n’a pas pu être envoyé. Vérifiez la configuration SMTP." },
+          { status: 502 },
+        );
+      }
+      return NextResponse.json({ ok: true, user: toPublicUser(target) });
     }
     if (typeof body.active !== "boolean") {
       return NextResponse.json(
