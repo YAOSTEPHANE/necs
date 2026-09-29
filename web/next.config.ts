@@ -32,7 +32,7 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com https://*.vercel-storage.com",
       "font-src 'self' data:",
-      "connect-src 'self' https://*.public.blob.vercel-storage.com https://*.vercel-storage.com",
+      "connect-src 'self' https://vercel.com https://*.public.blob.vercel-storage.com https://*.vercel-storage.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",
