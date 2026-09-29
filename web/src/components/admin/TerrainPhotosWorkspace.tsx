@@ -13,17 +13,21 @@ import {
 import {
   type PhotoKind,
   type SiteVisit,
-  NECS_SITE_PHOTOS_EVENT,
   addPhotoToVisit,
   countByKind,
   emptyVisit,
   isTodayVisit,
-  loadSiteVisits,
+  loadPendingSiteVisits,
   removePhotoFromVisit,
-  saveSiteVisits,
   updateVisitMeta,
   visitNeedsProof,
 } from "@/lib/site-photos";
+import {
+  deleteSiteVisitRemote,
+  fetchSiteVisits,
+  saveSiteVisitRemote,
+  syncPendingSiteVisits,
+} from "@/lib/site-visits-client";
 import { fileToOptimizedDataUrl } from "@/lib/settings";
 import {
   deleteVercelBlob,
@@ -83,24 +87,34 @@ export function TerrainPhotosWorkspace() {
   const arrivalInputRef = useRef<HTMLInputElement>(null);
   const afterInputRef = useRef<HTMLInputElement>(null);
 
-  const hydrate = (name: string, agent: boolean) => {
-    const loaded = loadSiteVisits();
-    if (agent) {
-      const visible = loaded.filter(
-        (v) => v.agent.trim().toLowerCase() === name.trim().toLowerCase(),
+  const hydrate = async (name: string, agent: boolean) => {
+    const mine = (v: SiteVisit) =>
+      !agent || v.agent.trim().toLowerCase() === name.trim().toLowerCase();
+    try {
+      const synced = await syncPendingSiteVisits(mine);
+      if (synced > 0) {
+        toast.success(
+          `${synced} visite${synced > 1 ? "s" : ""} synchronisée${synced > 1 ? "s" : ""}.`,
+        );
+      }
+      const remote = await fetchSiteVisits();
+      const remoteIds = new Set(remote.map((v) => v.id));
+      const pending = loadPendingSiteVisits().filter(
+        (v) => mine(v) && !remoteIds.has(v.id),
       );
-      setVisits(visible);
-      setSelectedId((prev) =>
-        prev && visible.some((v) => v.id === prev)
-          ? prev
-          : (visible[0]?.id ?? null),
-      );
-    } else {
+      const loaded = [...pending, ...remote];
       setVisits(loaded);
       setSelectedId((prev) =>
         prev && loaded.some((v) => v.id === prev)
           ? prev
           : (loaded[0]?.id ?? null),
+      );
+      setError(null);
+    } catch (err) {
+      const pending = loadPendingSiteVisits().filter(mine);
+      setVisits(pending);
+      setError(
+        err instanceof Error ? err.message : "Chargement des visites impossible",
       );
     }
   };
@@ -111,16 +125,11 @@ export function TerrainPhotosWorkspace() {
     const agent = isNettoyeur(session);
     setAgentName(name);
     setAgentMode(agent);
-    hydrate(name, agent);
-    setReady(true);
+    void hydrate(name, agent).finally(() => setReady(true));
 
-    const onSync = () => hydrate(name, agent);
-    window.addEventListener(NECS_SITE_PHOTOS_EVENT, onSync);
-    window.addEventListener("storage", onSync);
-    return () => {
-      window.removeEventListener(NECS_SITE_PHOTOS_EVENT, onSync);
-      window.removeEventListener("storage", onSync);
-    };
+    const onOnline = () => void hydrate(name, agent);
+    window.addEventListener("online", onOnline);
+    return () => window.removeEventListener("online", onOnline);
   }, []);
 
   useEffect(() => {
@@ -150,24 +159,38 @@ export function TerrainPhotosWorkspace() {
     return () => window.removeEventListener("keydown", onKey);
   }, [lightbox]);
 
-  const persist = (nextVisible: SiteVisit[]) => {
-    if (agentMode) {
-      const full = loadSiteVisits();
-      const mineIds = new Set(
-        full
-          .filter(
-            (v) =>
-              v.agent.trim().toLowerCase() === agentName.trim().toLowerCase(),
-          )
-          .map((v) => v.id),
-      );
-      const others = full.filter((v) => !mineIds.has(v.id));
-      saveSiteVisits([...nextVisible, ...others]);
-      setVisits(nextVisible);
-      return;
+  const upsertLocal = (visit: SiteVisit) =>
+    setVisits((prev) =>
+      prev.some((v) => v.id === visit.id)
+        ? prev.map((v) => (v.id === visit.id ? visit : v))
+        : [visit, ...prev],
+    );
+
+  const persistVisit = async (
+    visit: SiteVisit,
+    successMessage: string,
+  ): Promise<boolean> => {
+    const previous = visits;
+    upsertLocal(visit);
+    try {
+      const { visit: saved, queued } = await saveSiteVisitRemote(visit);
+      upsertLocal(saved);
+      if (queued) {
+        toast.warning(
+          "Pas de réseau : enregistré sur ce téléphone, envoi automatique au retour de la connexion.",
+        );
+      } else {
+        toast.success(successMessage);
+      }
+      return true;
+    } catch (err) {
+      setVisits(previous);
+      const message =
+        err instanceof Error ? err.message : "Enregistrement impossible.";
+      setError(message);
+      toast.error(message);
+      return false;
     }
-    setVisits(nextVisible);
-    saveSiteVisits(nextVisible);
   };
 
   const stats = useMemo(() => {
@@ -229,13 +252,15 @@ export function TerrainPhotosWorkspace() {
     setError(null);
   };
 
-  const saveDraft = (e: FormEvent) => {
+  const saveDraft = async (e: FormEvent) => {
     e.preventDefault();
     if (!draft) return;
     if (!draft.site.trim() || !draft.client.trim()) {
       setError("Site et client sont obligatoires.");
       return;
     }
+    setError(null);
+    let ok: boolean;
     if (creating) {
       const visit: SiteVisit = {
         ...draft,
@@ -244,9 +269,8 @@ export function TerrainPhotosWorkspace() {
         agent: agentMode ? agentName : draft.agent.trim() || agentName,
         notes: draft.notes.trim(),
       };
-      persist([visit, ...visits]);
       setSelectedId(visit.id);
-      toast.success("Visite créée.");
+      ok = await persistVisit(visit, "Visite créée.");
     } else {
       const updated = updateVisitMeta(draft, {
         site: draft.site,
@@ -255,13 +279,12 @@ export function TerrainPhotosWorkspace() {
         agent: agentMode ? agentName : draft.agent,
         notes: draft.notes,
       });
-      persist(visits.map((v) => (v.id === updated.id ? updated : v)));
-      toast.success("Visite mise à jour.");
+      ok = await persistVisit(updated, "Visite mise à jour.");
     }
+    if (!ok) return;
     setCreating(false);
     setEditing(false);
     setDraft(null);
-    setError(null);
   };
 
   const onPickPhoto = async (kind: PhotoKind, file: File | null) => {
@@ -269,7 +292,7 @@ export function TerrainPhotosWorkspace() {
     setError(null);
     setBusyKind(kind);
     try {
-      const { url } = await persistOptimizedImage({
+      const { url, via } = await persistOptimizedImage({
         file,
         folder: "terrain",
         maxSize: 1280,
@@ -277,9 +300,14 @@ export function TerrainPhotosWorkspace() {
         quality: 0.72,
         optimize: fileToOptimizedDataUrl,
       });
+      if (via === "data" && navigator.onLine) {
+        toast.warning(
+          "Stockage en ligne indisponible : photo conservée en qualité réduite dans la fiche.",
+        );
+      }
       const updated = addPhotoToVisit(selected, kind, url);
-      persist(visits.map((v) => (v.id === updated.id ? updated : v)));
-      toast.success(
+      await persistVisit(
+        updated,
         kind === "after"
           ? "Photo de départ enregistrée."
           : "Photo d’arrivée enregistrée.",
@@ -296,28 +324,30 @@ export function TerrainPhotosWorkspace() {
     }
   };
 
-  const deletePhoto = (photoId: string) => {
+  const deletePhoto = async (photoId: string) => {
     if (!selected) return;
     if (!confirm("Supprimer cette photo ?")) return;
     const photo = selected.photos.find((p) => p.id === photoId);
     const updated = removePhotoFromVisit(selected, photoId);
-    persist(visits.map((v) => (v.id === updated.id ? updated : v)));
-    if (photo?.dataUrl) {
+    const ok = await persistVisit(updated, "Photo supprimée.");
+    if (ok && photo?.dataUrl) {
       void deleteVercelBlob(photo.dataUrl);
     }
-    toast.info("Photo supprimée.");
   };
 
-  const deleteVisit = (id: string) => {
+  const deleteVisit = async (id: string) => {
     if (!confirm("Supprimer cette visite et toutes ses photos ?")) return;
-    const victim = visits.find((v) => v.id === id);
-    const next = visits.filter((v) => v.id !== id);
-    persist(next);
-    setSelectedId(next[0]?.id ?? null);
-    victim?.photos.forEach((p) => {
-      if (p.dataUrl) void deleteVercelBlob(p.dataUrl);
-    });
-    toast.info("Visite supprimée.");
+    try {
+      await deleteSiteVisitRemote(id);
+      const next = visits.filter((v) => v.id !== id);
+      setVisits(next);
+      setSelectedId(next[0]?.id ?? null);
+      toast.info("Visite supprimée.");
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : "Suppression impossible.",
+      );
+    }
   };
 
   const exportCsv = () => {

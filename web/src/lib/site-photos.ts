@@ -60,7 +60,9 @@ function normalizePhotoKind(kind: string): PhotoKind {
   return "arrival";
 }
 
-function normalizeVisit(raw: SiteVisit & { departureAt?: string | null }): SiteVisit {
+export function normalizeVisit(
+  raw: SiteVisit & { departureAt?: string | null },
+): SiteVisit {
   const photos = (Array.isArray(raw.photos) ? raw.photos : []).map((p) => ({
     ...p,
     kind: normalizePhotoKind(p.kind),
@@ -78,44 +80,37 @@ function normalizeVisit(raw: SiteVisit & { departureAt?: string | null }): SiteV
   };
 }
 
-function seedVisits(): SiteVisit[] {
-  return [
-    {
-      id: "VIS-DEMO-001",
-      site: "Immeuble Horizon ; Douala",
-      client: "Société Exemple SA",
-      date: todayIso(),
-      agent: "Équipe terrain",
-      notes: "Entretien quotidien bureaux & sanitaires",
-      status: "En cours",
-      arrivalAt: null,
-      afterAt: null,
-      photos: [],
-      updatedAt: nowLabel(),
-    },
-  ];
-}
+const LEGACY_DEMO_VISIT_ID = "VIS-DEMO-001";
 
-export function loadSiteVisits(): SiteVisit[] {
-  if (typeof window === "undefined") return seedVisits();
+/** Visites en attente de synchronisation (hors ligne ou ancien stockage local). */
+export function loadPendingSiteVisits(): SiteVisit[] {
+  if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(NECS_SITE_PHOTOS_KEY);
-    if (!raw) return seedVisits();
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as Array<
       SiteVisit & { departureAt?: string | null }
     >;
-    if (!Array.isArray(parsed) || parsed.length === 0) {
-      return seedVisits();
-    }
-    return parsed.map(normalizeVisit);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((v) => v && v.id && v.id !== LEGACY_DEMO_VISIT_ID)
+      .map(normalizeVisit);
   } catch {
-    return seedVisits();
+    return [];
   }
 }
 
-export function saveSiteVisits(visits: SiteVisit[]): void {
+export function savePendingSiteVisits(visits: SiteVisit[]): void {
   if (typeof window === "undefined") return;
-  localStorage.setItem(NECS_SITE_PHOTOS_KEY, JSON.stringify(visits));
+  if (visits.length === 0) {
+    localStorage.removeItem(NECS_SITE_PHOTOS_KEY);
+  } else {
+    localStorage.setItem(NECS_SITE_PHOTOS_KEY, JSON.stringify(visits));
+  }
+}
+
+export function notifySiteVisitsChanged(): void {
+  if (typeof window === "undefined") return;
   window.dispatchEvent(new Event(NECS_SITE_PHOTOS_EVENT));
 }
 

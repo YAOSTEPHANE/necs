@@ -5,8 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   type SiteVisit,
   NECS_SITE_PHOTOS_EVENT,
-  loadSiteVisits,
+  loadPendingSiteVisits,
 } from "@/lib/site-photos";
+import { fetchSiteVisits } from "@/lib/site-visits-client";
 import {
   currentTimeHm,
   todayIso,
@@ -102,6 +103,17 @@ export function AgentHomeWorkspace() {
     }
   }, []);
 
+  const refreshVisits = useCallback(async () => {
+    const pending = loadPendingSiteVisits();
+    try {
+      const remote = await fetchSiteVisits();
+      const remoteIds = new Set(remote.map((v) => v.id));
+      setVisits([...pending.filter((v) => !remoteIds.has(v.id)), ...remote]);
+    } catch {
+      setVisits(pending);
+    }
+  }, []);
+
   useEffect(() => {
     const session = loadSession();
     if (!session || !isNettoyeur(session)) {
@@ -109,9 +121,10 @@ export function AgentHomeWorkspace() {
       return;
     }
     setAgentName(session.name);
-    setVisits(loadSiteVisits());
-    void refreshPunch().finally(() => setReady(true));
-  }, [refreshPunch]);
+    void Promise.all([refreshPunch(), refreshVisits()]).finally(() =>
+      setReady(true),
+    );
+  }, [refreshPunch, refreshVisits]);
 
   useEffect(() => {
     const t = window.setInterval(() => setClock(currentTimeHm()), 30_000);
@@ -119,10 +132,10 @@ export function AgentHomeWorkspace() {
   }, []);
 
   useEffect(() => {
-    const onPhotos = () => setVisits(loadSiteVisits());
+    const onPhotos = () => void refreshVisits();
     window.addEventListener(NECS_SITE_PHOTOS_EVENT, onPhotos);
     return () => window.removeEventListener(NECS_SITE_PHOTOS_EVENT, onPhotos);
-  }, []);
+  }, [refreshVisits]);
 
   const myVisitsToday = useMemo(() => {
     return visits.filter(
