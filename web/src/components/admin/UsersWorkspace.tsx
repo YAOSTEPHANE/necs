@@ -13,7 +13,6 @@ import {
 } from "@/lib/settings";
 import { loadSession } from "@/lib/auth";
 import { getRoleSpace } from "@/lib/role-spaces";
-import { loadPointageStore } from "@/lib/pointage";
 import { downloadCsv } from "@/lib/download";
 import { IconSearch, IconUser } from "@/components/admin/Icons";
 import { EmptyState, ModuleHeader } from "@/components/admin/Ui";
@@ -95,9 +94,6 @@ export function UsersWorkspace() {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [employeeOptions, setEmployeeOptions] = useState<
-    { id: string; name: string }[]
-  >([]);
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | UserRole>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
@@ -123,12 +119,6 @@ export function UsersWorkspace() {
     setMinPassword(settings.security.passwordMinLength || 8);
     const session = loadSession();
     setIsAdmin(session?.role === "admin");
-    const pointage = loadPointageStore();
-    setEmployeeOptions(
-      pointage.employees
-        .filter((e) => e.active)
-        .map((e) => ({ id: e.id, name: e.name })),
-    );
 
     try {
       const res = await fetch("/api/users", { credentials: "same-origin" });
@@ -334,10 +324,6 @@ export function UsersWorkspace() {
           phone: draft.phone.trim(),
           password: password || undefined,
           active: draft.active,
-          employeeId:
-            draft.role === "nettoyeur"
-              ? draft.employeeId || undefined
-              : undefined,
         }),
       });
       const data = (await res.json()) as { error?: string; user?: AdminUser };
@@ -856,7 +842,7 @@ export function UsersWorkspace() {
                   <dt>Employé pointage</dt>
                   <dd>
                     {selected.role === "nettoyeur"
-                      ? selected.employeeId || "Non lié"
+                      ? `Automatique · ${selected.id}`
                       : "—"}
                   </dd>
                 </div>
@@ -1062,22 +1048,14 @@ export function UsersWorkspace() {
               {draft.role === "nettoyeur" ? (
                 <FwGrid>
                   <FwField label="Employé pointage lié" wide>
-                    <select
-                      value={draft.employeeId ?? ""}
-                      onChange={(e) =>
-                        setDraft({
-                          ...draft,
-                          employeeId: e.target.value || undefined,
-                        })
+                    <input
+                      readOnly
+                      value={
+                        isNew
+                          ? "Automatique : ce compte apparaîtra dans le pointage dès sa création"
+                          : `Automatique : ce compte (${draft.id}) apparaît dans le pointage`
                       }
-                    >
-                      <option value="">— Sélectionner —</option>
-                      {employeeOptions.map((emp) => (
-                        <option key={emp.id} value={emp.id}>
-                          {emp.name} ({emp.id})
-                        </option>
-                      ))}
-                    </select>
+                    />
                   </FwField>
                 </FwGrid>
               ) : null}
@@ -1147,7 +1125,9 @@ export function UsersWorkspace() {
                       label: "Employé pointage",
                       value:
                         draft.role === "nettoyeur"
-                          ? draft.employeeId || "Non lié"
+                          ? isNew
+                            ? "Automatique (ce compte)"
+                            : `Automatique · ${draft.id}`
                           : "—",
                     },
                   ]}
