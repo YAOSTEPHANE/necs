@@ -168,6 +168,67 @@ export async function saveSiteVisit(
   return doc;
 }
 
+/** Premier jour du mois courant (heure du Cameroun), format YYYY-MM-DD. */
+export function currentMonthStart(now = new Date()): string {
+  const ym = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Douala",
+    year: "numeric",
+    month: "2-digit",
+  }).format(now);
+  return `${ym}-01`;
+}
+
+export type PhotoPurgeResult = {
+  before: string;
+  visitsDeleted: number;
+  photosDeleted: number;
+  visitsKept: number;
+};
+
+/**
+ * Supprime les visites terrain (et leurs photos Blob) antérieures à `before`.
+ * Une visite dont les fichiers n’ont pas pu être effacés est conservée
+ * pour être retentée au prochain passage.
+ */
+export async function purgeSiteVisitsBefore(
+  before: string,
+  deleteFiles: (urls: string[]) => Promise<void>,
+): Promise<PhotoPurgeResult> {
+  const c = await col();
+  const result: PhotoPurgeResult = {
+    before,
+    visitsDeleted: 0,
+    photosDeleted: 0,
+    visitsKept: 0,
+  };
+  const failed = new Set<string>();
+  for (;;) {
+    const batch = await c
+      .find(
+        { date: { $lt: before }, id: { $nin: [...failed] } },
+        { projection: { _id: 0, id: 1, photos: 1 } },
+      )
+      .limit(50)
+      .toArray();
+    if (batch.length === 0) break;
+    for (const visit of batch) {
+      const photos = visit.photos ?? [];
+      try {
+        await deleteFiles(photos.map((p) => p.dataUrl));
+      } catch (error) {
+        console.error("Purge photos terrain : échec Blob", visit.id, error);
+        failed.add(visit.id);
+        continue;
+      }
+      await c.deleteOne({ id: visit.id });
+      result.visitsDeleted += 1;
+      result.photosDeleted += photos.length;
+    }
+  }
+  result.visitsKept = failed.size;
+  return result;
+}
+
 export async function deleteSiteVisit(
   actor: SiteVisitActor,
   id: string,

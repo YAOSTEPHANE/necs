@@ -37,6 +37,14 @@ export async function deleteBlobByUrl(url: string): Promise<void> {
   await del(url);
 }
 
+export async function deleteBlobsByUrl(urls: string[]): Promise<void> {
+  const targets = urls.filter((u) => u.includes("blob.vercel-storage.com"));
+  if (!isBlobConfigured() || targets.length === 0) return;
+  for (let i = 0; i < targets.length; i += 100) {
+    await del(targets.slice(i, i + 100));
+  }
+}
+
 export async function listNecsBlobs(prefix = "necs/") {
   if (!isBlobConfigured()) return { blobs: [] as Awaited<ReturnType<typeof list>>["blobs"] };
   return list({ prefix, limit: 100 });

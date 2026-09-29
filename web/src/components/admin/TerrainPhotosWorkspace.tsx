@@ -440,7 +440,7 @@ export function TerrainPhotosWorkspace() {
         note={
           agentMode
             ? "Arrivée = état du site au début. Départ = preuve après nettoyage (clôture la visite)."
-            : "Les agents ne voient que leurs propres sites. Stockage image : Vercel Blob (ou local)."
+            : "Les agents ne voient que leurs propres sites. Les photos du mois écoulé sont supprimées automatiquement le 1er de chaque mois : téléchargez celles à conserver avant."
         }
         actions={
           <>
