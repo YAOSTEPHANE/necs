@@ -1,0 +1,643 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"/><title>Guide commercial NECS</title><style>
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+@page{size:A4;margin:0}
+:root{--mid:#06152E;--navy:#0A3A72;--azur:#1570B8;--lagoon:#3EC8E8;--leaf:#8FD14A;--forest:#1F6B3A;--amber:#E8A33D;--ivory:#F6F4EF;--mist:#EEF3F8;--ink:#0B1324;--slate:#5B6678;--line:#E3E8EF}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{font-family:Inter,sans-serif;color:var(--ink);font-size:11px;line-height:1.5}
+img{display:block}
+ul,ol{list-style:none}
+.serif{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;letter-spacing:0}
+.grad{background:linear-gradient(90deg,#3EC8E8,#8FD14A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.page{width:793px;height:1122px;position:relative;overflow:hidden;break-after:page;background:#fff;padding:38px 46px 50px}
+.kicker{font:600 9.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--azur);margin-bottom:6px}
+.kicker--light{color:var(--lagoon)}
+.note{display:flex;gap:7px;align-items:flex-start;font-size:10px;color:var(--slate);margin-top:12px;line-height:1.45}
+.note svg{flex:0 0 auto;margin-top:1px}
+.small{font-size:10px;color:var(--slate);margin-top:8px;line-height:1.5}
+.caption{font-size:9px;color:var(--slate);text-align:center;margin-top:8px}
+.caption--light{color:rgba(255,255,255,.5);text-align:left}
+
+/* En-tête / pied */
+.rh{display:flex;justify-content:space-between;align-items:center;font:500 9px Inter;letter-spacing:.1em;text-transform:uppercase;color:var(--slate);padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:22px}
+.rh span:first-child{display:flex;align-items:center;gap:8px}
+.rh img{height:18px}
+.rf{position:absolute;left:46px;right:46px;bottom:20px;display:flex;justify-content:space-between;align-items:center;font-size:8.5px;color:#98A2B3}
+.rf b{font:600 11px Outfit;color:var(--mid)}
+.ch{display:flex;gap:16px;align-items:flex-start;margin-bottom:18px}
+.ch__n{font:400 46px/1 'Instrument Serif';font-style:italic;color:var(--lagoon);min-width:52px}
+.ch h2{font:600 25px/1.15 Outfit;color:var(--mid);letter-spacing:-.02em}
+.ch h2 .serif{font-size:29px;color:var(--azur)}
+.lead{font-size:11.5px;color:var(--slate);margin-top:7px;max-width:600px;line-height:1.55}
+.h3{font:600 15px Outfit;color:var(--mid);margin:20px 0 10px}
+.body{font-size:11.5px;line-height:1.65;color:var(--ink)}
+
+/* Blocs */
+.split{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;margin-top:6px}
+.split--even{grid-template-columns:1fr 1fr;margin-top:16px}
+.card{background:var(--ivory);border-radius:16px;padding:16px 18px}
+.card h4{display:flex;gap:8px;align-items:center;font:600 13px Outfit;color:var(--mid);margin-bottom:7px}
+.card p{font-size:10.5px;color:var(--slate);line-height:1.55}
+.card--sm{padding:13px 15px}
+.card--sm h4{font-size:12px}
+.card--dark{background:var(--mid)}
+.card--dark h4{color:#fff}
+.card--dark p{color:rgba(255,255,255,.75)}
+.card--warn{background:#FEF3F2}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+.photo{border-radius:16px;overflow:hidden}
+.photo img{width:100%;height:150px;object-fit:cover}
+.photo--tall img{height:200px}
+.values{display:flex;gap:8px;margin-top:16px}
+.values span{display:flex;gap:6px;align-items:center;height:30px;padding:0 13px;border-radius:999px;background:#E7F5E2;color:var(--forest);font:600 11.5px Outfit}
+.statband{display:grid;grid-template-columns:repeat(4,1fr);background:var(--mid);border-radius:18px;padding:20px 22px;margin-top:20px;color:#fff}
+.statband div{border-left:1px solid rgba(255,255,255,.15);padding-left:16px}
+.statband div:first-child{border-left:0;padding-left:0}
+.statband b{font:600 30px/1 Outfit;display:block;background:linear-gradient(90deg,#3EC8E8,#8FD14A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.statband span{font-size:10px;color:rgba(255,255,255,.7);margin-top:5px;display:block}
+.dots li{position:relative;padding-left:13px;font-size:10.5px;color:var(--ink);margin-bottom:5px;line-height:1.45}
+.dots li::before{content:"";position:absolute;left:0;top:6px;width:5px;height:5px;border-radius:50%;background:var(--leaf)}
+.checks li{display:flex;gap:9px;align-items:flex-start;font-size:10.5px;margin-bottom:6px;line-height:1.4}
+.checks i{flex:0 0 13px;height:13px;border:1.5px solid #9AA4B2;border-radius:4px;margin-top:1px;background:#fff}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;background:#fff;border:1px solid var(--line);font:500 10px Inter}
+
+/* Pitch */
+.pitch{background:var(--mid);color:#fff;border-radius:20px;padding:24px 26px;position:relative;overflow:hidden}
+.pitch::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(62,200,232,.35),transparent 70%)}
+.pitch__lbl{font:600 9.5px Inter;letter-spacing:.18em;text-transform:uppercase;color:var(--lagoon);margin-bottom:10px}
+.pitch blockquote{font:400 14px/1.6 Outfit;color:rgba(255,255,255,.9);position:relative;z-index:1}
+.pitch blockquote b{color:var(--leaf);font-weight:600}
+.steps5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.s5{background:var(--ivory);border-radius:14px;padding:14px 12px;position:relative}
+.s5 span{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#3EC8E8,#8FD14A);color:var(--mid);font:700 11px Outfit;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.s5 h4{font:600 13px Outfit;color:var(--mid)}
+.s5 p{font-size:10px;color:var(--slate);margin:3px 0 8px;line-height:1.4}
+.s5 em{display:block;font:400 12.5px/1.35 'Instrument Serif';font-style:italic;color:var(--azur)}
+.promise{margin-top:22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0;text-align:center}
+.promise__txt{font-size:28px;color:var(--mid);line-height:1.2}
+
+/* Arguments */
+.args{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.arg{display:flex;gap:14px;background:var(--ivory);border-radius:16px;padding:18px}
+.arg__ic{flex:0 0 42px;height:42px;border-radius:13px;background:linear-gradient(135deg,#0A3A72,#1570B8);display:flex;align-items:center;justify-content:center}
+.arg h4{font:600 14px Outfit;color:var(--mid);margin-bottom:5px}
+.arg p{font-size:10.5px;color:var(--slate);line-height:1.55}
+.arg__proof{margin-top:8px;padding-top:8px;border-top:1px dashed #CBD3DD;color:var(--forest)!important}
+.arg__proof b{color:var(--forest)}
+
+/* Secteurs */
+.sectors{display:flex;flex-direction:column;gap:12px}
+.sector{display:grid;grid-template-columns:210px 1fr;gap:16px;background:var(--ivory);border-radius:18px;overflow:hidden}
+.sector figure{position:relative}
+.sector figure img{width:100%;height:100%;min-height:196px;object-fit:cover}
+.sector figure span{position:absolute;left:12px;top:12px;width:32px;height:32px;border-radius:10px;background:rgba(6,21,46,.65);border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center}
+.sector__txt{padding:14px 18px 14px 0}
+.sector h4{font:600 16px Outfit;color:var(--mid);margin-bottom:4px}
+.sector__qui{font-size:10.5px;color:var(--slate);margin-bottom:7px}
+.sector__qui b{color:var(--ink)}
+.sector ul{display:grid;grid-template-columns:1fr 1fr;gap:3px 12px;margin-bottom:8px}
+.sector li{display:flex;gap:6px;align-items:flex-start;font-size:10px;line-height:1.35}
+.sector li svg{flex:0 0 auto;margin-top:1px}
+.sector__arg{font:400 13px/1.35 'Instrument Serif';font-style:italic;color:var(--azur);margin-bottom:7px}
+.sector__dec{display:flex;gap:6px;align-items:center;font:600 9.5px Inter;color:var(--navy);background:#fff;border-radius:999px;padding:4px 10px;width:fit-content}
+
+/* Niveaux */
+.levels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.level{background:var(--ivory);border-radius:16px;padding:16px 14px;position:relative}
+.level.on{background:var(--mid);color:#fff}
+.level__tag{position:absolute;right:10px;top:-9px;background:var(--leaf);color:#06200F;font:700 8.5px Inter;padding:3px 8px;border-radius:999px}
+.level h4{font:600 17px Outfit;color:var(--mid)}
+.level.on h4{color:#fff}
+.level__q{font-size:9.5px;color:var(--slate);margin:2px 0 10px;min-height:28px}
+.level.on .level__q{color:rgba(255,255,255,.65)}
+.level li{display:flex;gap:6px;align-items:flex-start;font-size:10px;margin-bottom:5px;line-height:1.35}
+.level li svg{flex:0 0 auto;margin-top:1px}
+
+/* Preuve digitale */
+.proof{display:grid;grid-template-columns:250px 1fr;gap:24px;align-items:start}
+.proof__phone{display:flex;flex-direction:column;align-items:center}
+.pf{display:flex;gap:12px;margin-bottom:12px}
+.pf>span{flex:0 0 36px;height:36px;border-radius:11px;background:var(--mist);display:flex;align-items:center;justify-content:center}
+.pf h4{font:600 13px Outfit;color:var(--mid)}
+.pf p{font-size:10.5px;color:var(--slate);line-height:1.5}
+.shot{border-radius:12px;overflow:hidden;border:1px solid var(--line);box-shadow:0 18px 30px -20px rgba(6,21,46,.45)}
+.shot img{width:100%}
+.shot figcaption{font-size:9px;color:var(--slate);padding:6px 10px;background:var(--ivory)}
+.shot--wide img{height:300px;object-fit:cover;object-position:top}
+.demo{margin-top:16px;background:var(--mid);border-radius:16px;padding:16px 20px;color:#fff}
+.demo .kicker{color:var(--lagoon)}
+.demo ol{display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;counter-reset:d}
+.demo li{counter-increment:d;font-size:10.5px;color:rgba(255,255,255,.85);padding-left:22px;position:relative;line-height:1.45}
+.demo li::before{content:counter(d);position:absolute;left:0;top:0;width:16px;height:16px;border-radius:50%;background:var(--leaf);color:#06200F;font:700 9px Outfit;display:flex;align-items:center;justify-content:center}
+
+/* Téléphone */
+.phone{width:226px;height:462px;border-radius:36px;background:#0B1324;padding:8px;box-shadow:0 30px 50px -24px rgba(6,21,46,.6),inset 0 0 0 2px #2A3345}
+.phone__screen{width:100%;height:100%;border-radius:29px;overflow:hidden;position:relative;background:var(--ivory)}
+.phone__status{position:absolute;top:0;left:0;right:0;height:30px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font:600 9.5px Inter;color:var(--ink);z-index:3}
+.phone__notch{width:70px;height:20px;border-radius:14px;background:#0B1324}
+.m-app{position:absolute;inset:0;padding:38px 12px 12px;background:linear-gradient(180deg,#F6F4EF,#fff)}
+.m-app__hi{font-size:10px;color:var(--slate);margin-bottom:9px}
+.m-app__hi b{display:block;font:600 14px Outfit;color:var(--mid)}
+.m-app__score{background:var(--mid);color:#fff;border-radius:16px;padding:11px 13px}
+.m-app__score span{font-size:9px;color:rgba(255,255,255,.65)}
+.m-app__score b{font:600 30px/1.1 Outfit;display:block}
+.m-app__score small{font-size:12px;color:rgba(255,255,255,.6)}
+.spark{width:100%;height:30px}
+.m-app__row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:8px 0}
+.m-app__row div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.m-app__row b{font:600 16px Outfit;color:var(--mid);display:block}
+.m-app__row span{font-size:8.5px;color:var(--slate)}
+.m-app__lbl{font:600 8.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin:2px 0 6px}
+.m-app__pics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:8px}
+.m-app__pics img{width:100%;height:50px;object-fit:cover;border-radius:8px}
+.m-app__item{display:flex;align-items:center;gap:6px;font-size:9.5px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:6px 8px;margin-bottom:5px}
+
+/* Tableau */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;font-size:10.5px}
+.tbl th{background:var(--mid);color:#fff;text-align:left;font:600 10.5px Outfit;padding:9px 12px}
+.tbl td{padding:9px 12px;border-top:1px solid var(--line);vertical-align:top;color:var(--slate);line-height:1.45}
+.tbl td.b{color:var(--mid);font-weight:600;width:170px}
+.tbl tr:nth-child(even) td{background:#FAFAF8}
+
+/* Cycle */
+.cycle{position:relative;display:flex;flex-direction:column;gap:9px}
+.cycle::before{content:"";position:absolute;left:15px;top:14px;bottom:14px;width:2px;background:linear-gradient(180deg,#3EC8E8,#8FD14A)}
+.cy{display:flex;gap:16px;position:relative}
+.cy__n{flex:0 0 32px;height:32px;border-radius:50%;background:var(--mid);color:#fff;font:600 13px Outfit;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px #fff}
+.cy__body{flex:1;background:var(--ivory);border-radius:14px;padding:10px 14px}
+.cy h4{font:600 13px Outfit;color:var(--mid);margin-bottom:2px}
+.cy h4 em{font-style:normal;font:600 9.5px Inter;background:#E7F5E2;color:var(--forest);padding:2px 8px;border-radius:999px;margin-left:6px}
+.cy p{font-size:10.3px;color:var(--ink);line-height:1.45}
+.cy__app{display:flex;gap:6px;align-items:flex-start;color:var(--slate)!important;margin-top:2px}
+.cy__app svg{flex:0 0 auto;margin-top:2px}
+
+/* Découverte */
+.card--q .qgrp{font:600 9.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--azur);margin:12px 0 4px}
+.card--q .qgrp:first-of-type{margin-top:4px}
+.card--q .q{font:400 13px/1.4 'Instrument Serif';font-style:italic;color:var(--mid);margin-bottom:4px}
+
+/* Objections */
+.objs{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.obj{background:var(--ivory);border-radius:16px;padding:16px 18px;border-left:4px solid var(--azur)}
+.obj h4{font:400 18px/1.2 'Instrument Serif';font-style:italic;color:var(--mid);margin-bottom:7px}
+.obj p{font-size:10.5px;line-height:1.55;color:var(--ink)}
+.obj__proof{display:flex;gap:6px;align-items:center;margin-top:8px;font:600 9.5px Inter!important;color:var(--forest)!important}
+
+/* Scripts */
+.scripts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.script{background:var(--ivory);border-radius:16px;padding:16px 18px}
+.script h4{display:flex;gap:8px;align-items:center;font:600 13px Outfit;color:var(--mid);margin-bottom:9px}
+.script p{font-size:10.5px;line-height:1.6;margin-bottom:7px;color:var(--ink)}
+.script b{color:var(--azur)}
+
+/* Offre */
+.offer{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.of{background:var(--ivory);border-radius:12px;padding:11px 14px;border-left:3px solid var(--leaf)}
+.of:last-child{grid-column:span 2}
+.of b{font:600 12px Outfit;color:var(--mid);display:block;margin-bottom:2px}
+.of p{font-size:10.3px;color:var(--slate);line-height:1.45}
+
+/* Kit */
+.gold{background:var(--mid);border-radius:18px;padding:20px 24px;margin-top:16px;color:#fff}
+.gold ol{counter-reset:g;display:grid;gap:8px}
+.gold li{counter-increment:g;font:500 14px Outfit;padding-left:34px;position:relative;line-height:1.4}
+.gold li::before{content:counter(g);position:absolute;left:0;top:-1px;width:23px;height:23px;border-radius:50%;background:linear-gradient(135deg,#3EC8E8,#8FD14A);color:var(--mid);font:700 11px Outfit;display:flex;align-items:center;justify-content:center}
+.contactbox{display:flex;gap:18px;align-items:center;margin-top:16px;border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+.contactbox img{height:52px}
+.contactbox__l{display:flex;align-items:center;gap:5px;font:600 11.5px Inter;color:var(--mid);flex-wrap:wrap}
+
+/* Sommaire */
+.toc-wrap{display:grid;grid-template-columns:1fr 250px;gap:26px}
+.toc li{display:flex;align-items:baseline;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.toc__n{font:400 22px/1 'Instrument Serif';font-style:italic;color:var(--lagoon);width:30px}
+.toc__t{font:600 14px Outfit;color:var(--mid)}
+.toc i{flex:1}
+.toc__p{font:600 12px Outfit;color:var(--slate)}
+.toc-side{display:flex;flex-direction:column;gap:12px}
+.toc-side .photo img{height:170px}
+
+/* Couverture du guide */
+.g-cover{padding:0;background:var(--mid);color:#fff}
+.g-cover__bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:62% center}
+.g-cover__shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,21,46,.55) 0%,rgba(6,21,46,.35) 35%,rgba(6,21,46,.94) 68%,#06152E 100%)}
+.g-cover__top{position:absolute;left:52px;right:52px;top:48px;display:flex;justify-content:space-between;align-items:center}
+.logo-card{background:#fff;border-radius:16px;padding:9px 15px;display:inline-block}
+.logo-card img{height:46px}
+.tag{font:600 10px Inter;letter-spacing:.14em;text-transform:uppercase;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:7px 14px;background:rgba(6,21,46,.4)}
+.g-cover__body{position:absolute;left:52px;right:52px;bottom:70px}
+.g-cover h1{font:600 58px/1.02 Outfit;letter-spacing:-.035em;margin:10px 0 18px}
+.g-cover h1 .serif{font-size:66px}
+.g-cover__body>p{font-size:15px;line-height:1.6;color:rgba(255,255,255,.8);max-width:560px}
+.g-cover__chips{display:flex;gap:10px;margin-top:26px}
+.g-cover__chips span{display:flex;gap:7px;align-items:center;height:34px;padding:0 15px;border-radius:999px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.07);font:600 12px Outfit}
+
+/* Flyer */
+.fl{padding:0;background:#fff}
+.fl-hero{position:relative;height:520px;color:#fff;overflow:hidden}
+.fl-hero>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:65% center}
+.fl-hero__shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(4,14,34,.95) 0%,rgba(4,14,34,.78) 48%,rgba(4,14,34,.15) 100%),linear-gradient(0deg,rgba(4,14,34,.75),transparent 40%)}
+.fl-hero__top{position:absolute;left:44px;right:44px;top:36px;display:flex;justify-content:space-between;align-items:center}
+.pill{display:flex;gap:6px;align-items:center;font:600 11px Inter;border:1px solid rgba(255,255,255,.35);background:rgba(6,21,46,.45);border-radius:999px;padding:7px 14px}
+.fl-hero__body{position:absolute;left:44px;bottom:84px;width:470px}
+.fl-hero h1{font:600 42px/1.04 Outfit;letter-spacing:-.03em;margin:8px 0 14px}
+.fl-hero h1 .serif{font-size:48px}
+.fl-hero__body>p{font-size:13px;line-height:1.55;color:rgba(255,255,255,.8)}
+.fl-badges{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+.fl-badges span{display:flex;gap:6px;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:linear-gradient(135deg,#A6E36A,#5FBF45);color:#06200F;font:600 11.5px Inter}
+.fl-badges .ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);color:#fff}
+.fl-stats{position:relative;z-index:2;margin:-52px 44px 0;background:#fff;border-radius:20px;box-shadow:0 24px 40px -20px rgba(6,21,46,.45);display:grid;grid-template-columns:repeat(4,1fr);padding:18px 20px}
+.fl-stats div{border-left:1px solid var(--line);padding-left:14px}
+.fl-stats div:first-child{border-left:0;padding-left:0}
+.fl-stats b{font:600 28px/1 Outfit;color:var(--mid);display:block}
+.fl-stats span{font-size:10px;color:var(--slate);margin-top:4px;display:block}
+.fl-why{padding:26px 44px 0}
+.fl-why h2{font:600 24px Outfit;color:var(--mid);letter-spacing:-.02em;margin-bottom:14px}
+.fl-why h2 .serif{font-size:28px;color:var(--azur)}
+.fl-why__grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fw{display:flex;gap:12px;background:var(--ivory);border-radius:16px;padding:14px 16px}
+.fw>span{flex:0 0 40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#0A3A72,#1570B8);display:flex;align-items:center;justify-content:center}
+.fw h4{font:600 13.5px Outfit;color:var(--mid)}
+.fw p{font-size:10.5px;color:var(--slate);line-height:1.45;margin-top:2px}
+.fl-sect{display:flex;flex-wrap:wrap;gap:7px;padding:18px 44px 0}
+.fl-sect span{display:flex;gap:6px;align-items:center;height:28px;padding:0 12px;border-radius:999px;border:1px solid var(--line);font:600 10.5px Inter;color:var(--mid)}
+.fl-contact{position:absolute;left:0;right:0;bottom:0;height:118px;background:var(--mid);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:0 44px}
+.fl-contact p{font:500 12px Inter;color:rgba(255,255,255,.7);margin-bottom:4px}
+.fl-contact b{display:flex;gap:10px;align-items:center;font:600 28px Outfit;letter-spacing:-.01em}
+.fl-contact__r{display:flex;flex-direction:column;gap:6px;font-size:11.5px;color:rgba(255,255,255,.85)}
+.fl-contact__r span{display:flex;gap:7px;align-items:center}
+.fl-verso{padding:36px 44px 0}
+.fl-v__head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px}
+.fl-v__head h2{font:600 26px/1.1 Outfit;color:var(--mid);letter-spacing:-.02em}
+.fl-v__head h2 .serif{font-size:30px;color:var(--azur)}
+.fl-v__head img{height:44px}
+.fl-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.fl-tiles article{position:relative;height:160px;border-radius:14px;overflow:hidden}
+.fl-tiles img{width:100%;height:100%;object-fit:cover}
+.fl-tiles div{position:absolute;inset:0;background:linear-gradient(0deg,rgba(6,21,46,.9),rgba(6,21,46,0) 70%);display:flex;flex-direction:column;justify-content:flex-end;padding:10px 11px;color:#fff}
+.fl-tiles div span{width:24px;height:24px;border-radius:8px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:5px}
+.fl-tiles b{font:600 12px/1.2 Outfit}
+.fl-how{margin-top:20px}
+.fl-how h3{font:600 17px Outfit;color:var(--mid);margin-bottom:10px}
+.fl-how__steps{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.hs{background:var(--ivory);border-radius:14px;padding:13px 13px}
+.hs span{width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#3EC8E8,#8FD14A);color:var(--mid);font:700 11px Outfit;display:flex;align-items:center;justify-content:center;margin-bottom:7px}
+.hs h4{font:600 12.5px Outfit;color:var(--mid)}
+.hs p{font-size:10px;color:var(--slate);line-height:1.4;margin-top:2px}
+.fl-proof{margin-top:18px;background:radial-gradient(500px 300px at 20% 30%,#123F7A,#06152E 70%);border-radius:22px;display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center;padding:0 28px;height:316px;overflow:hidden;color:#fff}
+.fl-proof__phone{position:relative;height:100%}
+.fl-proof__phone .phone{position:absolute;left:4px;top:30px;transform:scale(.8);transform-origin:top left}
+.fl-proof h3{font:600 22px/1.12 Outfit;letter-spacing:-.02em;margin-bottom:12px}
+.fl-proof h3 .serif{font-size:26px}
+.fl-proof li{display:flex;gap:8px;align-items:center;font-size:11.5px;color:rgba(255,255,255,.85);margin-bottom:7px}
+.fl-cta{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;margin-top:20px;border:1px solid var(--line);border-radius:18px;padding:20px 22px;align-items:center}
+.fl-cta h3{font:600 20px Outfit;color:var(--mid);margin-bottom:6px}
+.fl-cta h3 .serif{color:var(--azur);font-size:24px}
+.fl-cta__l p{font-size:11px;line-height:1.9;color:var(--ink)}
+.fl-cta__l svg{vertical-align:-2px}
+.fl-cta__r p{font:600 9.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.fl-cta__r i{display:block;height:22px;border-bottom:1.5px dashed #B8C1CC;margin-bottom:10px}
+.fl-eng{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 44px 0;border-top:1px solid var(--line);padding-top:16px}
+.fl-eng div{display:flex;gap:10px;align-items:center}
+.fl-eng span{flex:0 0 36px;height:36px;border-radius:11px;background:#E7F5E2;display:flex;align-items:center;justify-content:center}
+.fl-eng p{font-size:10px;color:var(--slate);line-height:1.35}
+.fl-eng b{display:block;font:600 12.5px Outfit;color:var(--mid)}
+
+/* Blocs ajoutés au guide */
+.card--line{background:#fff;border:1px solid var(--line)}
+.hooks{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hook{background:var(--ivory);border-radius:12px;padding:10px 14px}
+.hook span{display:flex;gap:6px;align-items:center;font:600 11.5px Outfit;color:var(--mid);margin-bottom:3px}
+.hook p{font:400 12.5px/1.35 'Instrument Serif';font-style:italic;color:var(--azur)}
+.benef{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.benef__h{display:grid;grid-template-columns:1fr 1fr;background:var(--mid);color:#fff;font:600 10.5px Outfit;padding:9px 14px}
+.benef__r{display:grid;grid-template-columns:1fr 22px 1fr;align-items:center;padding:8px 14px;border-top:1px solid var(--line);font-size:10.5px}
+.benef__r:nth-child(odd){background:#FAFAF8}
+.benef__r span{color:var(--slate)}
+.benef__r b{color:var(--forest);font-weight:600}
+.flow{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.flow--4{grid-template-columns:repeat(4,1fr);margin-bottom:14px}
+.flow__s{background:var(--mist);border-radius:14px;padding:12px;position:relative}
+.flow__s span{width:22px;height:22px;border-radius:50%;background:var(--mid);color:#fff;font:700 10px Outfit;display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.flow__s h4{font:600 12.5px Outfit;color:var(--mid)}
+.flow__s p{font-size:9.8px;color:var(--slate);line-height:1.4;margin-top:2px}
+.flow__s em{display:block;margin-top:6px;font:400 12px/1.3 'Instrument Serif';font-style:italic;color:var(--azur)}
+.tips{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.tip{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.tip svg{flex:0 0 auto;margin-top:2px}
+.tip b{font:600 12px Outfit;color:var(--mid)}
+.tip p{font-size:10px;color:var(--slate);line-height:1.45;margin-top:2px}
+.signals{margin-top:16px;background:#E7F5E2;border-radius:16px;padding:14px 18px}
+.signals .kicker{color:var(--forest)}
+.signals__l{display:grid;grid-template-columns:1fr 1fr;gap:6px 18px}
+.signals__l span{display:flex;gap:7px;align-items:center;font-size:10.5px;color:var(--ink)}
+.journey{margin-top:22px;background:var(--mid);border-radius:18px;padding:16px 20px}
+.journey__l{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.journey__s{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;color:#fff}
+.journey__s>i{position:absolute;left:-12px;top:11px}
+.journey__s>span{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1570B8,#3EC8E8);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.journey__s b{font:600 12px Outfit}
+.journey__s small{font-size:9px;color:rgba(255,255,255,.6);line-height:1.3;margin-top:2px}
+.quote{position:relative;margin-top:16px;border-radius:18px;overflow:hidden;height:150px}
+.quote img{width:100%;height:100%;object-fit:cover}
+.quote figcaption{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,21,46,.92),rgba(6,21,46,.45));display:flex;flex-direction:column;justify-content:center;padding:0 28px;color:#fff}
+.quote p{font-size:24px;line-height:1.2;max-width:520px}
+.quote span{font:600 9.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--lagoon);margin-top:10px}
+</style></head><body>
+<section class="page g-cover">
+  <img class="g-cover__bg" src="../../web/public/images/necs-hero.jpg" alt=""/>
+  <div class="g-cover__shade"></div>
+  <div class="g-cover__top"><div class="logo-card"><img src="../../web/public/images/logo-necs.png" alt="NECS"/></div><span class="tag">Document interne</span></div>
+  <div class="g-cover__body">
+    <p class="kicker kicker--light">Guide commercial · octobre 2026</p>
+    <h1>Présenter NECS.<br/><span class="serif grad">Convaincre. Signer.</span></h1>
+    <p>Le kit de l’équipe commerciale : pitch, offre par secteur, arguments, preuve digitale, objections, scripts et cycle de vente.</p>
+    <div class="g-cover__chips"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7l5.7 5.6a8 8 0 1 1-11.4 0z"/></svg> Propreté</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Rigueur</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM8.5 12l2.5 2.5 4.5-5"/></svg> Confiance</span></div>
+  </div>
+</section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Sommaire</span></header><div class="fit">
+  <div class="ch"><div><p class="kicker">Sommaire</p><h2>Tout ce qu’il faut pour <span class="serif">vendre NECS</span></h2></div></div>
+  <div class="toc-wrap">
+    <ol class="toc"><li><span class="toc__n">01</span><span class="toc__t">NECS en une minute</span><i></i><span class="toc__p">3</span></li><li><span class="toc__n">02</span><span class="toc__t">Le pitch</span><i></i><span class="toc__p">4</span></li><li><span class="toc__n">03</span><span class="toc__t">Pourquoi NECS</span><i></i><span class="toc__p">5</span></li><li><span class="toc__n">04</span><span class="toc__t">Nos services</span><i></i><span class="toc__p">6</span></li><li><span class="toc__n">05</span><span class="toc__t">Niveaux & fréquences</span><i></i><span class="toc__p">8</span></li><li><span class="toc__n">06</span><span class="toc__t">La preuve digitale</span><i></i><span class="toc__p">9</span></li><li><span class="toc__n">07</span><span class="toc__t">Les bons interlocuteurs</span><i></i><span class="toc__p">10</span></li><li><span class="toc__n">08</span><span class="toc__t">Le cycle de vente</span><i></i><span class="toc__p">11</span></li><li><span class="toc__n">09</span><span class="toc__t">Découverte & visite</span><i></i><span class="toc__p">12</span></li><li><span class="toc__n">10</span><span class="toc__t">Les objections</span><i></i><span class="toc__p">13</span></li><li><span class="toc__n">11</span><span class="toc__t">Scripts prêts à l’emploi</span><i></i><span class="toc__p">14</span></li><li><span class="toc__n">12</span><span class="toc__t">Proposer & conclure</span><i></i><span class="toc__p">15</span></li><li><span class="toc__n">13</span><span class="toc__t">Votre outil</span><i></i><span class="toc__p">16</span></li><li><span class="toc__n">14</span><span class="toc__t">Le kit du commercial</span><i></i><span class="toc__p">17</span></li></ol>
+    <aside class="toc-side">
+      <div class="card card--dark"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg> Comment utiliser ce guide</h4><p>Lisez-le une fois en entier. Ensuite, gardez-le sur votre téléphone : avant chaque rendez-vous, relisez le chapitre du secteur visé, les objections et le script dont vous avez besoin.</p></div>
+      <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6v20h12V8zM14 2v6h6M9 13h6M9 17h6"/></svg> À remettre au client</h4><p>Ce guide est <b>interne</b>. Au client, remettez le <b>flyer NECS</b> (Flyer-NECS.pdf), imprimé recto verso ou envoyé par WhatsApp.</p></div>
+      <figure class="photo"><img src="../../web/public/images/necs-blog-2.jpg" alt=""/></figure>
+    </aside>
+  </div>
+  <div class="journey">
+    <p class="kicker kicker--light">Le parcours d’une vente</p>
+    <div class="journey__l"><div class="journey__s"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"/></svg></span><b>Prospecter</b><small>Interlocuteurs · Scripts</small></div><div class="journey__s"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3EC8E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5a6 6 0 1 1 12 0c0 6-6 6-6 11a3.5 3.5 0 0 1-7 0M15 8.5a3 3 0 0 0-6 0"/></svg></span><b>Découvrir</b><small>Questions de découverte</small></div><div class="journey__s"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3EC8E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg></span><b>Visiter</b><small>Fiche visite technique</small></div><div class="journey__s"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3EC8E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6v20h12V8zM14 2v6h6M9 13h6M9 17h6"/></svg></span><b>Proposer</b><small>Proposition de services</small></div><div class="journey__s"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3EC8E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><b>Conclure</b><small>Signaux et closing</small></div><div class="journey__s"><i><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3EC8E8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></i><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg></span><b>Fidéliser</b><small>Qualité et preuves</small></div></div>
+  </div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>02</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>NECS en une minute</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">01</span><div><p class="kicker">Connaître l’entreprise</p><h2>NECS en <span class="serif">une minute</span></h2><p class="lead">Avant de vendre, il faut pouvoir raconter NECS simplement, avec les bons chiffres et sans hésiter.</p></div></div>
+    
+  <div class="split">
+    <div>
+      <p class="body">NECLEANING & SERVICES SARL (NECS) est une société camerounaise de <b>nettoyage professionnel et de facility services</b>. Elle accompagne entreprises, industries, commerces, établissements de santé, hôtels, écoles et particuliers, avec des équipes formées, un encadrement de proximité et une plateforme digitale qui rend chaque prestation <b>mesurable, transparente et fiable</b>.</p>
+      <div class="values"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7l5.7 5.6a8 8 0 1 1-11.4 0z"/></svg> Propreté</span><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Rigueur</span><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM8.5 12l2.5 2.5 4.5-5"/></svg> Confiance</span></div>
+    </div>
+    <figure class="photo photo--tall"><img src="../../web/public/images/necs-about.jpg" alt=""/></figure>
+  </div>
+  <div class="statband"><div><b>120+</b><span>sites accompagnés</span></div><div><b>98 %</b><span>taux de réalisation</span></div><div><b>85+</b><span>score qualité moyen</span></div><div><b>24 h</b><span>remplacement des absences</span></div></div>
+  <div class="grid3">
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg> Notre ambition</h4><p>Être le partenaire de référence en Afrique centrale pour des environnements sains, sûrs et agréables à vivre.</p></div>
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg> Où nous intervenons</h4><p>Yaoundé, Douala et environs. Bureaux ouverts du lundi au vendredi, 08h00 – 17h30.</p></div>
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> Ce que nous vendons</h4><p>Des contrats d’entretien récurrents (quotidien à mensuel) et des interventions ponctuelles, sur devis gratuit.</p></div>
+  </div>
+  <h3 class="h3">Nos trois engagements</h3>
+  <div class="grid3"><div class="card card--line"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V5l7-2v18M13 9h5v12M9 8h1M9 12h1M9 16h1"/></svg> Expertise multi-secteurs</h4><p>Bureaux, industries, commerces, santé, résidences et espaces professionnels exigeants.</p></div><div class="card card--line"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg> Encadrement de proximité</h4><p>Superviseurs dédiés, checklists, contrôles qualité et actions correctives rapides.</p></div><div class="card card--line"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-6 7-10 16-10 0 9-4 17-9 17zM4 21c3-6 7-9 12-11"/></svg> Engagement durable</h4><p>Produits adaptés, formation continue, gestion responsable des ressources, respect des consignes du site.</p></div></div>
+  <p class="note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B6678" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Les chiffres clés sont ceux affichés sur le site public. Si la direction les met à jour, utilisez toujours la dernière version.</p>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>03</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Le pitch</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">02</span><div><p class="kicker">Se présenter</p><h2>Le pitch : <span class="serif">30 secondes pour donner envie</span></h2><p class="lead">Apprenez-le, puis dites-le avec vos mots. Le but n’est pas de tout dire, mais d’obtenir la suite : un rendez-vous ou une visite technique.</p></div></div>
+    
+  <div class="pitch">
+    <p class="pitch__lbl">Pitch « ascenseur » · 30 secondes</p>
+    <blockquote>« Je suis <b>[Prénom]</b>, de NECS. Nous gérons le nettoyage professionnel des bureaux, commerces, sites industriels et établissements de santé à Douala et Yaoundé. Notre différence : des équipes formées et encadrées, et une application qui vous <b>prouve</b> chaque passage, avec le pointage des agents, des photos et des contrôles qualité notés. Est-ce que je peux venir voir vos locaux pour vous faire une proposition sur mesure ? La visite et le devis sont gratuits. »</blockquote>
+  </div>
+  <h3 class="h3">Pitch long · 2 minutes, en 5 temps</h3>
+  <div class="steps5"><div class="s5"><span>1</span><h4>Accroche</h4><p>Parler de son monde, pas du nôtre.</p><em>« Vos visiteurs jugent votre entreprise dès l’entrée. »</em></div><div class="s5"><span>2</span><h4>Problème</h4><p>Nommer ce qui l’agace aujourd’hui.</p><em>« Absences non remplacées, qualité irrégulière, aucun suivi… »</em></div><div class="s5"><span>3</span><h4>Solution</h4><p>Ce que NECS fait concrètement.</p><em>« Une équipe dédiée, un superviseur, des passages planifiés. »</em></div><div class="s5"><span>4</span><h4>Preuve</h4><p>Montrer, pas promettre.</p><em>« Regardez : pointage, photos, score qualité, en temps réel. »</em></div><div class="s5"><span>5</span><h4>Action</h4><p>Demander la suite, clairement.</p><em>« Je passe mardi 10 h pour la visite technique ? »</em></div></div>
+  <h3 class="h3">Adapter l’accroche au secteur</h3>
+  <div class="hooks"><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V5l7-2v18M13 9h5v12M9 8h1M9 12h1M9 16h1"/></svg> Bureaux</span><p>« Vos équipes et vos visiteurs arrivent chaque matin dans des bureaux impeccables, sans que vous ayez à y penser. »</p></div><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l6 4v-4l6 4V4h4v16"/></svg> Industrie</span><p>« Des sols propres, ce sont des risques d’accident en moins et des audits qui se passent bien. »</p></div><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M9 20v-6h6v6M3 9h18"/></svg> Commerces</span><p>« Votre client juge votre magasin dès l’entrée : faisons en sorte qu’il se sente bienvenu. »</p></div><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg> Santé</span><p>« Chez vous, l’hygiène n’est pas une option : nous la prouvons à chaque passage. »</p></div><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 19V6M2 13h20v6M22 13v-1a4 4 0 0 0-4-4h-7v5M6.5 10.5h.01"/></svg> Hôtellerie</span><p>« Une chambre impeccable, c’est un client qui revient et qui recommande. »</p></div><div class="hook"><span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5zM6 11v5c3 2.5 9 2.5 12 0v-5"/></svg> Éducation</span><p>« Les parents jugent aussi l’école sur la propreté des classes et des sanitaires. »</p></div></div>
+  <div class="promise"><p class="kicker">La promesse NECS en une phrase</p><p class="promise__txt serif">Des espaces propres. Un service rigoureux. Une confiance durable.</p></div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>04</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Pourquoi NECS</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">03</span><div><p class="kicker">Arguments clés</p><h2>Six raisons de <span class="serif">choisir NECS</span></h2><p class="lead">Chaque argument va avec une preuve. Un argument sans preuve, le client l’a déjà entendu chez les concurrents.</p></div></div>
+    
+  <div class="args"><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div><div><h4>Des équipes formées et encadrées</h4><p>Agents formés aux protocoles, aux produits et à la sécurité, suivis par un chef d’équipe ou un superviseur.</p><p class="arg__proof"><b>Preuve à montrer :</b> Le plan de formation et le nom du superviseur dans la proposition.</p></div></div><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM16 3v4M8 3v4M3 10h18"/></svg></div><div><h4>Une rigueur opérationnelle</h4><p>Plannings, ordres de travail et checklists par zone : chaque passage est organisé, rien n’est laissé au hasard.</p><p class="arg__proof"><b>Preuve à montrer :</b> Un exemple de checklist par zone.</p></div></div><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></div><div><h4>Une qualité mesurée</h4><p>Contrôles qualité notés, non-conformités suivies, actions correctives rapides.</p><p class="arg__proof"><b>Preuve à montrer :</b> Le score qualité moyen (85+) et un rapport de contrôle type.</p></div></div><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2"/></svg></div><div><h4>Une réactivité garantie</h4><p>Une absence ? L’agent est remplacé sous 24 h. Une demande ? Réponse sous 24 h ouvrées.</p><p class="arg__proof"><b>Preuve à montrer :</b> Le taux de réalisation de 98 %.</p></div></div><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg></div><div><h4>Une transparence digitale</h4><p>Pointage géolocalisé, photos d’arrivée et de départ, devis, contrats et factures consultables en ligne.</p><p class="arg__proof"><b>Preuve à montrer :</b> La démo de l’application (chapitre 6).</p></div></div><div class="arg"><div class="arg__ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM8.5 12l2.5 2.5 4.5-5"/></svg></div><div><h4>Un interlocuteur unique</h4><p>Un seul contact NECS pour tout : planning, qualité, facturation. Pas de renvoi de service en service.</p><p class="arg__proof"><b>Preuve à montrer :</b> Le nom et le numéro du référent dès la signature.</p></div></div></div>
+  <h3 class="h3">Parlez bénéfices, pas caractéristiques</h3>
+  <div class="benef">
+    <div class="benef__h"><span>Ce que NECS apporte</span><span>Ce que le client y gagne</span></div>
+    <div class="benef__r"><span>Un superviseur dédié</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg><b>Vous n’avez plus à contrôler vous-même.</b></div><div class="benef__r"><span>Le remplacement des absences sous 24 h</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg><b>Vos locaux ne restent jamais sans entretien.</b></div><div class="benef__r"><span>Le pointage et les photos</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg><b>Vous savez ce qui a été fait, sans vous déplacer.</b></div><div class="benef__r"><span>Des contrôles qualité notés</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg><b>Vous pilotez la propreté avec des chiffres.</b></div><div class="benef__r"><span>Un montant mensuel fixe</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg><b>Votre budget est prévisible, sans surprise.</b></div>
+  </div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>05</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Nos services</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">04</span><div><p class="kicker">Offre par secteur</p><h2>Nos services, <span class="serif">secteur par secteur</span> (1/2)</h2><p class="lead">Pour chaque secteur : à qui on s’adresse, ce qu’on fait, la phrase qui fait mouche et le bon interlocuteur.</p></div></div>
+    <div class="sectors">
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-activite-bureaux.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M6 21V5l7-2v18M13 9h5v12M9 8h1M9 12h1M9 16h1"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Entretien de bureaux</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Sièges, agences, plateaux tertiaires, banques, administrations.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sols, postes de travail, salles de réunion</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sanitaires désinfectés et réapprovisionnés</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Cuisines, espaces de pause, vitrerie intérieure</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Vidage des corbeilles et tri</li></ul>
+      <p class="sector__arg">Un siège impeccable chaque matin, sans déranger les équipes : interventions tôt le matin ou en soirée.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Services généraux, office manager, DAF</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-activite-industrie.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h20M4 20V10l6 4v-4l6 4V4h4v16"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Nettoyage industriel</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Usines, entrepôts, plateformes logistiques, zones portuaires.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Zones de production et de stockage</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Quais, ateliers, zones techniques</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Vestiaires, réfectoires, sanitaires</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Consignes sécurité et EPI respectés</li></ul>
+      <p class="sector__arg">Des équipes formées aux consignes HSE du site, avec le matériel et les machines adaptés.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Directeur de site, responsable HSE, achats</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-activite-commerce.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M9 20v-6h6v6M3 9h18"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Commerces & espaces publics</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Malls, supermarchés, boutiques, agences qui reçoivent du public.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Propreté continue pendant l’ouverture</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Entrées, allées, caisses, vitrines</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sanitaires publics à fort passage</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Remise en état après fermeture</li></ul>
+      <p class="sector__arg">La propreté est la première chose que voit le client : une expérience visiteur soignée toute la journée.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Directeur de magasin, gestionnaire du centre</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-blog-2.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Établissements de santé</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Cliniques, cabinets médicaux, laboratoires, pharmacies.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Protocoles d’hygiène renforcés par zone</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Zones sensibles, circuits propre / sale</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Traçabilité de chaque passage</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Équipes formées aux règles d’hygiène</li></ul>
+      <p class="sector__arg">Hygiène renforcée et traçabilité : chaque passage est pointé, photographié et contrôlé.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Directeur, surveillant général, responsable hygiène</p>
+    </div>
+  </article></div></div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>06</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Nos services</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">04</span><div><p class="kicker">Offre par secteur</p><h2>Nos services, <span class="serif">secteur par secteur</span> (2/2)</h2></div></div>
+    <div class="sectors">
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-realisations.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 19V6M2 13h20v6M22 13v-1a4 4 0 0 0-4-4h-7v5M6.5 10.5h.01"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Hôtels & résidences</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Hôtels, résidences meublées, appart-hôtels.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Chambres et parties communes</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Halls, couloirs, ascenseurs</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Back-office, cuisines, lingerie</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Renfort lors des pics d’occupation</li></ul>
+      <p class="sector__arg">Une expérience client impeccable du check-in au départ, avec du renfort quand l’hôtel est plein.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Directeur d’hôtel, gouvernante générale</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-blog-1.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 9 12 4 2 9l10 5 10-5zM6 11v5c3 2.5 9 2.5 12 0v-5"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Écoles & universités</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Écoles, lycées, universités, centres de formation.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salles de classe et amphithéâtres</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Sanitaires et espaces collectifs</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Interventions hors temps scolaire</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Grand nettoyage avant la rentrée</li></ul>
+      <p class="sector__arg">Un cadre sain et accueillant pour les élèves, entretenu en dehors des heures de cours.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Directeur, intendant, économe</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-identity-nettoyage.png" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8M5 10v10h14V10M10 20v-6h4v6"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Particuliers</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Villas, appartements, familles, expatriés.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Entretien régulier du domicile</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Cuisine, salle de bain, sols, vitres</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Grand nettoyage ponctuel</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Équipes discrètes et encadrées</li></ul>
+      <p class="sector__arg">Une équipe de confiance, formée et encadrée : la maison propre, en toute sérénité.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Le particulier lui-même</p>
+    </div>
+  </article>
+  <article class="sector">
+    <figure><img src="../../web/public/images/necs-hero.jpg" alt=""/><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span></figure>
+    <div class="sector__txt">
+      <h4>Copropriétés, salles & événements</h4>
+      <p class="sector__qui"><b>Pour qui :</b> Syndics, immeubles, salles polyvalentes, organisateurs d’événements.</p>
+      <ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Parties communes, halls, escaliers</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Salles avant et après événement</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Passages planifiés selon les flux</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Renfort ponctuel le jour J</li></ul>
+      <p class="sector__arg">Des interventions calées sur vos plannings et vos événements, avec une équipe dimensionnée.</p>
+      <p class="sector__dec"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> À rencontrer : Syndic, gestionnaire immobilier, organisateur</p>
+    </div>
+  </article></div></div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>07</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Niveaux & fréquences</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">05</span><div><p class="kicker">Construire l’offre</p><h2>Quatre niveaux de service, <span class="serif">une offre sur mesure</span></h2><p class="lead">Ce sont les niveaux utilisés dans l’application NECS. Ils servent de repère pendant la discussion : le contenu exact est fixé lors de l’étude et écrit noir sur blanc dans la proposition.</p></div></div>
+    
+  <div class="levels"><div class="level "><h4>Essentiel</h4><p class="level__q">Petits espaces, budget maîtrisé</p><ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Passages planifiés sur les zones principales</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Checklist par zone</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Contrôle qualité périodique</li></ul></div><div class="level "><h4>Standard</h4><p class="level__q">Bureaux et commerces courants</p><ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Toutes les zones du périmètre</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Superviseur référent</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Rapport mensuel</li></ul></div><div class="level "><h4>Renforcé</h4><p class="level__q">Fort passage, exigences élevées</p><ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Passages supplémentaires</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Contrôles qualité plus fréquents</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Photos arrivée / départ</li></ul></div><div class="level on"><span class="level__tag">Haut de gamme</span><h4>Premium</h4><p class="level__q">Sièges, lieux d’accueil, sites sensibles</p><ul><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Superviseur dédié</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Remplacement prioritaire</li><li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8FD14A" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Revue mensuelle avec le client</li></ul></div></div>
+  <p class="note">Chaque niveau reprend tout le contenu du niveau précédent.</p>
+  <div class="split split--even">
+    <div class="card">
+      <h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM16 3v4M8 3v4M3 10h18"/></svg> Fréquences proposées</h4>
+      <div class="chips"><span class="chip">Quotidienne</span><span class="chip">5 j / semaine</span><span class="chip">3 j / semaine</span><span class="chip">2 j / semaine</span><span class="chip">Hebdomadaire</span><span class="chip">Bi-mensuelle</span><span class="chip">Mensuelle</span><span class="chip">Ponctuelle</span></div>
+      <p class="small">Horaires adaptés au site : tôt le matin, en journée, en soirée, hors temps scolaire ou après fermeture.</p>
+    </div>
+    <div class="card">
+      <h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6v20h12V8zM14 2v6h6M9 13h6M9 17h6"/></svg> Comment se construit le prix</h4>
+      <ul class="dots"><li>Surface et type de locaux</li><li>Fréquence et horaires</li><li>Niveau de service et contraintes du site</li><li>Effectif nécessaire et encadrement</li></ul>
+      <p class="small">Montants <b>HT mensuels en francs CFA</b>, toujours <b>sur devis</b> après visite technique. Paiement par virement, espèces ou Mobile Money selon le contrat.</p>
+    </div>
+  </div>
+  <div class="split split--even">
+    <div class="card card--line"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg> Interventions ponctuelles</h4><ul class="dots"><li>Grand nettoyage ou remise en état</li><li>Nettoyage avant et après un événement</li><li>Renfort ponctuel (inauguration, audit, visite officielle)</li><li>Une bonne porte d’entrée vers un contrat récurrent</li></ul></div>
+    <div class="card card--line"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg> Quel niveau proposer ?</h4><ul class="dots"><li>Combien de personnes passent chaque jour ?</li><li>L’image du lieu est-elle critique (accueil, clients VIP) ?</li><li>Y a-t-il des zones sensibles (santé, alimentaire) ?</li><li>Quel budget mensuel est envisagé ?</li></ul><p class="small">Proposez le niveau qui répond au besoin, puis une option au-dessus : le client choisit.</p></div>
+  </div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>08</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>La preuve digitale</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">06</span><div><p class="kicker">Notre arme différenciante</p><h2>La preuve digitale : <span class="serif">montrez, ne promettez pas</span></h2><p class="lead">Aucun concurrent ne peut montrer ce que NECS montre. Sortez votre téléphone dans chaque rendez-vous.</p></div></div>
+    
+  <div class="proof">
+    <div class="proof__phone">
+<div class="phone"><div class="phone__screen"><div class="phone__status"><b>9:41</b><span class="phone__notch"></span><b>●●●</b></div>
+  <div class="m-app">
+    <p class="m-app__hi">Bonjour,<b>Votre entreprise</b></p>
+    <div class="m-app__score"><span>Score qualité du mois</span><b>94<small>/100</small></b><svg viewBox="0 0 200 40" class="spark"><path d="M0 32 L25 28 L50 30 L75 20 L100 22 L125 14 L150 16 L175 8 L200 9" fill="none" stroke="#8FD14A" stroke-width="3"/></svg></div>
+    <div class="m-app__row"><div><b>12/12</b><span>agents pointés</span></div><div><b>0</b><span>non-conformité</span></div></div>
+    <p class="m-app__lbl">Dernières preuves</p>
+    <div class="m-app__pics"><img src="../../web/public/images/necs-realisations.jpg" alt=""/><img src="../../web/public/images/necs-identity-nettoyage.png" alt=""/><img src="../../web/public/images/necs-activite-bureaux.jpg" alt=""/></div>
+    <div class="m-app__item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg> Arrivée sur site · 06:58</div>
+    <div class="m-app__item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg> Photo départ · Hall · 17:31</div>
+  </div>
+</div></div><p class="caption">Aperçu illustratif du suivi client</p></div>
+    <div class="proof__list">
+      <div class="pf"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg></span><div><h4>Pointage géolocalisé</h4><p>L’agent pointe son arrivée et son départ depuis le site. Sans position GPS, le pointage est bloqué.</p></div></div><div class="pf"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v12H4zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg></span><div><h4>Photos arrivée et départ</h4><p>Une photo à l’arrivée, une photo après le nettoyage : la preuve du travail fait.</p></div></div><div class="pf"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM8.5 12l2.5 2.5 4.5-5"/></svg></span><div><h4>Contrôles qualité notés</h4><p>Le superviseur note chaque zone. Les non-conformités déclenchent une action corrective.</p></div></div><div class="pf"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6v20h12V8zM14 2v6h6M9 13h6M9 17h6"/></svg></span><div><h4>Documents en ligne</h4><p>Devis, contrats, factures et rapports sont consultables par le client dans son espace.</p></div></div>
+      <figure class="shot"><img src="../guide-utilisateurs/captures/espace-client.png" alt=""/><figcaption>L’espace client réel : devis, contrats, factures, rapports.</figcaption></figure>
+    </div>
+  </div>
+  <div class="demo"><p class="kicker">La démo en 3 minutes</p><ol><li>Montrez le pointage : « Vous savez à quelle heure l’équipe est arrivée. »</li><li>Montrez les photos : « Vous voyez le résultat, même sans vous déplacer. »</li><li>Montrez le score qualité : « Vous pilotez la propreté avec des chiffres. »</li><li>Concluez : « C’est ce que vous aurez dès le premier mois. »</li></ol></div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>09</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Les bons interlocuteurs</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">07</span><div><p class="kicker">Cibler</p><h2>Parler à la bonne personne, <span class="serif">avec les bons mots</span></h2><p class="lead">Chaque décideur a ses propres priorités. Adaptez votre discours à la personne en face de vous.</p></div></div>
+    
+  <table class="tbl">
+    <thead><tr><th>Interlocuteur</th><th>Ce qui compte pour lui</th><th>Votre angle</th></tr></thead>
+    <tbody><tr><td class="b">DAF / Direction financière</td><td>Coût maîtrisé, facturation claire, pas de surprise</td><td>Offre détaillée ligne par ligne, montant mensuel fixe, factures en ligne</td></tr><tr><td class="b">Services généraux / Office manager</td><td>Fiabilité au quotidien, réactivité, un seul contact</td><td>Remplacement sous 24 h, interlocuteur unique, planning respecté</td></tr><tr><td class="b">Responsable achats</td><td>Offres comparables, conditions, garanties</td><td>Proposition structurée, périmètre précis, conditions standard claires</td></tr><tr><td class="b">Direction d’établissement (santé, hôtel, école)</td><td>Hygiène, image, sécurité des usagers</td><td>Protocoles renforcés, traçabilité, contrôles qualité notés</td></tr><tr><td class="b">Responsable HSE / directeur de site</td><td>Respect des consignes, sécurité des équipes</td><td>Équipes formées, EPI, consignes du site intégrées au planning</td></tr><tr><td class="b">Syndic / gestionnaire immobilier</td><td>Parties communes propres, copropriétaires satisfaits</td><td>Passages planifiés, preuves photo partageables avec le conseil syndical</td></tr><tr><td class="b">Particulier</td><td>Confiance, discrétion, régularité</td><td>Équipe stable et encadrée, référent joignable</td></tr></tbody>
+  </table>
+  <div class="split split--even">
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/></svg> Où prospecter</h4><ul class="dots"><li><b>Douala :</b> Akwa, Bonanjo, Bonapriso, zones industrielles et portuaires</li><li><b>Yaoundé :</b> centre administratif, Bastos, quartiers d’affaires</li><li>Nouveaux immeubles, centres commerciaux, cliniques et écoles privées</li></ul></div>
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg> Signaux d’achat à repérer</h4><ul class="dots"><li>Déménagement, ouverture ou extension de locaux</li><li>Plainte sur le prestataire actuel, fin de contrat proche</li><li>Visite d’un client important, audit, certification</li><li>Demande arrivée par le site web (« Demandes digitales »)</li></ul></div>
+  </div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>10</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Le cycle de vente</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">08</span><div><p class="kicker">Méthode</p><h2>Le cycle de vente, <span class="serif">étape par étape</span></h2><p class="lead">Les étapes et probabilités sont celles du pipeline de l’application NECS. Mettez à jour l’étape après chaque échange.</p></div></div>
+    
+  <div class="cycle"><div class="cy"><span class="cy__n">1</span><div class="cy__body"><h4>Prospection</h4><p><b>Objectif :</b> Obtenir un premier rendez-vous.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Créer le prospect dans le CRM, ou traiter la demande arrivée par le site.</p></div></div><div class="cy"><span class="cy__n">2</span><div class="cy__body"><h4>Qualification du besoin <em>20 %</em></h4><p><b>Objectif :</b> Comprendre le site, le besoin et le décideur.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Remplir la fiche besoin : sans champs obligatoires complets, l’étude reste bloquée.</p></div></div><div class="cy"><span class="cy__n">3</span><div class="cy__body"><h4>Visite technique</h4><p><b>Objectif :</b> Voir les lieux, mesurer, photographier, noter les contraintes.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Saisir le rapport de visite technique (constats, mesures, risques).</p></div></div><div class="cy"><span class="cy__n">4</span><div class="cy__body"><h4>Étude & chiffrage <em>35 %</em></h4><p><b>Objectif :</b> Dimensionner l’équipe, la fréquence et le niveau de service.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Préparer le devis : lignes, quantités, prix unitaires, TVA.</p></div></div><div class="cy"><span class="cy__n">5</span><div class="cy__body"><h4>Proposition <em>50 %</em></h4><p><b>Objectif :</b> Remettre une offre claire et la présenter de vive voix.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Générer la proposition de services et le devis, puis planifier une relance.</p></div></div><div class="cy"><span class="cy__n">6</span><div class="cy__body"><h4>Négociation <em>70 %</em></h4><p><b>Objectif :</b> Ajuster le périmètre ou la fréquence, jamais la qualité.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Noter chaque relance (appel, visite, WhatsApp, e-mail) et la prochaine action.</p></div></div><div class="cy"><span class="cy__n">7</span><div class="cy__body"><h4>Gagnée <em>100 %</em></h4><p><b>Objectif :</b> Signature du bon de commande ou du contrat.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Passer l’opportunité en « Gagnée » : le contrat est transmis aux opérations.</p></div></div><div class="cy"><span class="cy__n">8</span><div class="cy__body"><h4>Démarrage & suivi</h4><p><b>Objectif :</b> Cadrage S+0, démarrage S+1, contrôles J+7 et J+30, revue mensuelle.</p><p class="cy__app"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Rester présent : un client bien suivi renouvelle et recommande.</p></div></div></div>
+  <p class="note"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> Opportunité perdue ? Le motif est obligatoire : prix, concurrent retenu, budget reporté, besoin non confirmé, pas de réponse, hors zone… Il sert à améliorer nos offres.</p>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>11</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Découverte & visite</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">09</span><div><p class="kicker">Écouter</p><h2>Poser les bonnes questions, <span class="serif">puis visiter</span></h2><p class="lead">Écoutez 70 % du temps. Le client vous donne lui-même les arguments qui le convaincront.</p></div></div>
+    
+  <div class="split split--even">
+    <div class="card card--q">
+      <h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5a6 6 0 1 1 12 0c0 6-6 6-6 11a3.5 3.5 0 0 1-7 0M15 8.5a3 3 0 0 0-6 0"/></svg> Questions de découverte</h4>
+      <p class="qgrp">Situation</p><p class="q">« Comment est organisé l’entretien de vos locaux aujourd’hui ? »</p><p class="q">« Combien de personnes et de visiteurs chaque jour ? »</p><p class="qgrp">Problèmes</p><p class="q">« Qu’est-ce qui vous agace le plus aujourd’hui ? »</p><p class="q">« Que se passe-t-il quand un agent est absent ? »</p><p class="qgrp">Impact</p><p class="q">« Qu’est-ce que cela vous coûte : temps, image, plaintes ? »</p><p class="q">« Qui s’en plaint en interne ? »</p><p class="qgrp">Attentes</p><p class="q">« À quoi ressemblerait un prestataire idéal pour vous ? »</p><p class="q">« Qui décide, et pour quand ? »</p>
+    </div>
+    <div class="card">
+      <h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Fiche visite technique</h4>
+      <p class="small">Les champs de la fiche besoin dans l’application. Tout doit être renseigné avant le chiffrage.</p>
+      <ul class="checks"><li><i></i>Type de prestation (bureaux, commerce, industriel, médical…)</li><li><i></i>Surface en m² et type de locaux</li><li><i></i>Fréquence souhaitée et horaires d’intervention</li><li><i></i>Niveau de service attendu</li><li><i></i>Zones à couvrir (et zones exclues)</li><li><i></i>Contraintes : sécurité, badges, produits interdits</li><li><i></i>Accès et consignes du site</li><li><i></i>Effectif estimé</li><li><i></i>Nombre de sanitaires, types de sols, vitrerie</li><li><i></i>Point d’eau et local pour le matériel</li><li><i></i>Photos des zones clés</li><li><i></i>Nom, fonction et contact du décideur</li></ul>
+    </div>
+  </div>
+  <h3 class="h3">Déroulé d’une visite technique (30 à 45 minutes)</h3>
+  <div class="flow"><div class="flow__s"><span>1</span><h4>Accueil</h4><p>Remercier, rappeler l’objectif de la visite et la durée prévue.</p></div><div class="flow__s"><span>2</span><h4>Tour du site</h4><p>Parcourir toutes les zones avec le décideur ou son représentant.</p></div><div class="flow__s"><span>3</span><h4>Mesures & photos</h4><p>Surfaces, sols, sanitaires, vitrerie ; photos avec accord.</p></div><div class="flow__s"><span>4</span><h4>Contraintes</h4><p>Horaires, accès, sécurité, zones sensibles, produits interdits.</p></div><div class="flow__s"><span>5</span><h4>Conclusion</h4><p>Reformuler le besoin et fixer la date de remise de l’offre.</p></div></div>
+  <div class="tips"><div class="tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2"/></svg><div><b>Le jour même</b><p>Saisir la fiche besoin et la visite dans l’application, puis envoyer un message de remerciement au client.</p></div></div><div class="tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2"/></svg><div><b>Sous 48 à 72 h</b><p>Remettre la proposition de services à la date annoncée pendant la visite, et proposer de la parcourir ensemble.</p></div></div></div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>12</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Les objections</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">10</span><div><p class="kicker">Convaincre</p><h2>Répondre aux objections <span class="serif">sans se braquer</span></h2><p class="lead">Une objection n’est pas un refus : c’est une question que le client se pose. Elle montre qu’il s’intéresse à l’offre.</p></div></div>
+    
+  <div class="flow flow--4"><div class="flow__s"><span>1</span><h4>Écouter</h4><p>Laisser le client aller au bout, sans l’interrompre.</p><em>« Je vous écoute. »</em></div><div class="flow__s"><span>2</span><h4>Reformuler</h4><p>Montrer qu’on a compris, et faire préciser.</p><em>« Si je comprends bien, c’est le budget qui vous inquiète ? »</em></div><div class="flow__s"><span>3</span><h4>Répondre</h4><p>Une réponse courte, appuyée sur une preuve.</p><em>« Regardez ce que voit un client chaque matin. »</em></div><div class="flow__s"><span>4</span><h4>Vérifier</h4><p>S’assurer que le point est réglé avant d’avancer.</p><em>« Est-ce que cela répond à votre question ? »</em></div></div>
+  <div class="objs"><div class="obj"><h4>« C’est trop cher. »</h4><p>Comparons à périmètre égal : nombre d’agents, heures, encadrement, produits, remplacement des absences. Si le budget est serré, on ajuste la fréquence ou le niveau de service, jamais la qualité du travail.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Le devis détaillé ligne par ligne.</p></div><div class="obj"><h4>« On a déjà un prestataire. »</h4><p>Très bien. Qu’est-ce qui vous satisferait encore plus ? Je vous propose une visite gratuite pour comparer, sans engagement. Si besoin, on démarre à la fin de votre préavis.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> La démo de l’espace client.</p></div><div class="obj"><h4>« On le fait en interne. »</h4><p>Avez-vous chiffré les coûts cachés : absences, matériel, produits, encadrement, gestion RH ? Avec NECS, tout est inclus dans un montant mensuel, et une absence est remplacée sous 24 h.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Le taux de réalisation de 98 %.</p></div><div class="obj"><h4>« Pas de budget pour le moment. »</h4><p>Je comprends. Quand se prépare votre prochain budget ? On peut démarrer avec un niveau Essentiel ou une intervention ponctuelle. Je note une relance à la bonne date.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Une relance datée dans le pipeline.</p></div><div class="obj"><h4>« J’ai peur pour la sécurité (vols, accès). »</h4><p>Nos agents sont encadrés par un superviseur, pointent leur arrivée et leur départ sur site, et respectent vos consignes d’accès. Vous avez un interlocuteur unique en cas de souci.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Le pointage géolocalisé.</p></div><div class="obj"><h4>« Les autres promettent la même chose. »</h4><p>C’est vrai, tout le monde promet. La différence, c’est que nous le prouvons : chaque passage est pointé, photographié et noté. Vous le voyez vous-même.</p><p class="obj__proof"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Les photos et le score qualité.</p></div></div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>13</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Scripts prêts à l’emploi</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">11</span><div><p class="kicker">Prospecter</p><h2>Des scripts <span class="serif">prêts à l’emploi</span></h2><p class="lead">Remplacez les crochets et adaptez le ton. Gardez toujours une question ou une proposition de date à la fin.</p></div></div>
+    
+  <div class="scripts">
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Appel de prospection</h4><p>« Bonjour <b>[Madame / Monsieur X]</b>, <b>[Prénom]</b> de NECS, société de nettoyage professionnel à <b>[Ville]</b>. Nous accompagnons des <b>[secteur]</b> comme le vôtre. Avez-vous deux minutes ?</p><p>Qui s’occupe aujourd’hui de l’entretien de vos locaux ? Qu’est-ce qui fonctionne bien, qu’est-ce qui pourrait être mieux ?</p><p>Je vous propose une visite technique gratuite de 30 minutes pour vous faire une offre sur mesure : plutôt <b>mardi matin</b> ou <b>jeudi après-midi</b> ? »</p></div>
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"/></svg> Message WhatsApp</h4><p>Bonjour <b>[Prénom]</b>, c’est <b>[Prénom]</b> de NECS, suite à notre échange. Comme promis, voici notre présentation (flyer joint).</p><p>Nous pouvons passer voir vos locaux gratuitement pour vous proposer une offre adaptée. Quel jour vous arrange cette semaine ?</p><p>Bonne journée,<br/><b>[Prénom]</b> · NECS · +237 641 33 55 53</p></div>
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3zM21 7l-9 6-9-6"/></svg> E-mail après la visite</h4><p><b>Objet :</b> Votre proposition NECS · <b>[Société]</b></p><p>Bonjour <b>[Prénom]</b>, merci pour votre accueil ce <b>[jour]</b>. Vous trouverez ci-joint notre proposition pour <b>[périmètre]</b> : <b>[fréquence]</b>, niveau <b>[niveau]</b>, démarrage possible le <b>[date]</b>.</p><p>Je vous propose un court échange <b>[date / heure]</b> pour la parcourir ensemble.</p></div>
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 7v5l3 2"/></svg> Relance de la proposition</h4><p><b>J+3 :</b> « Avez-vous pu parcourir la proposition ? Avez-vous des questions sur le périmètre ou le planning ? »</p><p><b>J+7 :</b> « Je reviens vers vous : souhaitez-vous ajuster la fréquence ou le niveau de service avant décision ? »</p><p><b>J+15 :</b> « Je ne veux pas vous relancer pour rien : le projet est-il toujours d’actualité ? »</p></div>
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5B6678" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> Message sur répondeur</h4><p>« Bonjour <b>[Prénom]</b>, <b>[Prénom]</b> de NECS. Je vous appelle au sujet de l’entretien de vos locaux. Je vous envoie un court message WhatsApp avec notre présentation.</p><p>Vous pouvez me rappeler au <b>[numéro]</b>. Bonne journée. »</p><p class="small">20 secondes maximum, puis envoyer le WhatsApp dans la foulée.</p></div>
+    <div class="script"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-6 7-10 16-10 0 9-4 17-9 17zM4 21c3-6 7-9 12-11"/></svg> Après un refus</h4><p>« Merci pour votre réponse, je la respecte. Pour progresser, puis-je vous demander ce qui a fait la différence ? »</p><p>« Si la situation change, je reste disponible. Puis-je vous recontacter dans quelques mois ? »</p><p class="small">Saisir le motif de perte et une relance datée dans l’application.</p></div>
+  </div>
+  <div class="tips"><div class="tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><div><b>Bons usages WhatsApp</b><p>Se présenter dès le premier message, rester court, joindre le flyer en PDF, écrire aux heures de bureau, ne jamais envoyer de vocal de plus de 30 secondes.</p></div></div><div class="tip"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg><div><b>Le meilleur moment pour appeler</b><p>Entre 9 h et 11 h, ou après 15 h. Éviter le lundi matin et le vendredi après-midi.</p></div></div></div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>14</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Proposer & conclure</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">12</span><div><p class="kicker">Signer</p><h2>Une proposition claire, <span class="serif">une conclusion assumée</span></h2><p class="lead">La proposition de services de l’application reprend automatiquement cette structure. Vérifiez chaque bloc avant l’envoi.</p></div></div>
+    
+  <div class="offer"><div class="of"><b>Besoin</b><p>Le périmètre, les surfaces, la fréquence et le niveau retenus.</p></div><div class="of"><b>Méthodologie</b><p>1) Diagnostic et cadrage · 2) Organisation opérationnelle · 3) Exécution et preuves · 4) Amélioration continue.</p></div><div class="of"><b>Moyens</b><p>Matériel professionnel adapté, consommables, EPI, machines selon les zones.</p></div><div class="of"><b>Équipe</b><p>Équipe dédiée dimensionnée au périmètre, chef d’équipe ou supervision, formation continue.</p></div><div class="of"><b>Planning</b><p>S+0 : cadrage et accès · S+1 : démarrage · J+7 et J+30 : contrôles qualité · revue mensuelle.</p></div><div class="of"><b>Supervision & digital</b><p>Visites terrain, contrôles qualité, pointage digital, photos preuves, reporting.</p></div><div class="of"><b>Conditions</b><p>Montants HT mensuels · révision annuelle possible · préavis 30 jours · paiement à 30 jours fin de mois · durée de validité indiquée.</p></div></div>
+  <div class="split split--even">
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Pour conclure</h4><ul class="dots"><li>Résumez les 3 bénéfices qui comptent pour <b>ce</b> client</li><li>Posez la question directement : « On démarre le [date] ? »</li><li>Proposez une date de démarrage concrète</li><li>Envoyez le bon de commande ou le contrat le jour même</li></ul></div>
+    <div class="card card--warn"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B42318" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg> À ne jamais faire</h4><ul class="dots"><li>Annoncer un prix au téléphone, sans visite</li><li>Accorder une remise sans validation de la direction</li><li>Promettre un délai ou un effectif hors de nos capacités</li><li>Dénigrer un concurrent ou le prestataire actuel</li></ul></div>
+  </div>
+  <div class="signals">
+    <p class="kicker">Les signaux que le client est prêt</p>
+    <div class="signals__l"><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il demande une date de démarrage possible</span><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il demande le contrat ou les conditions de paiement</span><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il parle de « nous » et de « vos agents »</span><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il négocie un détail, pas le principe</span><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il présente le projet à un collègue ou à sa direction</span><span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1F6B3A" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Il demande des références ou une visite d’un site client</span></div>
+  </div>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>15</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Votre outil</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">13</span><div><p class="kicker">L’application NECS</p><h2>Votre outil : <span class="serif">l’espace commercial</span></h2><p class="lead">Tout ce qui n’est pas dans l’application n’existe pas. Saisissez vos actions le jour même, depuis votre téléphone si besoin.</p></div></div>
+    
+  <figure class="shot shot--wide"><img src="../guide-utilisateurs/captures/espace-commercial.png" alt=""/></figure>
+  <div class="grid3"><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-13.5 7.8L3 21l1.2-4.5A9 9 0 1 1 21 12z"/></svg> Demandes digitales</h4><p>Les demandes de devis et de visite envoyées depuis le site arrivent ici. Rappelez sous 24 h ouvrées.</p></div><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> CRM</h4><p>Prospect, puis besoin, visite, chiffrage, offre et bon de commande : tout le dossier client au même endroit.</p></div><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg> Pipeline & relances</h4><p>Valeur, probabilité, prochaine action et échéance de chaque opportunité. Rien ne tombe dans l’oubli.</p></div><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6v20h12V8zM14 2v6h6M9 13h6M9 17h6"/></svg> Bibliothèque commerciale</h4><p>Proposition de services, devis, bon de commande, contrat, avenant, lettre de relance.</p></div><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM8.5 12l2.5 2.5 4.5-5"/></svg> Contrats & qualité</h4><p>Suivez vos clients signés : sites, niveaux de service, contrôles qualité.</p></div><div class="card card--sm"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/></svg> Vos indicateurs</h4><p>Rendez-vous, visites, propositions, taux de transformation : objectifs fixés avec la direction.</p></div></div>
+  <h3 class="h3">Votre routine</h3>
+  <div class="grid3"><div class="card card--line"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM16 3v4M8 3v4M3 10h18"/></svg> Chaque jour</h4><ul class="dots"><li>Traiter les demandes digitales du site</li><li>Saisir rendez-vous, visites et appels</li><li>Mettre à jour l’étape des opportunités</li></ul></div><div class="card card--line"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM16 3v4M8 3v4M3 10h18"/></svg> Chaque semaine</h4><ul class="dots"><li>Revoir le pipeline et les échéances</li><li>Planifier les visites techniques</li><li>Relancer les propositions de plus de 7 jours</li></ul></div><div class="card card--line"><h4><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v16H3zM16 3v4M8 3v4M3 10h18"/></svg> Chaque mois</h4><ul class="dots"><li>Faire le bilan avec la direction</li><li>Analyser les motifs de perte</li><li>Rendre visite aux clients signés</li></ul></div></div>
+  <p class="note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5B6678" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg> Le guide d’utilisation de l’application (Guide-utilisateurs-NECS.pdf, chapitre Commercial) détaille chaque écran.</p>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>16</b></footer></section>
+<section class="page "><header class="rh"><span><img src="../../web/public/images/logo-necs.png" alt=""/>Guide commercial</span><span>Le kit du commercial</span></header><div class="fit">
+    <div class="ch"><span class="ch__n">14</span><div><p class="kicker">Sur le terrain</p><h2>Le kit du commercial <span class="serif">et les règles d’or</span></h2></div></div>
+    
+  <div class="split split--even">
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1570B8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v13H3zM8 7V4h8v3M3 13h18"/></svg> Dans votre sac</h4><ul class="checks"><li><i></i>Flyers NECS (recto / verso)</li><li><i></i>Cartes de visite</li><li><i></i>Téléphone chargé : espace commercial et démo prêts</li><li><i></i>Fiche visite technique imprimée (chapitre 9)</li><li><i></i>Mètre ou télémètre laser</li><li><i></i>Carnet et stylo</li><li><i></i>EPI si visite de site industriel</li></ul></div>
+    <div class="card"><h4><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E8A33D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></svg> Attitude</h4><ul class="dots"><li>Arriver 10 minutes en avance, tenue soignée</li><li>Écouter plus que parler, reformuler avant de proposer</li><li>Prendre des photos seulement avec l’accord du client</li><li>Envoyer un compte rendu le jour même</li><li>Tenir chaque promesse, même petite : rappeler à l’heure dite</li></ul></div>
+  </div>
+  <div class="gold">
+    <p class="kicker kicker--light">Les 5 règles d’or</p>
+    <ol><li>Écouter avant de proposer.</li><li>Ne jamais annoncer de prix sans visite technique.</li><li>Toujours montrer la preuve digitale.</li><li>Toujours finir par une date : rendez-vous, visite ou démarrage.</li><li>Tout saisir dans l’application, le jour même.</li></ol>
+  </div>
+  <div class="contactbox">
+    <img src="../../web/public/images/logo-necs.png" alt="NECS"/>
+    <div><p class="kicker">Contacts NECS</p><p class="contactbox__l"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg> +237 641 33 55 53 &nbsp;·&nbsp; <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18v14H3zM21 7l-9 6-9-6"/></svg> contact@necs-cm.com &nbsp;·&nbsp; <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20zM2 12h20M12 2c3 3 3 17 0 20M12 2c-3 3-3 17 0 20"/></svg> servicesnecs.vercel.app</p><p class="small">Yaoundé, Douala et environs · Lun – Ven · 08h00 – 17h30</p></div>
+  </div>
+  <figure class="quote">
+    <img src="../../web/public/images/necs-activite-bureaux.jpg" alt=""/>
+    <figcaption><p class="serif">« La propreté est le premier signal de confiance qu’un lieu envoie. »</p><span>Notre conviction, à porter à chaque rendez-vous</span></figcaption>
+  </figure>
+</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>17</b></footer></section></body></html>
