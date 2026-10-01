@@ -2,6 +2,7 @@
  * Guide commercial + flyer NECS
  *   → docs/Guide-commercial-NECS.pdf (A4, document interne)
  *   → docs/Flyer-NECS.pdf (A4 recto / verso, à remettre au client)
+ * QR code vers https://servicesnecs.com (dépendance de dev « qrcode » de web/)
  * Usage (depuis web/) : node ../docs/guide-commercial/build.cjs [--png]
  */
 const fs = require("fs");
@@ -9,13 +10,43 @@ const os = require("os");
 const path = require("path");
 const { pathToFileURL } = require("url");
 const { chromium } = require(path.join(__dirname, "..", "..", "web", "node_modules", "@playwright/test"));
+const QRCode = require(path.join(__dirname, "..", "..", "web", "node_modules", "qrcode"));
 
 const IMG = (name) => `../../web/public/images/${name}`;
 const CAP = (name) => `../guide-utilisateurs/captures/${name}`;
 const DATE = new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 const TEL = "+237 641 33 55 53";
+const TEL_HREF = "tel:+237641335553";
+const WA_HREF = "https://wa.me/237641335553";
 const MAIL = "contact@necs-cm.com";
-const SITE = "servicesnecs.vercel.app";
+const SITE = "servicesnecs.com";
+const SITE_URL = "https://servicesnecs.com";
+
+/* ---------- QR code du site ---------- */
+const QR = QRCode.create(SITE_URL, { errorCorrectionLevel: "H" });
+function qrSvg(px, dark = "#06152E") {
+  const n = QR.modules.size;
+  const at = (x, y) => QR.modules.data[y * n + x];
+  const inFinder = (x, y) => (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+  const hole = Math.round(n * 0.22) | 1;
+  const h0 = (n - hole) / 2;
+  const inHole = (x, y) => x >= h0 && x < h0 + hole && y >= h0 && y < h0 + hole;
+  let dots = "";
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    if (at(x, y) && !inFinder(x, y) && !inHole(x, y)) dots += `<rect x="${x + 0.04}" y="${y + 0.04}" width="0.92" height="0.92" rx="0.3"/>`;
+  }
+  const finder = (x, y) => `<path fill-rule="evenodd" d="M${x + 2} ${y}h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2zM${x + 2} ${y + 1}a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1z"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" rx="0.9"/>`;
+  const c = n / 2;
+  const s = hole - 1;
+  return `<svg class="qr" width="${px}" height="${px}" viewBox="0 0 ${n} ${n}" fill="${dark}" shape-rendering="geometricPrecision">
+    <defs><linearGradient id="qrg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1570B8"/><stop offset="1" stop-color="#5FBF45"/></linearGradient></defs>
+    ${dots}${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}
+    <rect x="${c - s / 2}" y="${c - s / 2}" width="${s}" height="${s}" rx="${s * 0.28}" fill="url(#qrg)"/>
+    <g transform="translate(${c - s * 0.32} ${c - s * 0.32}) scale(${(s * 0.64) / 24})" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 4 13c0-6 7-10 16-10 0 9-4 17-9 17zM4 21c3-6 7-9 12-11"/></g>
+  </svg>`;
+}
+const qrCard = (px, label = "Scannez pour visiter", cls = "") =>
+  `<a class="qrcard ${cls}" href="${SITE_URL}"><span class="qrcard__code">${qrSvg(px)}</span><span class="qrcard__txt"><small>${label}</small><b>${SITE}</b></span></a>`;
 
 /* ---------- Icônes ---------- */
 const ICONS = {
@@ -400,7 +431,8 @@ chapter("Le kit du commercial", "Sur le terrain", "Le kit du commercial <span cl
   </div>
   <div class="contactbox">
     <img src="${IMG("logo-necs.png")}" alt="NECS"/>
-    <div><p class="kicker">Contacts NECS</p><p class="contactbox__l">${icon("phone", 14)} ${TEL} &nbsp;·&nbsp; ${icon("mail", 14)} ${MAIL} &nbsp;·&nbsp; ${icon("globe", 14)} ${SITE}</p><p class="small">Yaoundé, Douala et environs · Lun – Ven · 08h00 – 17h30</p></div>
+    <div class="contactbox__c"><p class="kicker">Contacts NECS</p><p class="contactbox__l"><a href="${TEL_HREF}">${icon("phone", 14, "#1570B8")} ${TEL}</a><a href="mailto:${MAIL}">${icon("mail", 14, "#1570B8")} ${MAIL}</a><a href="${SITE_URL}">${icon("globe", 14, "#1570B8")} ${SITE}</a></p><p class="small">Yaoundé, Douala et environs · Lun – Ven · 08h00 – 17h30</p></div>
+    ${qrCard(78, "Site NECS")}
   </div>
   <figure class="quote">
     <img src="${IMG("necs-activite-bureaux.jpg")}" alt=""/>
@@ -414,29 +446,35 @@ const toc = chapters.map((c, i) => {
   return { ...c, num: chapterNum, page: i + 3 };
 });
 const tocUnique = toc.filter((c, i) => i === 0 || c.title !== toc[i - 1].title);
+const TOTAL_PAGES = chapters.length + 3;
+const pad = (n) => String(n).padStart(2, "0");
 
 const guidePages = [];
 guidePages.push(`
-<section class="page g-cover">
+<section class="page g-cover" id="p1">
   <img class="g-cover__bg" src="${IMG("necs-hero.jpg")}" alt=""/>
   <div class="g-cover__shade"></div>
-  <div class="g-cover__top"><div class="logo-card"><img src="${IMG("logo-necs.png")}" alt="NECS"/></div><span class="tag">Document interne</span></div>
+  <div class="g-cover__grid"></div>
+  <div class="g-cover__top"><div class="logo-card"><img src="${IMG("logo-necs.png")}" alt="NECS"/></div><div class="g-cover__tags"><span class="tag">Édition ${DATE}</span><span class="tag tag--warn">${icon("lock", 12, "#E8A33D", 2.2)} Document interne</span></div></div>
   <div class="g-cover__body">
-    <p class="kicker kicker--light">Guide commercial · ${DATE}</p>
+    <p class="kicker kicker--light">Guide commercial</p>
     <h1>Présenter NECS.<br/><span class="serif grad">Convaincre. Signer.</span></h1>
     <p>Le kit de l’équipe commerciale : pitch, offre par secteur, arguments, preuve digitale, objections, scripts et cycle de vente.</p>
-    <div class="g-cover__chips">${[["Propreté", "drop"], ["Rigueur", "check"], ["Confiance", "shield"]].map(([t, i]) => `<span>${icon(i, 14, "#8FD14A", 2.2)} ${t}</span>`).join("")}</div>
+  </div>
+  <div class="g-cover__bar">
+    <div class="g-cover__meta">${[[pad(tocUnique.length), "chapitres"], [pad(SECTORS.length), "secteurs couverts"], ["06", "scripts prêts à l’emploi"]].map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+    ${qrCard(86, "Le site à montrer au client", "qrcard--glass")}
   </div>
 </section>`);
 
 guidePages.push(page(2, "Sommaire", `
-  <div class="ch"><div><p class="kicker">Sommaire</p><h2>Tout ce qu’il faut pour <span class="serif">vendre NECS</span></h2></div></div>
+  <div class="ch"><div><p class="kicker">Sommaire</p><h2>Tout ce qu’il faut pour <span class="serif">vendre NECS</span></h2><p class="lead">Chaque ligne est cliquable dans le PDF. Depuis n’importe quelle page, l’en-tête ramène au sommaire.</p></div></div>
   <div class="toc-wrap">
-    <ol class="toc">${tocUnique.map((c) => `<li><span class="toc__n">${String(c.num).padStart(2, "0")}</span><span class="toc__t">${c.title}</span><i></i><span class="toc__p">${c.page}</span></li>`).join("")}</ol>
+    <ol class="toc">${tocUnique.map((c) => `<li><a href="#p${c.page}"><span class="toc__n">${pad(c.num)}</span><span class="toc__t">${c.title}<small>${c.kicker}</small></span><i></i><span class="toc__p">p. ${c.page}</span></a></li>`).join("")}</ol>
     <aside class="toc-side">
       <div class="card card--dark"><h4>${icon("star", 17, "#8FD14A")} Comment utiliser ce guide</h4><p>Lisez-le une fois en entier. Ensuite, gardez-le sur votre téléphone : avant chaque rendez-vous, relisez le chapitre du secteur visé, les objections et le script dont vous avez besoin.</p></div>
       <div class="card"><h4>${icon("file", 17, "#1570B8")} À remettre au client</h4><p>Ce guide est <b>interne</b>. Au client, remettez le <b>flyer NECS</b> (Flyer-NECS.pdf), imprimé recto verso ou envoyé par WhatsApp.</p></div>
-      <figure class="photo"><img src="${IMG("necs-blog-2.jpg")}" alt=""/></figure>
+      <div class="card card--qr">${qrCard(96, "Faites scanner le site")}<p>Pendant un rendez-vous, faites scanner ce code au client : il arrive directement sur ${SITE}.</p></div>
     </aside>
   </div>
   <div class="journey">
@@ -454,12 +492,39 @@ guidePages.push(page(2, "Sommaire", `
 
 toc.forEach((c) => {
   guidePages.push(page(c.page, c.title, `
-    <div class="ch"><span class="ch__n">${String(c.num).padStart(2, "0")}</span><div><p class="kicker">${c.kicker}</p><h2>${c.heading}</h2>${c.lead ? `<p class="lead">${c.lead}</p>` : ""}</div></div>
-    ${c.body}`, c.cls));
+    <div class="ch"><span class="ch__n">${pad(c.num)}</span><div><p class="kicker">${c.kicker}</p><h2>${c.heading}</h2>${c.lead ? `<p class="lead">${c.lead}</p>` : ""}</div></div>
+    ${c.body}`, c.cls, c.num));
 });
 
-function page(n, title, body, cls = "") {
-  return `<section class="page ${cls}"><header class="rh"><span><img src="${IMG("logo-necs.png")}" alt=""/>Guide commercial</span><span>${title}</span></header><div class="fit">${body}</div><footer class="rf"><span>NECS · Document interne, ne pas remettre au client</span><b>${String(n).padStart(2, "0")}</b></footer></section>`;
+guidePages.push(`
+<section class="page g-back" id="p${TOTAL_PAGES}">
+  <img class="g-back__bg" src="${IMG("necs-objectif.jpg")}" alt=""/>
+  <div class="g-back__shade"></div>
+  <div class="g-back__body">
+    <div class="logo-card"><img src="${IMG("logo-necs.png")}" alt="NECS"/></div>
+    <p class="g-back__quote serif">Des espaces propres.<br/>Un service rigoureux.<br/><span class="grad">Une confiance durable.</span></p>
+    <div class="g-back__qr">
+      <span class="g-back__code">${qrSvg(170)}</span>
+      <div><p class="kicker kicker--light">Le site NECS</p><a class="g-back__site" href="${SITE_URL}">${SITE}</a><p>Devis gratuit, demande de visite technique, présentation des services : tout ce que le client doit voir après votre rendez-vous.</p></div>
+    </div>
+    <div class="g-back__contacts">
+      <a href="${TEL_HREF}">${icon("phone", 15, "#8FD14A")} ${TEL}</a>
+      <a href="${WA_HREF}">${icon("chat", 15, "#8FD14A")} WhatsApp</a>
+      <a href="mailto:${MAIL}">${icon("mail", 15, "#8FD14A")} ${MAIL}</a>
+    </div>
+    <div class="g-back__stats">${STATS.map(([v, l]) => `<div><b>${v}</b><span>${l}</span></div>`).join("")}</div>
+    <div class="g-back__pics">${["necs-activite-bureaux.jpg", "necs-activite-industrie.jpg", "necs-activite-commerce.jpg", "necs-blog-2.jpg"].map((f) => `<img src="${IMG(f)}" alt=""/>`).join("")}</div>
+  </div>
+  <p class="g-back__foot">NECLEANING & SERVICES SARL · Yaoundé, Douala et environs · Document interne, ne pas remettre au client</p>
+</section>`);
+
+function page(n, title, body, cls = "", num = 0) {
+  const rail = tocUnique.map((c) => `<a href="#p${c.page}" class="${c.num === num ? "on" : c.num < num ? "done" : ""}"></a>`).join("");
+  return `<section class="page ${cls}" id="p${n}">
+  <header class="rh"><a class="rh__brand" href="#p1"><img src="${IMG("logo-necs.png")}" alt=""/><span>Guide commercial</span></a><div class="rh__rail">${rail}</div><a class="rh__toc" href="#p2">${num ? `<em>${pad(num)}</em>` : ""}${title}${num ? `<span>${icon("arrow", 10, "currentColor", 2.4)} Sommaire</span>` : ""}</a></header>
+  <div class="fit">${body}</div>
+  <footer class="rf"><span>${icon("lock", 10, "#98A2B3", 2.2)} NECS · Document interne, ne pas remettre au client</span><a href="${SITE_URL}">${icon("globe", 10, "#1570B8", 2)} ${SITE}</a><b>${pad(n)}<small> / ${pad(TOTAL_PAGES)}</small></b></footer>
+</section>`;
 }
 
 /* ================= FLYER ================= */
@@ -493,8 +558,9 @@ const flyerPages = [`
     ["shield", "Paiement simple", "En francs CFA : virement ou Mobile Money"],
   ].map(([i, t, d]) => `<div><span>${icon(i, 17, "#1F6B3A", 2)}</span><p><b>${t}</b>${d}</p></div>`).join("")}</div>
   <div class="fl-contact">
-    <div><p>Demandez votre visite technique gratuite</p><b>${icon("phone", 20, "#8FD14A", 2)} ${TEL}</b></div>
-    <div class="fl-contact__r"><span>${icon("chat", 14, "#8FD14A")} WhatsApp ${TEL}</span><span>${icon("mail", 14, "#8FD14A")} ${MAIL}</span><span>${icon("globe", 14, "#8FD14A")} ${SITE}</span></div>
+    <div class="fl-contact__l"><p>Demandez votre visite technique gratuite</p><a href="${TEL_HREF}"><b>${icon("phone", 22, "#8FD14A", 2)} ${TEL}</b></a></div>
+    <div class="fl-contact__r"><a href="${WA_HREF}">${icon("chat", 14, "#8FD14A")} WhatsApp ${TEL}</a><a href="mailto:${MAIL}">${icon("mail", 14, "#8FD14A")} ${MAIL}</a><a href="${SITE_URL}">${icon("globe", 14, "#8FD14A")} ${SITE}</a></div>
+    ${qrCard(92, "Scannez · devis en ligne", "qrcard--tile")}
   </div>
 </section>`, `
 <section class="page fl fl-verso">
@@ -519,8 +585,9 @@ const flyerPages = [`
     </div>
   </div>
   <div class="fl-cta">
-    <div class="fl-cta__l"><h3>Parlons de <span class="serif">vos locaux.</span></h3><p>${icon("phone", 14, "#1570B8")} ${TEL} &nbsp; ${icon("mail", 14, "#1570B8")} ${MAIL}<br/>${icon("globe", 14, "#1570B8")} ${SITE} &nbsp; ${icon("clock", 14, "#1570B8")} Lun – Ven · 08h00 – 17h30</p></div>
+    <div class="fl-cta__l"><h3>Parlons de <span class="serif">vos locaux.</span></h3><p><a href="${TEL_HREF}">${icon("phone", 13, "#1570B8")} ${TEL}</a><a href="mailto:${MAIL}">${icon("mail", 13, "#1570B8")} ${MAIL}</a><a href="${SITE_URL}">${icon("globe", 13, "#1570B8")} ${SITE}</a><span>${icon("clock", 13, "#1570B8")} Lun – Ven · 08h00 – 17h30</span></p></div>
     <div class="fl-cta__r"><p>Votre conseiller NECS</p><i></i><p>Téléphone</p><i></i></div>
+    <a class="fl-cta__qr" href="${SITE_URL}">${qrSvg(104)}<span>${SITE}</span></a>
   </div>
 </section>`];
 
@@ -870,6 +937,132 @@ ul,ol{list-style:none}
 .quote figcaption{position:absolute;inset:0;background:linear-gradient(90deg,rgba(6,21,46,.92),rgba(6,21,46,.45));display:flex;flex-direction:column;justify-content:center;padding:0 28px;color:#fff}
 .quote p{font-size:24px;line-height:1.2;max-width:520px}
 .quote span{font:600 9.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--lagoon);margin-top:10px}
+
+/* ===== Couche premium ===== */
+a{color:inherit;text-decoration:none}
+.page{background:radial-gradient(520px 380px at 104% -4%,rgba(62,200,232,.09),transparent 62%),radial-gradient(460px 360px at -6% 104%,rgba(143,209,74,.08),transparent 62%),#fff}
+.kicker{display:flex;align-items:center;gap:8px}
+.kicker::before{content:"";flex:0 0 16px;height:2px;border-radius:2px;background:linear-gradient(90deg,#3EC8E8,#8FD14A)}
+.promise .kicker{justify-content:center}
+
+/* En-tête avec progression */
+.rh{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;letter-spacing:.07em;font-size:8.5px}
+.rh__brand{display:flex;align-items:center;gap:8px}
+.rh__rail{display:flex;gap:3px;align-items:center}
+.rh__rail a{width:9px;height:4px;border-radius:3px;background:#E3E8EF}
+.rh__rail a.done{background:#B9DDF0}
+.rh__rail a.on{width:24px;background:linear-gradient(90deg,#3EC8E8,#8FD14A)}
+.rh__toc{justify-self:end;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.rh__toc em{font:600 9px Outfit;font-style:normal;color:#fff;background:var(--mid);border-radius:6px;padding:2px 6px;letter-spacing:.02em}
+.rh__toc span{display:flex;gap:4px;align-items:center;color:var(--azur);border-left:1px solid var(--line);padding-left:7px}
+.rh__toc span svg{transform:rotate(-90deg)}
+.rf span,.rf a{display:flex;align-items:center;gap:5px}
+.rf a{color:var(--azur);font-weight:600}
+.rf b small{font:500 9px Inter;color:#98A2B3}
+
+/* Titres de chapitre */
+.ch{position:relative;padding-bottom:16px;margin-bottom:20px}
+.ch::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,#3EC8E8,#8FD14A 110px,#E3E8EF 110px)}
+.ch__n{font-size:66px;line-height:.86;min-width:74px;background:linear-gradient(160deg,#3EC8E8 10%,#1570B8 55%,#8FD14A);-webkit-background-clip:text;background-clip:text;color:transparent;padding-right:4px}
+.ch h2{font-size:27px;letter-spacing:-.025em;text-wrap:balance}
+.lead{text-wrap:pretty}
+.ch h2 .serif{font-size:31px}
+
+/* Cartes premium */
+.card,.arg,.s5,.obj,.script,.hook,.of,.cy__body,.level,.fw,.hs,.tip,.flow__s,.sector,.benef,.tbl{background:#fff;border:1px solid #E5EAF1;box-shadow:0 1px 2px rgba(6,21,46,.04),0 16px 32px -24px rgba(6,21,46,.32)}
+.obj{border-left:3px solid var(--azur)}
+.of{border-left:3px solid var(--leaf)}
+.s5,.flow__s,.hs{background:linear-gradient(180deg,#fff,#F8FAFC)}
+.hook{background:linear-gradient(135deg,#fff,#F4F9FD)}
+.card--warn{background:#FFF8F7;border-color:#F6D5D1}
+.card--dark,.level.on{background:radial-gradient(260px 160px at 100% 0%,rgba(62,200,232,.25),transparent 65%),linear-gradient(155deg,#0B3468,#06152E 72%);border-color:transparent}
+.signals{border:1px solid #CFEAC3}
+.arg__ic,.fw>span,.journey__s>span{background:linear-gradient(140deg,#1C86D1,#0A3A72);box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 10px 18px -10px rgba(21,112,184,.7)}
+.pf>span{background:linear-gradient(140deg,#E6F3FB,#EDF8E5);box-shadow:inset 0 0 0 1px #DCEAF3}
+.tbl th,.benef__h{background:linear-gradient(90deg,#06152E,#0B3468)}
+.photo,.shot,.quote,.sector figure{box-shadow:0 18px 34px -24px rgba(6,21,46,.55)}
+.photo{outline:1px solid rgba(6,21,46,.06);outline-offset:-1px}
+
+/* Blocs sombres lumineux */
+.pitch,.statband,.demo,.gold,.journey,.fl-proof{background:radial-gradient(420px 220px at 100% 0%,rgba(62,200,232,.24),transparent 62%),radial-gradient(380px 220px at 0% 100%,rgba(143,209,74,.15),transparent 62%),linear-gradient(150deg,#0B2D5A,#06152E 62%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06),0 26px 44px -30px rgba(6,21,46,.8)}
+.fl-contact{background:radial-gradient(420px 200px at 100% 0%,rgba(62,200,232,.22),transparent 62%),linear-gradient(150deg,#0B2D5A,#06152E 62%)}
+
+/* Sommaire */
+.toc li{display:block;padding:0;border-bottom:1px solid var(--line)}
+.toc li a{display:flex;align-items:center;gap:12px;padding:8px 2px}
+.toc__n{width:34px}
+.toc__t small{display:block;font:500 8.5px Inter;letter-spacing:.12em;text-transform:uppercase;color:#98A2B3;margin-top:2px}
+.toc i{flex:1;align-self:center;border-bottom:1px dotted #CBD3DD;margin:0 4px}
+.toc__p{font:600 10px Outfit;color:var(--navy);background:#EAF3FA;border-radius:999px;padding:3px 9px}
+
+/* QR code */
+.qr{display:block}
+.qrcard{display:flex;align-items:center;gap:12px}
+.qrcard__code{display:block;line-height:0;background:#fff;border-radius:14px;padding:10px;border:1px solid #E5EAF1;box-shadow:0 12px 26px -16px rgba(6,21,46,.55)}
+.qrcard__txt small{display:block;font:600 8.5px Inter;letter-spacing:.14em;text-transform:uppercase;color:var(--slate);margin-bottom:3px}
+.qrcard__txt b{display:block;font:600 15px Outfit;color:var(--mid);letter-spacing:-.01em}
+.qrcard--glass .qrcard__code{border:0}
+.qrcard--glass .qrcard__txt small{color:rgba(255,255,255,.6)}
+.qrcard--glass .qrcard__txt b{color:#fff;font-size:18px}
+.qrcard--tile{flex-direction:column;gap:7px}
+.qrcard--tile .qrcard__code{padding:8px;border:0}
+.qrcard--tile .qrcard__txt small{color:rgba(255,255,255,.7);margin:0;text-align:center}
+.qrcard--tile .qrcard__txt b{display:none}
+.card--qr{background:linear-gradient(140deg,#F2F8FC,#F2FAEC);border-color:#DCEAF3}
+.card--qr p{margin-top:10px;font-size:10px}
+
+/* Couverture */
+.g-cover__grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:48px 48px;-webkit-mask-image:linear-gradient(180deg,transparent 40%,#000 75%);mask-image:linear-gradient(180deg,transparent 40%,#000 75%)}
+.g-cover__tags{display:flex;gap:8px}
+.tag--warn{display:flex;gap:6px;align-items:center;border-color:rgba(232,163,61,.55);color:#F5C67D}
+.g-cover__body{bottom:236px}
+.g-cover__bar{position:absolute;left:52px;right:52px;bottom:52px;display:flex;justify-content:space-between;align-items:center;gap:24px;padding:18px 20px 18px 26px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px)}
+.g-cover__meta{display:grid;grid-template-columns:repeat(3,auto);gap:34px}
+.g-cover__meta b{display:block;font:600 34px/1 Outfit;background:linear-gradient(90deg,#3EC8E8,#8FD14A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.g-cover__meta span{display:block;font-size:10.5px;color:rgba(255,255,255,.7);margin-top:5px}
+
+/* Quatrième de couverture */
+.g-back{padding:0;background:var(--mid);color:#fff}
+.g-back__bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32}
+.g-back__shade{position:absolute;inset:0;background:radial-gradient(520px 360px at 100% 0%,rgba(62,200,232,.28),transparent 62%),radial-gradient(520px 360px at 0% 100%,rgba(143,209,74,.18),transparent 62%),linear-gradient(180deg,rgba(6,21,46,.55),rgba(6,21,46,.96) 62%)}
+.g-back__body{position:absolute;left:60px;right:60px;top:84px}
+.g-back__quote{font-size:56px;line-height:1.04;margin:56px 0 60px}
+.g-back__qr{display:flex;gap:26px;align-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:26px;padding:22px}
+.g-back__code{flex:0 0 auto;line-height:0;background:#fff;border-radius:20px;padding:14px}
+.g-back__site{display:block;font:600 32px Outfit;letter-spacing:-.02em;margin:2px 0 8px}
+.g-back__qr p:last-child{font-size:12px;color:rgba(255,255,255,.72);line-height:1.6}
+.g-back__contacts{display:flex;gap:10px;margin-top:22px}
+.g-back__contacts a{display:flex;gap:8px;align-items:center;height:42px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);font:600 13px Outfit}
+.g-back__stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:30px;padding:18px 0;border-top:1px solid rgba(255,255,255,.12);border-bottom:1px solid rgba(255,255,255,.12)}
+.g-back__stats div{padding-left:16px;border-left:1px solid rgba(255,255,255,.12)}
+.g-back__stats div:first-child{padding-left:0;border-left:0}
+.g-back__stats b{display:block;font:600 28px/1 Outfit;background:linear-gradient(90deg,#3EC8E8,#8FD14A);-webkit-background-clip:text;background-clip:text;color:transparent}
+.g-back__stats span{display:block;font-size:10px;color:rgba(255,255,255,.62);margin-top:5px}
+.g-back__pics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:24px}
+.g-back__pics img{width:100%;height:118px;object-fit:cover;border-radius:16px;box-shadow:0 18px 30px -20px rgba(0,0,0,.8);outline:1px solid rgba(255,255,255,.1);outline-offset:-1px}
+.g-back__foot{position:absolute;left:60px;right:60px;bottom:36px;font-size:9px;letter-spacing:.06em;color:rgba(255,255,255,.45)}
+
+/* Kit : contacts */
+.contactbox{background:#fff;box-shadow:0 16px 32px -24px rgba(6,21,46,.32)}
+.contactbox__c{flex:1}
+.contactbox__l{gap:4px 14px}
+.contactbox__l a{display:flex;gap:5px;align-items:center}
+
+/* Flyer premium */
+.fl-hero{height:500px}
+.fl-stats{border:1px solid #E5EAF1;box-shadow:0 2px 4px rgba(6,21,46,.04),0 30px 50px -26px rgba(6,21,46,.5)}
+.fl-stats b{background:linear-gradient(90deg,#0A3A72,#1570B8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.fl-sect span{background:#fff;box-shadow:0 6px 14px -10px rgba(6,21,46,.35)}
+.fl-contact{height:154px;display:grid;grid-template-columns:auto 1fr auto;gap:30px}
+.fl-contact__l a{display:block}
+.fl-contact__r a{display:flex;gap:7px;align-items:center}
+.fl-tiles article{height:150px;box-shadow:0 14px 26px -20px rgba(6,21,46,.6)}
+.fl-cta h3{white-space:nowrap;font-size:19px}
+.fl-cta{grid-template-columns:1.4fr .9fr auto;gap:22px;padding:16px 18px 16px 22px;background:#fff;box-shadow:0 16px 32px -24px rgba(6,21,46,.32)}
+.fl-cta__l p{display:flex;flex-direction:column;gap:3px;line-height:1.45;font-size:10.5px}
+.fl-cta__l p>a,.fl-cta__l p>span{display:flex;gap:6px;align-items:center}
+.fl-cta__qr{display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 9px 7px;border-radius:16px;border:1px solid #E5EAF1;background:#fff;box-shadow:0 12px 26px -16px rgba(6,21,46,.5)}
+.fl-cta__qr span{font:600 9px Outfit;color:var(--mid);letter-spacing:.02em}
 `;
 
 const doc = (title, pages) => `<!doctype html><html lang="fr"><head><meta charset="utf-8"/><title>${title}</title><style>${CSS}</style></head><body>${pages.join("\n")}</body></html>`;
